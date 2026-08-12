@@ -1,33 +1,39 @@
-# Castillians Platform — prototype & handoff
+# Castillians Platform — design specs & prototype
 
-Everything an engineer needs to build the Engineer Dashboard, without needing access to the
-design tool.
+Everything an engineer needs to build the Engineer Dashboard.
+
+```
+prototype/index.html                  the prototype — open in any browser, no build step
+specs/ENGINEERING-BRIEF.md            whole-platform spec: 25 numbered BE rules, integrations
+specs/SD-3453-tabs-overview/FE.md     Angular code
+specs/SD-3453-tabs-overview/BE.md     endpoints, payloads, test cases
+specs/SD-3455-log-hours/
+specs/SD-3456-entries/
+specs/SD-3458-invoices/
+```
+
+Every path above is **stable**. Files are updated in place, never renamed or moved, so a Jira
+ticket that points at `specs/SD-3455-log-hours/FE.md` stays correct however many times the
+content is revised.
 
 ---
 
 ## The prototype
 
-**`prototype-standalone.html`** — one self-contained file, 2.1 MB. Fonts, styles, design-system
-bundle and all assets are inlined, so it runs offline with no build step and no server.
+`prototype/index.html` is self-contained — fonts, styles and assets are inlined, so it runs
+offline with nothing to install.
 
-Open it in any browser. Use the header toggle to switch between the **Engineer**, **Internal**
-and **Manager** dashboards.
+**GitHub will not run it.** Click the file, then **Download raw file**, and open the saved copy
+in a browser. Use the header toggle to switch between the **Engineer**, **Internal** and
+**Manager** dashboards.
 
-Ways to make it available to the team:
+### What it is, and what to take from it
 
-| Route | How |
-|---|---|
-| **Commit it** | Drop it in the repo — e.g. `/design/engineer-dashboard/` — and it is versioned alongside the code, readable by Claude Code in place |
-| **Share the file** | Email or Slack it; it works on open, nothing to install |
-| **Host it** | Any static host, or GitHub Pages straight from the repo |
+The prototype is a single HTML file on a small template runtime. Control flow is `<sc-for>` /
+`<sc-if>` rather than `*ngFor` / `*ngIf`, styles are inline attributes, and state lives in one
+logic class. It is **not** Angular and does not paste across.
 
-### Reading the source
-
-The prototype is a Design Component — a single HTML file on a small template runtime. Control
-flow is `<sc-for>` / `<sc-if>` rather than `*ngFor` / `*ngIf`, styles are inline attributes, and
-state lives in one logic class. It is **not** Angular and does not paste across.
-
-What **does** transfer, and is authoritative:
+What **is** authoritative in it:
 
 - **Every value** — hex codes, font sizes and weights, padding, radii, the
   `300ms cubic-bezier(0.35,0,0.25,1)` easing, the capacity colour bands
@@ -36,43 +42,24 @@ What **does** transfer, and is authoritative:
 - **The business rules** — pro-rated first period, the authorised-block-replaces-tolerance
   ceiling, the same-or-fewer-hours edit that must fire nothing
 
-Use the **FE doc** as the code to write, and the prototype as the reference beside it.
+Write from the **FE doc**; keep the prototype open beside it.
 
 ---
 
-## Story bundles
+## Stories
 
-| Bundle | Story | Covers |
+| Spec folder | Jira | Covers |
 |---|---|---|
-| `SD-3453/` | [SD-3453](https://castille-labs.atlassian.net/browse/SD-3453) | Virtual Bench tabs & Overview — the page frame |
-| `SD-3455/` | [SD-3455](https://castille-labs.atlassian.net/browse/SD-3455) | Log Hours — the form |
-| `SD-3456/` | [SD-3456](https://castille-labs.atlassian.net/browse/SD-3456) | Entries — list, calendar, edit history |
+| `SD-3453-tabs-overview/` | [SD-3453](https://castille-labs.atlassian.net/browse/SD-3453) | Bench tabs & Overview — the `/work-log` page frame |
+| `SD-3455-log-hours/` | [SD-3455](https://castille-labs.atlassian.net/browse/SD-3455) | Log Hours — the form |
+| `SD-3456-entries/` | [SD-3456](https://castille-labs.atlassian.net/browse/SD-3456) | Entries — list, calendar, edit history |
+| `SD-3458-invoices/` | [SD-3458](https://castille-labs.atlassian.net/browse/SD-3458) | Invoices — the `/invoices` page |
 
-All three sit under Epic
-[SD-3452](https://castille-labs.atlassian.net/browse/SD-3452).
+All under Epic [SD-3452](https://castille-labs.atlassian.net/browse/SD-3452).
 
-Each bundle contains:
-
-```
-FE-*.md                    Angular components, service, models, SCSS
-BE-*.md                    endpoints, payloads, validation order, data model, test cases
-prototype-standalone.html  the same offline prototype
-prototype/                 the uncompiled source, if you want to read it
-README.md                  where to start on that story
-```
-
----
-
-## Repository
-
-```
-repo:   luigimf/castillians-engine
-branch: main
-```
-
-Empty at the time of writing, so the Angular in the FE docs follows standard conventions rather
-than yours. Once source lands, the docs should be re-pointed at your real module layout, naming
-and styling setup.
+Each folder holds `FE.md` (Angular components, service, models, SCSS) and `BE.md` (endpoints,
+payloads, validation order, data model, test cases). The Jira ticket carries the **FE UX
+requirements**; backend detail lives only in `BE.md`.
 
 ---
 
@@ -80,24 +67,39 @@ and styling setup.
 
 1. **SD-3453 backend first.** The subscription-period engine and capacity logic are shared
    infrastructure — the Internal and Manager dashboards read the same data. Critical path.
-2. **SD-3453 frontend** — the page frame the other two mount into.
-3. **SD-3455 and SD-3456** in either order.
+2. **SD-3453 frontend** — the page frame the others mount into.
+3. **SD-3455, SD-3456, SD-3458** in any order.
 
-Three rules are worth reading before writing any code, because each is easy to get subtly wrong:
+Three rules are worth reading before writing code, because each is easy to get subtly wrong:
 
 - **The pro-rated first period.** A subscription starting mid-month runs to the end of the
-  *following* month, at pro-rated capacity. A subscription starting on the 1st still gets the
-  two-month first period — it is not special-cased. (SD-3453 BE doc, §2)
-- **The authorised block replaces the tolerance.** A 160 h plan with a 40 h authorised overage
-  accepts 200 h, not 232 h. (SD-3455 BE doc, §3)
+  *following* month at pro-rated capacity. Starting on the 1st still gets the two-month first
+  period — it is not special-cased. (`SD-3453-tabs-overview/BE.md`, §2)
+- **The authorised block replaces the tolerance.** A 160h plan with a 40h authorised overage
+  accepts 200h, not 232h. (`SD-3455-log-hours/BE.md`, §3)
 - **A same-or-fewer-hours edit fires nothing.** A description fix is not a new claim: no status
-  change, no email. (SD-3456 BE doc, §2)
+  change, no email. (`SD-3456-entries/BE.md`, §2)
 
 ---
 
-## Full specification
+## Angular conventions
 
-`ENGINEERING-BRIEF.md` in the project root carries the whole platform — 25 numbered backend
-rules (`BE-xx`), integration points (`INT-x`) naming the exact Zoho and Internal Dashboard
-fields each value is read from, all 17 email notifications, and the month-end finance export.
-The story bundles are extracts from it.
+This repo was empty when the FE docs were written, so their Angular follows standard conventions
+rather than ours, and is written version-agnostically — NgModule and standalone registration are
+both shown.
+
+Once real source lands here, the FE docs should be re-pointed at our actual module layout,
+naming and styling setup. Nothing else needs to move.
+
+---
+
+## Repo
+
+https://github.com/luigimf/castillians-engine-engineerdashboard
+
+Every Jira ticket links here and cites its spec folder by path.
+
+## Updating this
+
+When a spec or the prototype changes, the file is replaced at the same path. Jira tickets need no
+edit — they point at folders, not at versions.
