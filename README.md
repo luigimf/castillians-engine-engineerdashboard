@@ -1,0 +1,1 @@
+Design handoff and prototype are in the repo under /handoff. Start with README.md. To view the prototype, download prototype-standalone.html and open it in your browser — GitHub will only show you the code.
