@@ -442,3 +442,37 @@ prototype/                open Castillians Platform.dc.html
 
 In the prototype, switch to the **Engineer** dashboard via the header toggle and open the
 **Work Log** tab. It is the source of truth for anything not spelled out here.
+
+
+---
+
+## Invoicing notice pill
+
+Sits **top-right, aligned with the page title — above the bench tabs**, so it reads at page level rather than per bench. Markup and styling are **identical** to the pill on the Invoices page; a change to one must be applied to the other. See `specs/SD-3458-invoices/FE.md` for the shared markup and the modal it opens.
+
+Keep it to a single line, ~38px tall. An earlier full-height card threw the page layout off and was rejected.
+
+## Managers — plural
+
+`bench.managers` is an **array**. Render all of them horizontally:
+
+```html
+<div class="stat">
+  <span class="stat__label">Managers</span>
+  <div class="managers">
+    <div class="managers__item" *ngFor="let m of bench.managers">
+      <app-avatar [name]="m.name" [size]="32"></app-avatar>
+      <span class="managers__name">{{ m.name }}</span>
+    </div>
+  </div>
+</div>
+```
+
+```scss
+.managers { display: flex; flex-direction: row; align-items: center; gap: 20px; flex-wrap: wrap; margin-top: 8px;
+  &__item { display: flex; align-items: center; gap: 10px; }
+  &__name { font-family: var(--font-display); font-size: 14px; font-weight: 600; line-height: 120%; }
+}
+```
+
+A bench always has at least one manager — it drives the Performance Log — so treat an empty array as a data error rather than rendering nothing.

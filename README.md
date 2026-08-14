@@ -63,6 +63,10 @@ requirements**; backend detail lives only in `BE.md`.
 
 ---
 
+## Email notifications
+
+Flow stories name the emails that fire within them, for awareness only — recipients and timing, not copy. Templates are specified separately in the **Email Notifications** epic.
+
 ## Build order
 
 1. **SD-3453 backend first.** The subscription-period engine and capacity logic are shared

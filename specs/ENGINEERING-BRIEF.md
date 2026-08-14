@@ -20,8 +20,10 @@ These are the existing systems the prototype's data must read from and write bac
 | INT-3 | Zoho CRM | Client record → client type (SI, VAD/VAR, Enterprise) | Read → tags on the Channel page |
 | INT-3b | Zoho CRM | Client record → finance block: Client Code, VBench Code, Entity Code, SFM A/C, Nominal Account (subscription + overage), VAT Code | Read → month-end finance export (BE-23) |
 | INT-3c | SFM | Supplier record → Company Name, SFM A/C, Nominal Account, VAT Code, Payment Type, IBAN, BIC | Read → month-end finance export (BE-23) |
+| **INT-11** | **SFM (Shireburn)** | **Supplier invoice batch upload + supplier/nominal reference data** | **Write + Read → the whole month-end export (BE-22). Replaces the sync our current timesheet system already performs. See §A6.** |
 | INT-4 | Zoho CRM | Contact / account records | Write → org member deletion must delete in Zoho |
 | INT-5 | Internal Dashboard (live) | Manage Subscription modal → `Included Hours` | Read → capacity plan for every dashboard |
+| INT-5b | Internal Dashboard (live) | Manage Subscription modal → per-bench Start Date + Auto-Renew Date, in the `AUTO-RENEW DATE` accordion (BE-07) | Read → billing cycle, capacity and loggable dates, resolved per bench |
 | INT-6 | Internal Dashboard (live) | Manage Subscription modal → `Purchased Hours` | Write ← derived overage writes back here |
 | INT-7 | Internal Dashboard (live) | Manage Subscription modal → `Configured Blended Hourly Rate` | Read → rate shown to Internal + Manager |
 | INT-8 | Internal Dashboard (live) | Manage Subscription modal → Core / Additional Skills | Read → Skills Mix (read-only downstream) |
@@ -87,12 +89,47 @@ For the first three months of a subscription, overage hours bill at **1.25 ×** 
 - Any surface labelled **"Overage rate"** shows the *multiplied* figure (rate × 1.25 while in the promo window), not the raw configured blended rate. The raw rate is only shown where the label says "Blended Hourly Rate".
 - Finance signs off the rule before release (see Risks).
 
-### BE-07 — Auto-renew date
-`autoRenewDate` = the 1st day of the 6th month after the subscription's start month.
+### BE-07 — Auto-renew date, **per Virtual Bench**
+
+Each Virtual Bench carries **its own** subscription period. The account-level Start/Expiration pair is removed — one client's benches may run on entirely different cycles, so their teams can be scaled and renewed independently.
+
+**Current behaviour being replaced.** The Manage Subscription modal (Internal → V Benches → Subscriptions) holds **Start Date** and **Expiration Date** in its *Details* section, applying to every bench on the account. Expiration defaults to 180 days (6 months) from the Start Date, with a **Set as indefinite** checkbox.
+
+**Target behaviour**
+
+| Change | Detail |
+|---|---|
+| **Remove** from *Details* | The account-level Start Date and Expiration Date fields, their helper text, and the **Set as indefinite** checkbox |
+| **Add** per bench | A new **AUTO-RENEW DATE** accordion inside each bench's dropdown in *Activate V Benches*, holding that bench's Start Date and Auto-Renew Date |
+| **Rename** | **Expiration Date → Auto-Renew Date**, everywhere. One field, one name, matching `autoRenewDate` in the API |
+| **Accordion order** | `AUTO-RENEW DATE` → `V BENCH PRICE` → `BLENDED HOURLY RATE` → `MONTHLY ENGINEERING HOURS` → *(remaining accordions unchanged)*. The new one is **first** |
+
+#### Auto-renew date pre-fill
+
+The pre-filled value is the **last day of the sixth full month** after the Start Date. A partial start month does not count as one of the six.
+
+| Start Date | Sixth full month | Pre-filled auto-renew |
+|---|---|---|
+| 13 January | July | **31 July** |
+| 1 March | August | **31 August** |
+| 28 February | August | **31 August** |
+| 15 September | March (next year) | **31 March** |
+
+This aligns renewal with the month-end billing cycle (BE-02), so a period never closes mid-month and no partial month is billed at renewal.
 
 **Acceptance criteria**
-- Start 13 Jun 2025 → auto-renew 1 Dec 2025.
-- Derived, never manually entered.
+- Every bench stores `startDate` and `autoRenewDate` on its own record; nothing reads an account-level pair.
+- The pre-fill is the **last day of the sixth full month** after `startDate`. A start on the 1st still yields six full months — the start month counts only when the subscription begins on its first day.
+- The pre-fill is a **suggestion, not a constraint**. An internal user may change it to **any future date**, month-end or not, and the saved value is used verbatim. The backend validates only that it is in the future and after `startDate` — it never recalculates or corrects a manually set date.
+- Changing `startDate` re-runs the pre-fill **only while the auto-renew date is untouched**. Once edited manually it is sticky, and a later Start Date change must not silently overwrite it.
+- The **Set as indefinite** option moves with the field, per bench. When set, `autoRenewDate` is null and no renewal is scheduled.
+- The existing three-select control (day / month / year) is preserved as-is; only its location and label change.
+- Two benches on one account can hold different periods with no interaction between them.
+- Changing one bench's dates **must not** alter any other bench's period.
+- Everything derived from the subscription period is re-derived **per bench** — the billing cycle and pro-rated first period (BE-02, BE-03), capacity (INT-5), and the engineer's loggable date range (BE-10). A bench's engineers see that bench's period, never the account's.
+- Both dashboards read the per-bench value: the Internal Channel page's Auto-renew row, and the Manager Subscriptions page.
+
+**Migration.** Existing accounts hold one pair covering all their benches. On release, **copy the account-level Start and Expiration onto every bench verbatim** — each bench inherits the same values it was already effectively running on, so no period changes on the day — then drop the account-level columns. Migrated dates are treated as **manually set**, so a later Start Date edit will not re-run the pre-fill over them. A bench left without dates would silently break its billing cycle, capacity resolution and work-log date bounds.
 
 ### BE-08 — Two hourly rates
 | Audience | Rate shown |
@@ -195,11 +232,32 @@ On the **last day of the month**, once all engineer invoices are submitted, an a
 
 `SYSTEMBOOK · BOOK · BATCH · ENTITYCODE · NACCODE · TRANDATE · DUEDATE · TRANTYPE · PAYTYPE · INTREF · INV NO · PAYEE · DETAILS · ANALYSIS · DISCTYPE · DBCR · VATCODE · CURRENCY · AMOUNT · VATAMOUNT · FAMOUNT · FVATAMOUNT`
 
-Observed constants from the sample: `SYSTEMBOOK=P`, `BOOK=P`, `TRANTYPE=IN`, `INTREF=Auto`, `DBCR=C`, `DISCTYPE` blank, `VATAMOUNT/FAMOUNT/FVATAMOUNT=0`. `TRANDATE` = period end date, `INV NO` = `MM/YYYY`, `DETAILS` = `MMM YY`.
+Observed from the supplied template (`SFM Supplier Invoices Upload.xlsx`), single sample row:
+`SYSTEMBOOK=P`, `BOOK=P`, `BATCH=26`, `NACCODE=501006`, `TRANDATE=29/05/2026`, `DUEDATE=21`, `PAYTYPE=24`, `INV NO=05/2026`, `PAYEE=29`, `ANALYSIS=25`, `VATCODE=60`, `CURRENCY=EUR`, `AMOUNT=2646`, `VATAMOUNT/FAMOUNT/FVATAMOUNT=0`. `ENTITYCODE`, `TRANTYPE`, `INTREF`, `DETAILS`, `DISCTYPE` and `DBCR` were **blank**.
 
-**Column sourcing** — `ENTITYCODE` and `NACCODE` vary per client and come from that client's finance record (BE-23); everything above is a fixed constant. `BATCH` is generated per export run. `PAYEE` and `VATCODE` come from the supplier record, `CURRENCY` and `AMOUNT` from the invoice line.
+> ⚠ **Do not treat the sample as a complete contract.** An earlier version of this template carried values for `TRANTYPE`, `INTREF` and `DBCR` that the current one leaves blank, and four cells hold bare integers whose meaning is not self-evident — `DUEDATE=21`, `PAYTYPE=24`, `PAYEE=29`, `ANALYSIS=25`. These look like SFM internal reference codes rather than dates or names. **Confirm every column against a real SFM import before building the generator** (see INT-11).
 
-**Timing** — the export fires on the **last calendar day of the month regardless of pending approvals**. Entries still awaiting approval at that moment are excluded from the run and carry into the next month's export; the email body lists them so Shared Services can see what was held back.
+**Column sourcing** — `ENTITYCODE` and `NACCODE` vary per client and come from that client's finance record (BE-23). `BATCH` is generated per export run. `PAYEE` and `VATCODE` come from the supplier record, `CURRENCY` and `AMOUNT` from the invoice line.
+
+**Timing** — the export fires at **23:59 on the last calendar day of the month**, which is also the work-log cut-off. It runs **regardless of pending approvals**: entries still awaiting approval at 23:59 are excluded from the run and carry into the next month's export; the email body lists them so Shared Services can see what was held back.
+
+**All four month-end emails are sent by the same 23:59 job**, in this order, so the numbers in each reconcile against a single snapshot:
+
+| # | Email | Recipient | Attachment |
+|---|---|---|---|
+| 1 | Payroll checklist | Shared Services | `payroll-checklist-YYYY-MM.csv` |
+| 2 | SFM supplier upload | Shared Services | `sfm-supplier-upload-YYYY-MM.csv` |
+| 3 | Engineer invoicing | Shared Services | `engineer-invoicing-YYYY-MM.csv` |
+| 4 | Client billing | Shared Services | `client-billing-YYYY-MM.csv` |
+
+Plus one per engineer: the auto-submitted invoice copy (BE-24).
+
+**Acceptance criteria for the job**
+- Scheduled at **23:59 local (CET)** on the last calendar day of the month — the same instant the work-log cut-off closes. It must not run before the cut-off, or late entries logged that evening are silently dropped from the period they belong to.
+- All four reports are generated from **one snapshot** taken at 23:59. Generating them sequentially against live state risks an entry landing mid-run and the totals disagreeing between attachments.
+- The job is **idempotent**: re-running it for a closed period reproduces byte-identical files and does not re-send.
+- A failure on any one report does not suppress the others; each is sent independently and failures are alerted.
+- Every report is **also downloadable on demand** for the current or any prior period (BE-25) — Finance is never blocked waiting for the scheduled run. On-demand delivers the CSV directly in the browser; **no email is sent for an on-demand download.**
 
 **Acceptance criteria**
 - One checklist row per engineer per bench per month — an engineer on three benches produces three rows, each with its own client, rate and currency. Never aggregated (resolves the "different VBs and different clients" concern).
@@ -210,11 +268,84 @@ Observed constants from the sample: `SYSTEMBOOK=P`, `BOOK=P`, `TRANTYPE=IN`, `IN
 - The file also serves as the CSV attachment described in BE-20's month-end payroll export.
 
 ### BE-23 — Finance reference data
-The export needs static finance fields the portal does not currently hold: SFM Account Number, SFM Nominal Account (separate codes for subscription and overage on the client side), VAT Code, Payment Type, Bank IBAN, Bank BIC, Company Name, Client Code, VBench Code, Entity Code.
+
+> **Terminology.** In both report templates and in SFM, **"supplier"** and **"contractor"** both mean **the engineer**. The three terms are interchangeable; the reports use supplier/contractor, the platform UI uses engineer.
+
+The export needs static finance fields the portal does not currently hold. These are added as **custom fields in Zoho** under a new **Finance** section on each record type, and **read at export time** — never copied into the portal.
+
+#### Engineer (supplier) — Zoho Finance section
+
+| Field | Feeds |
+|---|---|
+| Engineer's Name | Checklist `Supplier` |
+| Company Name | Checklist `Supplier Company Name` |
+| Email Address | Invoice copy recipient (BE-24) |
+| SFM Account Number | Checklist `SFM AC` |
+| SFM Nominal Account | Checklist `NAC`, SFM `NACCODE` |
+| VAT Code | Checklist `VAT Code`, SFM `VATCODE` |
+| Currency | Checklist `Currency`, SFM `CURRENCY` |
+| Payment Type | Checklist `Payment Type`, SFM `PAYTYPE` |
+| Bank IBAN Number | SFM payment rails |
+| Bank BIC Code | SFM payment rails |
+
+#### Client — Zoho Finance section
+
+| Field | Feeds |
+|---|---|
+| Client Name | Checklist `Client Name` |
+| Email Address | Billing correspondence |
+| SFM Account Number | Client-side SFM posting |
+| SFM Nominal Account **Subscription** | Subscription revenue line |
+| SFM Nominal Account **Overage** | Overage revenue line — a **separate** code from subscription |
+| VAT Code | Client-side VAT |
+| Currency | All client-facing money (already INT-2) |
+| Payment Type | Client-side posting |
+| Bank IBAN Number | Client-side posting |
+| Bank BIC Code | Client-side posting |
+
+Some of these already exist on the Zoho records — **audit before creating**, so the same value does not end up in two fields.
+
+#### What comes from the platform, not Zoho
+
+Zoho supplies the *static* finance attributes above. Everything period-specific is computed by the platform and joined at export time:
+
+| From the platform | Source |
+|---|---|
+| **VBench Code** | The bench's **V Bench Index Number** — the identifier that already exists on the live platform. Not a new sequence |
+| **VBench Name** | **New column**, added beside VBench Code, carrying the bench's display name |
+| bench type | Bench record |
+| Subscription Rate, capacity plan | Manage Subscription (INT-5) |
+| Supplier Rate (engineer-facing) | Configured rate ÷ (1 + mark-up), BE-08 |
+| Overage Rate, 1st-month multiplier | BE-05, BE-06 |
+| Normal Hours, Overage Hours | Approved work logs, split at 100% of plan |
+| Invoice Contractor, Client Subscription, Client Overage | Computed amounts |
+| Period start and end | Per-bench cycle (BE-02, BE-07) |
+
+#### Row structure
+
+The checklist alternates **one client-level row** carrying the subscription rate and client totals, then **one row per engineer** beneath it with that engineer's supplier detail.
+
+**Acceptance criteria**
+- A bench with several engineers produces **one engineer row each**, all beneath the same client row.
+- **VBench Code and VBench Name repeat on every engineer row**, not only on the client row — each row must be readable in isolation, since Finance sorts and filters the sheet.
+- VBench Code is the **existing V Bench Index Number** from the live platform. Generating a fresh code would break reconciliation against records already keyed on it.
+- An engineer on several benches appears once per bench, each occurrence carrying that bench's code, name, rate and hours.
 
 **Acceptance criteria**
 - Each field has exactly one system of record. The portal **reads** these values at export time and never stores or re-keys them.
 - A missing mandatory field blocks that row from the SFM sheet and is reported in the email body rather than silently exporting a blank.
+- An engineer or client with an incomplete Finance section is surfaced **before** the month-end run, not at 23:59 — a validation view listing incomplete records is worth building alongside.
+- Both reports are generated from the same Zoho read, so a supplier's currency cannot differ between the checklist and the SFM upload.
+
+#### Open questions on the checklist template
+
+None outstanding.
+
+**Resolved:**
+- `Q` is **not populated by the system** — emitted blank.
+- `R` is **Client Subscription**, `S` is **Client Overage** — both platform-computed.
+- Columns **`T` onwards are filled by hand** by the Castillians team. The platform emits them **blank** and never writes to them: `T/Sheet Recvd.`, `T/Sheet Apprvd.`, `INV Calc Posted`, `Invoice Recvd.`, `Invoice Number`, `Ready for SFM`, `Copied to File`, `SFM posted`, `Payment Process.`, `Payment Checked`, the reviewer column, and `Changes after checking`.
+- The client-side payment fields (`Payment Type`, `Bank IBAN`, `Bank BIC`) are **synced per client from the Zoho client profile** — they are read like every other Finance field.
 
 **System of record — agreed.** Client-side fields come from **Zoho** (it already owns the client hierarchy and currency); supplier-side payment fields come from **SFM** (it owns the payment rails).
 
@@ -240,8 +371,57 @@ The export needs static finance fields the portal does not currently hold: SFM A
 
 **Engineering note.** Add a Zoho read for the client finance block (Client Code, VBench Code, Entity Code, SFM A/C, both Nominal Accounts, VAT Code) alongside the existing hierarchy and currency reads — same integration, extra fields. The SFM supplier lookup is new work: keyed on the engineer's supplier record, needed only at export time, so a batch fetch at month-end is sufficient rather than a live per-request call.
 
-### BE-24 — Automatic engineer invoice submission
-Finance asked whether the engineer can submit an invoice directly from the portal, since the portal already captures the hours. **The system auto-submits it on their behalf** at the end of the last day of the month — the engineer never files an invoice manually.
+### BE-27 — Per-engineer invoice PDFs, zipped
+
+The Engineer invoicing email carries **two** attachments: the spreadsheet breakdown, and a zip holding **one PDF invoice per engineer**.
+
+**Acceptance criteria**
+- One PDF per engineer, not per bench — an engineer across three benches gets a single invoice itemised by bench, matching BE-24.
+- Filenames sort predictably inside the zip: `surname-forename-YYYY-MM.pdf`. Finance opens these in a file browser, so alphabetical order by surname matters.
+- Zip name: `engineer-invoices-YYYY-MM.zip`.
+- An engineer who **uploaded their own** invoice (BE-24) has **their PDF** in the zip, not a generated one — the zip is the complete set for the period either way, never a mix of both for the same person.
+- Engineers with zero approved hours are **omitted**, not included as a zero invoice.
+- Generated from the same 23:59 snapshot as every other month-end report, so the zip and the spreadsheet always reconcile.
+
+#### Invoice PDF template
+
+A simple, standard invoice document, issued **from the engineer to Castille Technologies** — the engineer is the supplier, we are the customer.
+
+**From (supplier) — read from the engineer's Zoho Finance section (BE-23):**
+
+| Field |
+|---|
+| Engineer's Name |
+| Company Name |
+| Email Address |
+| SFM Account Number |
+| SFM Nominal Account |
+| VAT Code |
+| Currency |
+| Payment Type |
+| Bank IBAN Number |
+| Bank BIC Code |
+
+**To (customer) — fixed on every invoice:**
+
+> **Castille Technologies (IE)**
+> Glandore, City Quarter, Lapp's Quay, Cork City, Ireland
+> VAT: MT1765-0137
+
+**Acceptance criteria**
+- The document reads as issued **by the engineer**, not by Castillians on their behalf — supplier details lead, our address sits in the To block.
+- The customer block is a **configurable constant**, not hardcoded per invoice. It will change if the billing entity does.
+- Line items are **one per Virtual Bench**: bench name, client, hours, rate, line total.
+- Totals are in the engineer's **single currency** (BE-08) — never mixed, never converted.
+- Invoice number and period match the values on the payroll checklist row for that engineer, so the two reconcile.
+- Bank details print in full — IBAN and BIC are the payment rails and a truncated IBAN makes the invoice unusable.
+- A missing mandatory supplier field **blocks that PDF** and is reported in the email body, consistent with BE-23. Never print a blank where an account number belongs.
+
+**Size ceiling.** At current volumes (14 engineers) the zip is a few hundred KB and attaches without issue. Most mail servers reject above ~25 MB, so:
+- If the zip exceeds a **configurable threshold**, attach the spreadsheet only and replace the zip with a **secure, expiring download link** in the email body.
+- The threshold is a config value, not a literal — it will need tuning as the engineer count grows.
+
+### BE-24 — Automatic engineer invoice submissionFinance asked whether the engineer can submit an invoice directly from the portal, since the portal already captures the hours. **The system auto-submits it on their behalf** at the end of the last day of the month — the engineer never files an invoice manually.
 
 **Acceptance criteria**
 - On the last day of the month the portal generates each engineer's invoice from their approved work logs and submits it automatically, in the same run as the finance export (BE-22).
@@ -255,6 +435,45 @@ Finance asked for the flexibility to generate any report to Excel.
 
 **Acceptance criteria**
 - Every list surface that already filters (Engagements work logs, channel billing, subscriptions breakdown) exposes a "Download as CSV" action returning the current filtered view.
+
+---
+
+## A6. SFM integration (Shireburn)
+
+> **This is the dependency that gates the whole of A5.** Neither month-end report can be produced without it.
+
+**SFM** is the accounting system supplied by **Shireburn**, and it is the system of record for supplier payments. The platform we are building must integrate with it the same way **the timesheet system it replaces already does** — that existing sync is the closest available reference implementation, and the integration should be scoped against it rather than designed from scratch.
+
+### INT-11 — What the integration must do
+
+| Direction | Payload | Used by |
+|---|---|---|
+| **Read** | Supplier reference data — SFM account number, nominal account, VAT code, payment type, IBAN, BIC, company name | Populates supplier columns in both reports (BE-23) |
+| **Read** | Nominal account codes per client — entity code, subscription NAC, overage NAC | Populates client columns (BE-23) |
+| **Write** | Supplier invoice batch — the 22-column upload defined in BE-22 | The month-end run |
+
+### BE-26 — Integration requirements
+
+**Acceptance criteria**
+- **Audit the existing timesheet-system sync first.** Document how it authenticates, what transport it uses (file drop, API, direct DB), how batches are numbered, and how failures are surfaced. Build to the same contract unless there is reason not to — Finance's operational process is already built around it.
+- Reference data is **read at export time, never copied into the portal**. A stale local cache of nominal codes will produce a silently wrong upload.
+- The batch write is **idempotent**. Re-running a month's export must not double-post. `BATCH` numbering has to be reconciled with whatever SFM already expects — the sample shows `BATCH=26`, which suggests a running sequence owned by SFM rather than by us.
+- A missing mandatory reference field **blocks that row** and is named in the month-end email body, rather than exporting a blank cell that fails on import.
+- The generated file validates against a **real SFM import in a non-production company** before the first live run.
+- Both reports are also downloadable on demand from Internal → Channel & Billing, so Finance is never blocked waiting for the scheduled run.
+
+### Open questions for Finance — resolve before build
+
+These four cells in the supplied template hold bare integers whose meaning is not self-evident. Each is likely an SFM internal reference code:
+
+| Column | Sample value | Question |
+|---|---|---|
+| `DUEDATE` | `21` | Payment-terms days, or a code? Not a date in the sample, unlike `TRANDATE` |
+| `PAYTYPE` | `24` | SFM payment-method code — which value maps to SEPA, Priority, USD? |
+| `PAYEE` | `29` | An SFM payee ID rather than a name — where is it looked up? |
+| `ANALYSIS` | `25` | What dimension does SFM expect here? |
+
+Also confirm: `ENTITYCODE`, `TRANTYPE`, `INTREF`, `DETAILS`, `DISCTYPE` and `DBCR` were **blank** in this template but populated in an earlier version. Which are genuinely optional, and which were simply not filled in the sample?
 
 ### BE-14 — Edit history
 Every create, edit, approval and decline is recorded immutably.
@@ -338,20 +557,23 @@ Per-client allow-list of one or more domains. Only these addresses may sign up o
 ### BE-20 — Transactional emails
 | Trigger | Recipient | Contents |
 |---|---|---|
-| Daily work log summary | Castillians team | **Once daily at 08:00 CET**, covering everything submitted the previous day — one row per entry: engineer full name, email, bench name, client name, hours logged, plus an entry and hours total. **Not** one email per entry |
-| Entry exceeds capacity → approval required | Castillians team | **Distinct template** from the above. Must carry enough for a reviewer to decide without opening the dashboard: **hours requested**; the engineer's **assigned hours** this period, **hours already logged**, and **hours needing approval**; and the client position — **capacity plan**, **overages agreed**, **overages used**, **overage rate**, and bench capacity used. "Overages agreed" resolves per BE-13: the authorised total where one is set, otherwise the standard 20% tolerance |
+| Daily work log summary | `humancapital@` + `sharedservices@` | **Once daily at 08:00 CET**, covering everything submitted the previous day — one row per entry: engineer full name, email, bench name, client name, hours logged, plus an entry and hours total. **Not** one email per entry |
+| Entry exceeds capacity → approval required | `humancapital@` + `sharedservices@` | **Distinct template** from the above. Must carry enough for a reviewer to decide without opening the dashboard: **hours requested**; the engineer's **assigned hours** this period, **hours already logged**, and **hours needing approval**; and the client position — **capacity plan**, **overages agreed**, **overages used**, **overage rate**, and bench capacity used. "Overages agreed" resolves per BE-13: the authorised total where one is set, otherwise the standard 20% tolerance |
 | Entry approved | Engineer | Confirmation |
 | Entry declined | Engineer | Carries the decline message verbatim |
 | Bench invite sent | Invitee | Link to the bench |
 | Admin ownership transferred — to the **new Admin** | Incoming Admin | Confirms they now hold the account: subscription ownership, billing responsibility, full channel access, ability to invite Managers and Viewers |
 | Admin ownership transferred — to the **outgoing Admin** | Previous Admin | Confirms the transfer, names who it moved to, and states they are now a Manager |
-| Admin ownership transferred — notice | Castillians team | Audit record: client, previous Admin, new Admin, timestamp — the subscription's billing contact has changed |
-| Weekly satisfaction report (per bench) | Manager | Traffic-light colour **plus** hours used vs total for the bench — e.g. "68 / 80h — 85%". CTA + link to the work log; submitting notifies the team |
-| 90% capacity, overages OFF | Internal + Manager | Logging will be blocked at the plan (BE-13) |
+| Admin ownership transferred — notice | `sharedservices@castillians.com` | Audit record: client, previous Admin, new Admin, timestamp — the subscription's billing contact has changed |
+| Weekly satisfaction report (per bench) | Manager | Sent **weekly**. Traffic-light colour **plus** hours used vs total for the bench — e.g. "68 / 80h — 85%". Three equal-width rating CTAs; no reply is treated as a green |
+| Satisfaction response received | **Human Capital team** (`humancapital@castillians.com`) | Fires the moment a Manager taps a rating. States the client's response, the bench, the client, who responded, and the hours context at the time of the rating |
+| 90% capacity, overages OFF | Internal + Manager | Logging will be blocked at the plan (BE-13). **Two separate templates** — the client's carries no overage mechanics and invites a capacity request; Castillians' keeps the hard-cap detail |
 | 100% capacity, overages OFF | Internal + Manager | Work now blocked — switch overages on or raise the plan |
 | 100% capacity, overages ON | Internal only | Overage has started; client not alerted |
-| 120% capacity, overages ON | Internal + Manager | Entries now queue for approval |
+| 120% capacity, overages ON | Internal + Manager | **Only when no Total Authorised Overage is set** — the 20% tolerance is then the ceiling. Entries now queue for approval. **Two separate templates** — the client's omits the auto-accept ceiling and internal mechanics, and invites authorising more overage |
+| Total authorised overage used up | Internal + Manager | **Only when a Total Authorised Overage is set** — a named block supersedes the tolerance, so the ceiling is plan + authorised and the 120% notice does not fire. **Two separate templates**, same split as above |
 | Unlimited overage | — | **No capacity notifications at all** |
+| Month-end engineer invoicing | **Shared Services** | Sent on the **last day of the month**, once every engineer invoice has been auto-submitted (BE-24). Attaches `engineer-invoicing-YYYY-MM.xlsx` — one row per **engineer × Virtual Bench**, carrying engineer name and email, bench name, client name, bench manager(s), hours logged, engineer-facing rate, and earnings, plus a per-engineer total across their benches. Excluded entries (still awaiting approval at cut-off) are listed in the body and carry to the next run |
 | Month-end payroll export | **Shared Services** | Sent on the **last day of the month**. Carries the per-engineer earnings breakdown (bench, client, hours logged, hourly rate, earnings) **plus a CSV attachment covering every engineer across all benches**. Engineer-facing rates are post-mark-up-removal per BE-08. Body lists any entries held back for pending approval (BE-22) |
 | Auto-submitted invoice copy | Engineer | Sent when the system files their invoice on their behalf (BE-24) |
 | Weekly timesheet reminder | Engineer | Their bench(es) + outstanding unlogged hours (BE-21) |

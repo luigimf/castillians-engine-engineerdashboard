@@ -93,3 +93,54 @@ already establish it.
 11. Configured 95.00 at a 60% mark-up → `ratePerHour` 59.38. Change the mark-up to 50% → 63.33,
     no deploy.
 12. Month-end job runs → invoice submitted, number stamped, engineer emailed, checklist row updated.
+
+
+---
+
+## Invoice PDF download
+
+### `GET /api/engineer/invoices/{period}/pdf`
+
+Returns the **stored** invoice PDF for that period as `application/pdf`. Not re-generated on request — the engineer must receive the identical document that was submitted on their behalf, same invoice number and figures.
+
+**Acceptance criteria**
+- `404` when the period is still **open** — no invoice exists until 23:59 on its last day.
+- `404` when the period had **no billable hours**.
+- The client hides the download button in both cases rather than relying on the error.
+- Where the engineer **uploaded their own** invoice, this endpoint returns **their** PDF, not a generated one.
+
+---
+
+## Invoice upload
+
+### `POST /api/engineer/invoices/{period}/upload`
+
+Multipart: the PDF plus an optional `message` string.
+
+**Acceptance criteria**
+- PDF only; reject other content types. Enforce the 10 MB ceiling server-side.
+- Rejected when the period is already **closed and processed** — an invoice cannot be replaced after payment has run.
+- On success the engineer is **flagged as self-invoicing for that period**, and:
+  - they are **excluded from the month-end auto-submission run** — only their uploaded invoice is processed;
+  - their PDF replaces the generated one in the month-end zip (BE-27), so the zip stays the complete set;
+  - a notification fires to `sharedservices@castillians.com` with the PDF attached.
+- Re-uploading within an open period **replaces** the previous file rather than adding a second.
+
+### Invoice PDF template
+
+Specified in full as **BE-27** in `ENGINEERING-BRIEF.md`. In short: issued **from the engineer** (ten Zoho Finance fields) **to Castille Technologies (IE)**, one line item per Virtual Bench, totalled in the engineer's single currency.
+
+---
+
+## Test cases worth writing first
+
+1. Download for a closed period with hours → returns the stored PDF, same invoice number as the submitted one.
+2. Download for the **current open** period → `404`; button absent in the UI.
+3. Download for a closed period with **zero** hours → `404`; button absent.
+4. Upload a PDF, then run the month-end job → that engineer is **skipped**, and only the uploaded invoice is processed.
+5. Upload a PDF, then download → returns **the uploaded file**, not a generated one.
+6. Upload twice in one period → the second replaces the first; exactly one invoice on record.
+7. Upload a non-PDF → rejected server-side.
+8. Upload for a period already processed → rejected.
+9. An engineer on three benches → one invoice, three line items, single currency total.
+10. Month-end zip → contains exactly one PDF per engineer with billable hours, uploaded ones included, none for engineers with zero hours.

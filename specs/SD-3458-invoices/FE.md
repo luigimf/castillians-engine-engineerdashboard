@@ -270,3 +270,104 @@ must not collapse it.
 ## Reference
 
 Open `/prototype/index.html` → **Engineer** dashboard → **Invoices** tab.
+
+
+---
+
+## Invoicing notice pill
+
+Identical markup on **both** the Work Log and Invoices pages. A change to one must be applied to the other.
+
+```html
+<div class="invoice-notice">
+  <span class="invoice-notice__icon"></span>
+  <span class="invoice-notice__label">Invoicing is handled for you</span>
+  <button class="btn btn--tertiary btn--sm" (click)="openUploadModal()">Or upload your own</button>
+</div>
+```
+
+```scss
+.invoice-notice {
+  display: inline-flex; align-items: center; gap: 12px;
+  box-sizing: border-box;
+  border: 1px solid #F0D9A8;
+  border-radius: var(--radius-md);
+  background: #FEF6E7;
+  padding: 9px 14px;
+
+  &__icon {
+    width: 16px; height: 16px; flex: none;
+    background: #7A5A12;
+    mask: url(assets/icons/check.svg) center / contain no-repeat;
+  }
+  &__label {
+    font-family: var(--font-display); font-size: 14px; font-weight: 500;
+    color: #7A5A12; white-space: nowrap;
+  }
+}
+```
+
+Sits **top-right, aligned with the page title** — on Work Log it goes *above* the bench tabs so it reads at page level, not per bench. Keep it to one line, ~38px: an earlier full-height card threw the page layout off.
+
+---
+
+## Download invoice
+
+A Small Tertiary Button on the right of the period navigation row.
+
+```html
+<button *ngIf="canDownloadInvoice"
+        class="btn btn--tertiary btn--sm"
+        (click)="downloadInvoice()">Download invoice</button>
+```
+
+```ts
+get canDownloadInvoice(): boolean {
+  // No invoice exists until the period closes — hours can still be logged — and there is
+  // nothing to download when no hours were billed.
+  return this.period.isClosed && this.rows.length > 0;
+}
+
+downloadInvoice(): void {
+  this.svc.getInvoicePdf(this.period.key).subscribe(blob => {
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = url;
+    a.download = \`castillians-invoice-\${this.period.key}.pdf\`;
+    a.click();
+    URL.revokeObjectURL(url);
+  });
+}
+```
+
+The PDF is the **same document** submitted on the engineer's behalf, fetched from the server — not re-rendered client-side. Same invoice number, same figures.
+
+---
+
+## Upload modal
+
+Drop zone per the Figma:
+
+```scss
+.dropzone {
+  display: flex; align-items: center; justify-content: center; gap: 20px;
+  cursor: pointer; box-sizing: border-box;
+  border: 2px solid var(--border);
+  border-radius: 8px;
+  background: var(--drop-bg, #F8F8F8);
+  padding: 26px 24px;
+  transition: background-color 300ms cubic-bezier(0.35, 0, 0.25, 1);
+
+  &:hover { --drop-bg: #F2F2F2; }
+
+  &__badge { width: 45px; height: 45px; flex: none; }   // assets/icons/upload-badge.svg
+  &__lead  { font-family: var(--font-display); font-size: 16px; line-height: 130%; color: #4d4d4d;
+             strong { font-weight: 600; color: var(--ink-900); } }
+  &__hint  { font-family: var(--font-body); font-size: 12px; color: #4D4D4D; margin-top: 2px; }
+}
+```
+
+- Label is two-tone: **Click to upload** bold, *or drag and drop* grey. Swaps to the filename once chosen.
+- Hint reads "Upload in PDF, under 10MB".
+- `accept="application/pdf"` only.
+- The badge is a supplied asset (`upload-badge.svg`) rendered as `<img>`, **not** a CSS mask — masking would flatten its two-tone fill.
