@@ -467,6 +467,25 @@ Currency follows the **client engagement** — bill a client in GBP and that ben
 - If the zip exceeds a **configurable threshold**, attach the spreadsheet only and replace the zip with a **secure, expiring download link** in the email body.
 - The threshold is a config value, not a literal — it will need tuning as the engineer count grows.
 
+### Pagination — specified per surface
+
+Every list that paginates or truncates must state **its own** page size or reveal threshold. These are product decisions, not defaults for a developer to pick.
+
+| Surface | Behaviour | Size |
+|---|---|---|
+| Engineer → Work Log → **Entries** (list view) | Paginated, prev/next with "Page N of M" | **5 per page** |
+| Internal → Engagements → **Work Logs** | Paginated | **8 per page** |
+| Manager → Virtual Bench → **Engineer Work Logs** | **First 3 shown**, then a "See more (N)" button expands the list; once expanded it paginates | **3 collapsed / 20 per page expanded** |
+| Manager → Virtual Bench → **Skills Matrix** | First 12 skills, then "See more" | **12** |
+
+**Acceptance criteria**
+- Pagination controls render **only** when the list exceeds one page — never a lone "Page 1 of 1".
+- A **newly created entry resets pagination to page 1** on every list showing it, so it cannot land on an unseen page.
+- Changing a filter, period or tab resets to page 1.
+- Page size is a **named constant** per surface, not a literal buried in a slice expression — these values will be tuned.
+- Where a list both truncates and paginates (the Manager bench logs), expanding via "See more" jumps to page 1 of the paginated view; it does not append.
+- "See more (N)" states the **remaining** count, not the total.
+
 ### Upload UI — platform default
 
 **Every file-upload surface on the platform uses this treatment.** Established on the engineer invoice upload; reuse it rather than designing a new one.

@@ -338,3 +338,19 @@ prototype/      open Castillians Platform.dc.html
 In the prototype, open the **Engineer** dashboard → **Work Log**. Entries on **Core Platform**
 carry multi-step histories with real diffs; one on **Payments Squad** is declined with a
 reviewer message.
+
+
+---
+
+## Pagination
+
+**5 entries per page.** Prev / next chevron buttons at 35px either side of a "Page N of M" label.
+
+```ts
+const ENTRIES_PER_PAGE = 5;   // named constant — this value will be tuned
+```
+
+- Controls render **only** when `total > ENTRIES_PER_PAGE`. A lone "Page 1 of 1" is noise.
+- Chevrons disable at the first and last page.
+- Logging a new entry, switching bench tab, or changing period all reset to **page 1**.
+- The calendar view has no pagination — it shows the whole month, with its own month navigation.

@@ -188,3 +188,19 @@ An engagement that has ended cannot be re-scoped, so its entries are settled:
 11. Entry on an ended engagement previously `approval_required` → reads `approved`, `canEdit` false.
 12. Calendar request for a month two periods back → returns data, all entries `canEdit: false`.
 13. `auto_approved` and `approved` are distinguishable in the payload — not collapsed to one value.
+
+
+---
+
+## Pagination — 5 per page
+
+`GET /api/engineer/work-logs` returns **5 entries per page** for the Entries list.
+
+**Acceptance criteria**
+- `pageSize` is **5**, held as a named constant — not a literal in a slice expression.
+- The response carries `page`, `pageSize`, `total` and `entries`, so the client can render "Page N of M" without a second call.
+- Requesting a page beyond the last returns the **last** page rather than an empty list — a stale page number in state must not blank the card.
+- Sorted **most recent first**, consistently across pages.
+- **A newly created entry resets the client to page 1.** It is the newest, so it belongs on the first page; leaving the user on page 3 hides what they just logged.
+- Changing bench tab or period resets to page 1.
+- The calendar view is **not** paginated — it returns the whole month.
