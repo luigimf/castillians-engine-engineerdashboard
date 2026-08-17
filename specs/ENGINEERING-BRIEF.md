@@ -232,12 +232,63 @@ On the **last day of the month**, once all engineer invoices are submitted, an a
 
 `SYSTEMBOOK · BOOK · BATCH · ENTITYCODE · NACCODE · TRANDATE · DUEDATE · TRANTYPE · PAYTYPE · INTREF · INV NO · PAYEE · DETAILS · ANALYSIS · DISCTYPE · DBCR · VATCODE · CURRENCY · AMOUNT · VATAMOUNT · FAMOUNT · FVATAMOUNT`
 
-Observed from the supplied template (`SFM Supplier Invoices Upload.xlsx`), single sample row:
-`SYSTEMBOOK=P`, `BOOK=P`, `BATCH=26`, `NACCODE=501006`, `TRANDATE=29/05/2026`, `DUEDATE=21`, `PAYTYPE=24`, `INV NO=05/2026`, `PAYEE=29`, `ANALYSIS=25`, `VATCODE=60`, `CURRENCY=EUR`, `AMOUNT=2646`, `VATAMOUNT/FAMOUNT/FVATAMOUNT=0`. `ENTITYCODE`, `TRANTYPE`, `INTREF`, `DETAILS`, `DISCTYPE` and `DBCR` were **blank**.
+**Row 1 must be the column headers exactly as supplied** — SFM parses them to identify the columns. Never reorder, rename, or omit a header, even for a column the platform leaves blank.
 
-> ⚠ **Do not treat the sample as a complete contract.** An earlier version of this template carried values for `TRANTYPE`, `INTREF` and `DBCR` that the current one leaves blank, and four cells hold bare integers whose meaning is not self-evident — `DUEDATE=21`, `PAYTYPE=24`, `PAYEE=29`, `ANALYSIS=25`. These look like SFM internal reference codes rather than dates or names. **Confirm every column against a real SFM import before building the generator** (see INT-11).
+Data rows begin at **row 2**. Columns split into two kinds.
 
-**Column sourcing** — `ENTITYCODE` and `NACCODE` vary per client and come from that client's finance record (BE-23). `BATCH` is generated per export run. `PAYEE` and `VATCODE` come from the supplier record, `CURRENCY` and `AMOUNT` from the invoice line.
+**Standard on every line item** — fixed constants, per the supplied sample:
+
+| Column | Value |
+|---|---|
+| `SYSTEMBOOK` | `P` |
+| `BOOK` | `P` |
+| `BATCH` | `26` |
+| `DUEDATE` | `21` |
+| `PAYTYPE` | `24` |
+| `PAYEE` | `41` |
+| `ANALYSIS` | `25` |
+| `VATAMOUNT` | `0` |
+| `FVATAMOUNT` | `0` |
+| `TRANTYPE`, `INTREF`, `DISCTYPE`, `DBCR` | **blank** — header present, cell empty |
+
+**Populated per line item** — the annotated columns:
+
+| Column | Header | Meaning | Source |
+|---|---|---|---|
+| D | `ENTITYCODE` | Engineer's SFM Account Number | **Zoho** |
+| E | `NACCODE` | SFM Nominal Account Number | **Zoho** |
+| F | `TRANDATE` | Invoice Date | Platform (invoice capture) |
+| K | `INV NO` | Invoice Number | Platform (invoice capture) |
+| M | `DETAILS` | **VBench Code** | Platform (invoice capture) |
+| Q | `VATCODE` | VAT Code | **Zoho** |
+| R | `CURRENCY` | Billing Currency | Platform (invoice capture) |
+| S | `AMOUNT` | Invoice Value **in EUR** | Platform (invoice capture) |
+| U | `FAMOUNT` | Invoice Value **in foreign currency** | Platform (invoice capture) |
+
+**Acceptance criteria**
+- Row 1 is byte-identical to the supplied template's header row. Assert this in a test — a renamed header silently breaks the SFM import.
+- `DETAILS` carries the **VBench Code** — the bench's V Bench Index Number, the same value as the payroll checklist's VBench Code column. Not a date or a period label.
+- `ENTITYCODE` is the **engineer's** SFM account number, read from Zoho per supplier. It is not a client code.
+- Every constant above is a **named config value**, not a literal in the generator. `BATCH` in particular is likely to change per run — confirm with Finance whether SFM expects it incremented.
+- Blank-by-design columns emit an **empty cell**, never `""`, `null` or `0`.
+
+**AMOUNT vs FAMOUNT — no conversion, ever**
+
+We bill the client and pay the engineer in the **same currency**, so nothing is ever converted. The invoice value is written to whichever column matches its currency, and the other stays `0`.
+
+| Invoice currency | `AMOUNT` (S) | `FAMOUNT` (U) |
+|---|---|---|
+| **EUR** | the invoice value | `0` |
+| **Any other** (GBP, USD) | `0` | the invoice value |
+
+**Acceptance criteria**
+- Exactly **one** of `AMOUNT` / `FAMOUNT` is non-zero on any row. Both populated is a defect.
+- `CURRENCY` (R) always states the invoice's own currency, whichever column holds the value.
+- **No exchange rate is fetched, stored or applied anywhere on the platform.** There is no FX integration, and no rate table.
+- A GBP-billed client produces a GBP engineer rate, a GBP invoice, and a GBP `FAMOUNT` — end to end in one currency.
+
+> ⚠ **`PAYEE` changed between template versions** — `29` in the first sample, `41` in this one. If it identifies the supplier it is **not** a constant and must be read per engineer from Zoho. Confirm before build.
+
 
 **Timing** — the export fires at **23:59 on the last calendar day of the month**, which is also the work-log cut-off. It runs **regardless of pending approvals**: entries still awaiting approval at 23:59 are excluded from the run and carry into the next month's export; the email body lists them so Shared Services can see what was held back.
 
