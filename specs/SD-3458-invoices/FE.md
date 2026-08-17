@@ -371,3 +371,54 @@ Drop zone per the Figma:
 - Hint reads "Upload in PDF, under 10MB".
 - `accept="application/pdf"` only.
 - The badge is a supplied asset (`upload-badge.svg`) rendered as `<img>`, **not** a CSS mask — masking would flatten its two-tone fill.
+
+
+---
+
+## Blank invoice template
+
+Beneath the drop zone, for engineers without an invoice of their own.
+
+```html
+<div class="template-offer">
+  <span class="template-offer__label">No invoice of your own?</span>
+  <a class="btn btn--tertiary btn--sm"
+     href="assets/engineer-invoice-template.pdf"
+     download="Castillians-invoice-template.pdf">Download template</a>
+</div>
+```
+
+Static asset — the same file for every engineer, no data merged in. Addressed to **Castille Resources Ltd.**
+
+---
+
+## Upload UI — platform default
+
+This drop zone is the **platform standard for every file-upload surface**. Reuse it; do not design another.
+
+```scss
+.dropzone {
+  display: flex; align-items: center; justify-content: center; gap: 20px;
+  cursor: pointer; box-sizing: border-box;
+  border: 2px solid var(--border);
+  border-radius: 8px;
+  background: var(--drop-bg, #F8F8F8);
+  padding: 26px 24px;
+  transition: background-color 300ms cubic-bezier(0.35, 0, 0.25, 1);
+
+  &:hover { --drop-bg: #F2F2F2; }
+
+  &__badge { width: 45px; height: 45px; flex: none; }
+  &__lead  { font-family: var(--font-display); font-size: 16px; line-height: 130%; color: #4d4d4d;
+             strong { font-weight: 600; color: var(--ink-900); } }
+  &__hint  { font-family: var(--font-body); font-size: 12px; color: #4D4D4D; margin-top: 2px; }
+}
+```
+
+- The whole panel is a `<label>` wrapping a hidden `<input type="file">` — keyboard focus and screen-reader access come for free, with no extra ARIA.
+- Badge is `assets/icons/upload-badge.svg` as an `<img>`, **not** a CSS mask — masking flattens its two-tone fill.
+- `accept` must always match the formats named in the hint.
+- The size limit in the hint is enforced **server-side** too; a hint alone stops nothing.
+- Worth extracting as a shared component the second time it is needed.
+
+Full spec: **Upload UI — platform default** in `specs/ENGINEERING-BRIEF.md`.

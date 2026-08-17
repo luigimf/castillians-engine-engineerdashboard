@@ -128,7 +128,7 @@ Multipart: the PDF plus an optional `message` string.
 
 ### Invoice PDF template
 
-Specified in full as **BE-27** in `ENGINEERING-BRIEF.md`. In short: issued **from the engineer** (ten Zoho Finance fields) **to Castille Technologies (IE)**, one line item per Virtual Bench, totalled in the engineer's single currency.
+Specified in full as **BE-27** in `ENGINEERING-BRIEF.md`. In short: issued **from the engineer** (ten Zoho Finance fields) **to Castille Resources Ltd.**, one line item per Virtual Bench, totalled in the engineer's single currency.
 
 ---
 
@@ -144,3 +144,84 @@ Specified in full as **BE-27** in `ENGINEERING-BRIEF.md`. In short: issued **fro
 8. Upload for a period already processed → rejected.
 9. An engineer on three benches → one invoice, three line items, single currency total.
 10. Month-end zip → contains exactly one PDF per engineer with billable hours, uploaded ones included, none for engineers with zero hours.
+
+
+---
+
+## Blank template endpoint
+
+Serves a static PDF from asset storage — no personal or period data merged in, identical for every engineer.
+
+**Acceptance criteria**
+- Versioned so Finance can replace it without a deploy.
+- Addressed to **Castille Resources Ltd.**, matching the generated invoices.
+
+---
+
+## Currency — follows the client engagement
+
+**Corrected.** An engineer's rate and invoice are in **the currency we bill that client in** — bill a client in GBP and the engineer's rate is GBP, so they invoice us in GBP. Currency is **not** a fixed value on the supplier record.
+
+**Acceptance criteria**
+- Each invoice line resolves its currency from **that bench's client**.
+- An engineer across clients billed in different currencies produces a total **per currency** — never combined, never converted.
+- The Invoices page shows one total row per currency present in the period.
+
+
+---
+
+## Invoice PDF — one renderer, three surfaces
+
+The same renderer serves the download endpoint, the per-engineer PDFs zipped into the month-end email, and the blank template. Never build a second. Full template spec is **BE-27** in `ENGINEERING-BRIEF.md`.
+
+### Header
+
+| Field | Rule |
+|---|---|
+| Invoice date | Period end date |
+| Invoice number | `INV00001` upward — single global sequence |
+| Name | Engineer's full name |
+| Address | From Zoho; **blank when null** |
+
+### Line items
+
+One row per Virtual Bench:
+
+| Column | Value |
+|---|---|
+| Description | `{Bench Name} - {Client Name}` |
+| Hours | Hours logged on that bench in the period |
+| Rate | That bench's engineer-facing rate |
+| Amount | Hours × Rate |
+
+### Multi-currency
+
+- One **table per currency**, each with its own subtotal, **within the same PDF**.
+- Tables ordered alphabetically by currency code; a single-bench currency still gets its own table.
+- **One invoice number per PDF**, whatever the table count.
+- Never combined, never converted.
+
+### Numbering
+
+```
+INV00001, INV00002, … — zero-padded to 5 digits
+```
+
+**Acceptance criteria**
+- A **single global sequence** across all engineers and periods — not per engineer, not per period.
+- Allocated from a **database-owned sequence**. Never derive it by counting existing invoices: two concurrent month-end runs would collide on the same number.
+- **Numbers are never reused.**
+- An **uploaded invoice does not consume a number** — the sequence skips that engineer entirely, so there are no gaps.
+- The number matches the payroll checklist row for that engineer.
+
+### Test cases
+
+1. Engineer on three EUR benches → one table, three rows, one subtotal, one invoice number.
+2. Engineer on a EUR bench and a GBP bench → **two tables**, two subtotals, **one** invoice number.
+3. Description renders exactly `Core Platform - Northmill Bank`.
+4. PDF total reconciles with the Invoices page for that period, to the cent.
+5. Two month-end runs fired concurrently → no duplicate invoice numbers.
+6. Engineer uploads their own → no number allocated; the next generated invoice takes the next in sequence.
+7. Zoho address null → the address block renders empty, not "N/A".
+8. Zoho IBAN missing → PDF is **blocked** and reported in the email body.
+9. Blank template → same layout, empty rows, no engineer or period data.

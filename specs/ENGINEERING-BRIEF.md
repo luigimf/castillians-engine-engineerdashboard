@@ -385,7 +385,7 @@ The Engineer invoicing email carries **two** attachments: the spreadsheet breakd
 
 #### Invoice PDF template
 
-A simple, standard invoice document, issued **from the engineer to Castille Technologies** — the engineer is the supplier, we are the customer.
+A simple, standard invoice document, issued **from the engineer to Castille Resources Ltd.** — the engineer is the supplier, we are the customer.
 
 **From (supplier) — read from the engineer's Zoho Finance section (BE-23):**
 
@@ -404,22 +404,99 @@ A simple, standard invoice document, issued **from the engineer to Castille Tech
 
 **To (customer) — fixed on every invoice:**
 
-> **Castille Technologies (IE)**
+> **Castille Resources Ltd.**
 > Glandore, City Quarter, Lapp's Quay, Cork City, Ireland
 > VAT: MT1765-0137
+
+**One template, three surfaces.** The **same** PDF template renders for:
+1. **Download auto-generated invoice** on the Engineer → Invoices page;
+2. the **Engineer invoicing** month-end email's zipped per-engineer PDFs;
+3. the **blank template** an engineer downloads from the upload modal (BE-28) — identical layout, empty rows.
+
+They must never diverge. Build one renderer and call it from all three.
+
+**Header — auto-generated**
+
+| Field | Rule |
+|---|---|
+| Invoice date | The period end date |
+| Invoice number | `INV00001`, `INV00002`, … — a **single global sequence**, always counting upward |
+| Name | The engineer's **full name** |
+| Address | Read from Zoho. **Left blank when null** — never a placeholder or "N/A" |
+
+**Line items — one row per Virtual Bench**
+
+| Column | Value |
+|---|---|
+| Description | `{Bench Name} - {Client Name}` — e.g. **Core Platform - Northmill Bank** |
+| Hours | Hours the engineer logged on that bench in the period |
+| Rate | That **bench's** engineer-facing rate |
+| Amount | Hours × Rate |
 
 **Acceptance criteria**
 - The document reads as issued **by the engineer**, not by Castillians on their behalf — supplier details lead, our address sits in the To block.
 - The customer block is a **configurable constant**, not hardcoded per invoice. It will change if the billing entity does.
-- Line items are **one per Virtual Bench**: bench name, client, hours, rate, line total.
-- Totals are in the engineer's **single currency** (BE-08) — never mixed, never converted.
-- Invoice number and period match the values on the payroll checklist row for that engineer, so the two reconcile.
-- Bank details print in full — IBAN and BIC are the payment rails and a truncated IBAN makes the invoice unusable.
-- A missing mandatory supplier field **blocks that PDF** and is reported in the email body, consistent with BE-23. Never print a blank where an account number belongs.
+- Description is exactly `{Bench} - {Client}`. Both names, one row per bench.
+- The total sums the line amounts and must reconcile with the Invoices page for that period, to the cent.
+
+**Multiple currencies → multiple tables in one PDF**
+
+Currency follows the **client engagement** — bill a client in GBP and that bench's rate is GBP.
+
+- An engineer on benches billed in **different currencies** gets **one table per currency**, each with its own subtotal, **all within the same PDF**.
+- Group benches by currency; a currency with one bench still gets its own table.
+- **Never** combine currencies into one total, and **never** convert between them.
+- Table order is alphabetical by currency code, so successive invoices read consistently.
+
+**Invoice numbering**
+- A **single global sequence** across all engineers and all periods — `INV00001` upward. Not per engineer, not per period.
+- **Numbers are never reused.** Allocate from a sequence the database owns, not by counting existing invoices, or two concurrent month-end runs will collide.
+- Zero-padded to five digits, prefixed `INV`.
+- The number on the PDF matches the payroll checklist row for that engineer, so the two reconcile.
+
+**Sourcing**
+- Name, address, company name, VAT code, payment type, **IBAN and BIC all read from Zoho** (BE-23) at render time — never copied into the portal.
+- Bank details print **in full**; a truncated IBAN makes the invoice unusable.
+- A missing mandatory supplier field **blocks that PDF** and is reported in the email body, consistent with BE-23. Never print a blank where an account number belongs. The **address is the exception** — blank is valid.
+
+**Confirmed with Finance:**
+- **One invoice number per PDF**, however many currency tables it contains. The subtotals sit under a single number — do **not** allocate one per table.
+- **An uploaded invoice does not consume a number.** Where an engineer uploads their own (BE-24), no PDF is generated and the sequence **skips them entirely** — it is not reserved, and the next generated invoice takes the next number in order. The sequence therefore has no gaps.
 
 **Size ceiling.** At current volumes (14 engineers) the zip is a few hundred KB and attaches without issue. Most mail servers reject above ~25 MB, so:
 - If the zip exceeds a **configurable threshold**, attach the spreadsheet only and replace the zip with a **secure, expiring download link** in the email body.
 - The threshold is a config value, not a literal — it will need tuning as the engineer count grows.
+
+### Upload UI — platform default
+
+**Every file-upload surface on the platform uses this treatment.** Established on the engineer invoice upload; reuse it rather than designing a new one.
+
+| Property | Value |
+|---|---|
+| Panel | `--gray-50` fill (`--drop-bg` variable), **8px** radius, **2px solid `--border`** |
+| Padding | 26px 24px, contents centred with a 20px gap |
+| Badge | 45×45 circular asset (`assets/icons/upload-badge.svg`), rendered as `<img>` — **not** a CSS mask, which would flatten its two-tone fill |
+| Label | Bricolage 16px. Lead **weight 600 in `--ink-900`** ("Click to upload"), remainder `#4d4d4d` ("or drag and drop") |
+| Hint | Montserrat 12px `#4D4D4D`, stating format and size limit — e.g. "Upload in PDF, under 10MB" |
+| Hover | Panel to `#F2F2F2` over 300ms `cubic-bezier(0.35,0,0.25,1)` |
+| Chosen state | The lead swaps to the filename; the hint stays |
+| Input | Native `<input type="file">` hidden inside the `<label>`, with an explicit `accept` |
+
+**Acceptance criteria**
+- The whole panel is the click target, and it is a `<label>` — so keyboard focus and screen readers reach the input without extra ARIA.
+- `accept` is always set to the formats named in the hint; the two must not disagree.
+- The size limit in the hint is enforced **server-side** as well, never by the hint alone.
+- Worth extracting as a shared component the second time it is needed.
+
+### BE-28 — Blank invoice template download
+
+Engineers without an invoice of their own can download a **blank template** from the upload modal.
+
+**Acceptance criteria**
+- A **Download template** action sits beneath the drop zone, prefaced "No invoice of your own?".
+- Serves a static PDF — the same document for every engineer, with no personal or period data merged in.
+- Addressed to **Castille Resources Ltd.**, matching the generated invoices (BE-27).
+- Stored as a versioned asset so Finance can replace it without a deploy.
 
 ### BE-24 — Automatic engineer invoice submissionFinance asked whether the engineer can submit an invoice directly from the portal, since the portal already captures the hours. **The system auto-submits it on their behalf** at the end of the last day of the month — the engineer never files an invoice manually.
 
