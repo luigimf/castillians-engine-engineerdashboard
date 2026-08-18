@@ -71,7 +71,7 @@ Backend specification for **SD-3467**. Carries a change to two month-end reports
 ```
 periodEarned = the bench period containing entry.date      // SD-3459, pro-rated first period included
 periodBilled = the first period still open at approval time
-carriedOver  = approvedAt > periodEarned.end               // i.e. periodEarned != periodBilled
+carriedOver  = approvedAt > periodEarned.end               // the hours bill in a later period
 payableNextPeriod = carriedOver                            // derived, never stored
 ```
 
@@ -87,18 +87,22 @@ payableNextPeriod = carriedOver                            // derived, never sto
 - The flag is computed once at approval and re-derives identically on every later read, so a closed period's exports and the label always agree.
 - The flag is false on declined entries and on anything still awaiting a decision, and it never alters `status` — a carried entry is still `approved`.
 
-### Report columns — payroll checklist and engineer invoicing export
+### Report columns — supplier checklist, engineer invoicing and client billing
 
 | Column | Meaning |
 |---|---|
 | **Period Earned** | The billing period the entry's date falls in, against the bench's own period |
-| **Period Billed** | The period the hours are invoiced in — the open period at approval |
-| **Carried Over** | Yes/No, **derived** from the two. No new stored state; gives Finance something to filter on |
+| **Hours earned this period** | The row's hours, when Period Earned is the report's own period |
+| **Hours earned in earlier periods** | The row's hours, when Period Earned is earlier |
 
-- Equal values for an entry approved inside its own period; where they differ the row is a **carry-over**.
+There is **no `Period Billed` column**: hours reach a report only when approved, so a row's billed period is always the report's own — it is the file's header, not a field.
+
+- An entry approved inside its own period fills **earned this period**; one approved after its period closed fills **earned in earlier periods**, on its own row with its month beside it.
+- Exactly one of the two columns is filled per row, and they always sum to the row's hours.
+- **All three reports carry the split**, so the client and supplier sides of a period explain the same timing.
 - Rows are keyed **engineer × bench × Period Earned**, so one export can carry two or more rows for the same engineer and bench.
 - **Carried hours are never merged into the normal row.** 150 hours earned this period plus 12 approved late must not appear as a single 162-hour row — Finance has to see the carry-over rather than absorb it into the wrong month.
-- Every existing column keeps its position and name; the new ones are **appended to the Hours group**.
+- Every existing column keeps its position and name; the new ones are **appended to the Hours group**. Normal Hours and Overage Hours are unchanged, and **amounts stay a single figure per row**.
 - The **SFM supplier upload's 22 fixed columns are untouched** — an SFM row follows the invoice, which is issued in the Period Billed.
 - The month-end email body already lists entries held back at the 23:59 cut-off; the export must now show **where those hours landed** when they were eventually approved.
 

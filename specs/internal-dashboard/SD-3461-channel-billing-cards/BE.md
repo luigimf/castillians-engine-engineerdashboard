@@ -38,7 +38,7 @@ One entry per **root client**, each aggregating its whole subtree.
 - Any prior period is requestable; the current period is served with a to-date flag.
 - **No email is sent.**
 - Filenames `castillians-{report}-{YYYY-MM}.xlsx`.
-- Payroll checklist carries **Period Earned**, **Period Billed** and derived **Carried Over** (BE-22, SD-3467).
+- Payroll checklist, engineer invoicing **and client billing** all carry **Period Earned** plus the two hours columns — **earned this period** and **earned in earlier periods** (BE-22, SD-3467). Both sides of an audit explain their own timing, and no report carries a redundant `Period Billed`.
 - The SFM upload's 22 columns and header row are **untouched** by that change.
 - Finance fields are read from **Zoho at generation time** (BE-23) — never copied into the portal.
 - A record missing a **mandatory** field **blocks that row** and is named in the response; it never exports as a blank cell that fails on SFM import.

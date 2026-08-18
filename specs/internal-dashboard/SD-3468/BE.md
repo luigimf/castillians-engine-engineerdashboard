@@ -74,10 +74,15 @@ snapshot(period) = approved work logs at 23:59 on the period's last day, after B
 
 ## Carry-over columns
 
-The supplier checklist and the engineer invoicing export carry **Period Earned**, **Period Billed** and derived **Carried Over** (BE-22, SD-3467).
+The supplier checklist, the engineer invoicing export **and the client billing report** each replace their single Hours figure with **Period Earned**, **Hours earned this period** and **Hours earned in earlier periods** (BE-22, SD-3467). There is **no `Period Billed` column** — it would be the report's own period on every row.
+
+Hours count towards billing **only when approved**, so an approval taken after a period closes moves the **client** charge and the **engineer** payment into the same later period. The two sides never diverge; these columns exist to explain the timing, not to reconcile a difference.
 
 **Acceptance criteria**
-- Rows are keyed **engineer × bench × Period Earned**; carried hours are never merged into the normal row.
+- Rows are keyed **engineer × bench × Period Earned** on the supplier side, and **bench × Period Earned** on the client billing report; carried hours are never merged into the normal row on either side.
+- Exactly one of the two hours columns is filled per row, and the two always sum to the row's hours. Column totals give Finance the month's split without a pivot.
+- **Amounts remain a single figure per row**; Normal Hours and Overage Hours keep their own columns.
+- For any period, the **client hours and the supplier hours tally exactly** — same approvals, same snapshot. A period where they differ is a defect, not a rounding matter.
 - The SFM upload's 22 columns are untouched — an SFM row follows the invoice, issued in the Period Billed.
 - A late approval never rewrites a closed period's files.
 

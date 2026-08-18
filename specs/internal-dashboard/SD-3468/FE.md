@@ -8,7 +8,7 @@ Handoff for **SD-3468**. Four generated spreadsheets and the scheduled run behin
 |---|---|
 | Supplier checklist | Internal → Channel & Billing → **Download a Report** (SD-3461) |
 | SFM supplier upload | Internal → Channel & Billing → **Download a Report** (SD-3461) |
-| Client billing | **Download a Report**, and per channel on the Channel page (SD-3462) |
+| Client billing | **Download a Report**, and per channel on the Channel page (SD-3462) — carries the same Period Earned + hours-split columns as the supplier side |
 | Engineer invoicing | Internal → Engagements → **Download Engineer Invoicing** (SD-3464) |
 
 This story is what those buttons produce. Build the generators; do not build a second set of modals.

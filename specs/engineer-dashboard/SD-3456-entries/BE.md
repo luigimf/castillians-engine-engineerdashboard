@@ -81,7 +81,7 @@ Same validation as create (see the SD-3455 spec), plus:
 
 - `403` when the entry falls in a **prior** subscription period.
 - A **manually approved** entry in the **current** period **is** editable.
-- Every entry carries **`payableNextPeriod`** — true when the **manual approval was taken after the end date of the period the entry's hours fall in**, so the hours are invoiced in the next one (BE-22, SD-3467). Server-derived from `periodEarned` vs `periodBilled`; the client renders the **"Payable the following period"** label from this flag alone and never computes it from dates.
+- Every entry carries **`payableNextPeriod`** — true when the **manual approval was taken after the end date of the period the entry's hours fall in**, so the hours are invoiced in the next one (BE-22, SD-3467). Server-derived from the approval date against `periodEarned.end`; the client renders the **"Payable the following period"** label from this flag alone and never computes it from dates.
 - `payableNextPeriod` is false on declined entries, on anything awaiting a decision, on **auto-approved** entries (approved the instant they are logged), and on entries approved inside their own period — however old the entry is now. **Age never sets the flag; the approval timestamp does.**
 - Only `hours`, `date` and `description` are mutable.
 

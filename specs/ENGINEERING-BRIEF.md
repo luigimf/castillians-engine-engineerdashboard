@@ -228,7 +228,7 @@ The checklist sample carries a **two-row header** (label on row 1, continuation 
 | Client | Client Name, Client Code, VBench Code |
 | Supplier (engineer) | Supplier, Supplier Company Name, SFM A/C, NAC, Payment Type, VAT Code, Currency |
 | Rates | Supplier Rate, Subscription Rate, Overage Rate (1st month) |
-| Hours | Normal Hours, Overage Hours, **Period Earned**, **Period Billed**, **Carried Over** |
+| Hours | Normal Hours, Overage Hours, **Period Earned**, **Hours earned this period**, **Hours earned in earlier periods** |
 | Amounts | Invoice Contractor, Client Overage |
 | Process tracking | T/Sheet Recvd, T/Sheet Apprvd, INV Calc Posted, Invoice Recvd, Invoice Number, Ready for SFM, Copied to File, SFM Posted, Payment Processed, Payment Checked |
 
@@ -236,19 +236,23 @@ The checklist sample carries a **two-row header** (label on row 1, continuation 
 
 Approval required applies only to ongoing engagements, but on an ongoing engagement an entry from a **previous billing period can still be approved**. Approving late bills those hours in the **next** period, and the export must say so rather than absorbing them into the wrong month.
 
+**Every engineer- and client-facing report replaces its single Hours figure with a period split:**
+
 | Column | Meaning |
 |---|---|
-| `Period Earned` | The billing period the entry's date falls in, resolved against **that bench's own** subscription period (BE-02, BE-03) |
-| `Period Billed` | The period the hours are invoiced in — the first period still open at the moment of approval |
-| `Carried Over` | Yes/No, **derived** from the two. No new stored state; it gives Finance a column to filter on |
+| **Period Earned** | The month the hours were worked, resolved against that bench's own subscription period |
+| **Hours earned this period** | The row's hours, when Period Earned **is** the report's own period |
+| **Hours earned in earlier periods** | The row's hours, when Period Earned is **earlier** |
 
-**Acceptance criteria**
-- Both columns appear on the **payroll checklist** and on the **engineer invoicing** spreadsheet. They are appended to the Hours group; every existing column keeps its position and name.
-- The two are **equal** for an entry approved inside its own period. Where they differ the row is a carry-over.
-- Rows are keyed **engineer × bench × Period Earned**, so one export may carry several rows for the same engineer and bench.
-- **Carried hours are never merged into the normal row.** 150 hours earned this period plus 12 approved late must not appear as a single 162-hour row.
-- The **SFM supplier upload's 22 fixed columns are untouched** — an SFM row follows the invoice, which is issued in the Period Billed.
-- Approving late **never rewrites a closed period**; re-running that month still reproduces byte-identical output.
+- Exactly one of the two hours columns is filled per row; together they always equal the row's hours.
+- **There is no `Period Billed` column.** It would equal the report's own period on every row — it is already the file's header and filename, so it carries no information.
+- The **column totals** answer the question Finance asks of a month at a glance: _"August: 312 hours earned in August, 12 carried in from July."_
+- **Amounts stay a single figure per row.** Period Earned identifies the row, so splitting money as well only widens the sheet.
+- **Normal Hours and Overage Hours keep their own columns**, unchanged; the split applies to the row's hours as a whole.
+- Rows are keyed **engineer × bench × Period Earned** on the supplier side and **bench × Period Earned** on client billing, so earlier-period hours sit on their own line with their month beside them rather than being buried in a total.
+- **Carried hours are never merged into the normal row.** 150 hours earned this period plus 12 approved late are two rows, not a single 162-hour one.
+- **All three reports carry the split** — supplier checklist, engineer invoicing and client billing. Finance audits the two sides against each other, so each side of a period must be explicable from its own file.
+- The **SFM supplier upload's 22 columns are untouched**: an SFM row follows the invoice, which is issued in the period it is billed in.
 - The month-end email body already lists entries held back at the 23:59 cut-off. The export must now show **where those hours landed** once they were approved.
 - The same carry-over is visible **in the product**, not only in the export: the entry payload carries `payableNextPeriod`, and every entry surface renders a **"Payable the following period"** label beside the status tag (SD-3456, SD-3465, SD-3467). The status tag itself is unchanged — the entry is still **Manually approved**.
 - `payableNextPeriod` is true **only when the manual approval was taken after the end date of the period the hours were worked in** — `approvedAt > periodEarned.end`. An entry approved inside its own period is paid with that period however old it is now, and an auto-approved entry can never be a carry-over.
