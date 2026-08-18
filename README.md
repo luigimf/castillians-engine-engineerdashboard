@@ -10,6 +10,12 @@ specs/engineer-dashboard/SD-3453-tabs-overview/BE.md     endpoints, payloads, te
 specs/engineer-dashboard/SD-3455-log-hours/
 specs/engineer-dashboard/SD-3456-entries/
 specs/engineer-dashboard/SD-3458-invoices/
+specs/internal-dashboard/SD-3461-channel-billing-cards/
+specs/internal-dashboard/SD-3462-channel-page/
+specs/internal-dashboard/SD-3464-engagements-benches/
+specs/internal-dashboard/SD-3465-bench-entry/
+specs/internal-dashboard/SD-3466-engagements-work-logs-filters/
+specs/internal-dashboard/SD-3467-engagements-work-log-entry/
 ```
 
 Every path above is **stable**. Files are updated in place, never renamed or moved, so a Jira
@@ -56,6 +62,19 @@ Write from the **FE doc**; keep the prototype open beside it.
 | `SD-3458-invoices/` | [SD-3458](https://castille-labs.atlassian.net/browse/SD-3458) | Invoices — the `/invoices` page |
 
 All under Epic [SD-3452](https://castille-labs.atlassian.net/browse/SD-3452).
+
+### Internal Dashboard — Epic [SD-3460](https://castille-labs.atlassian.net/browse/SD-3460)
+
+| Spec folder | Jira | Covers |
+|---|---|---|
+| `internal-dashboard/SD-3461-channel-billing-cards/` | [SD-3461](https://castille-labs.atlassian.net/browse/SD-3461) | Root client cards & report downloads |
+| `internal-dashboard/SD-3462-channel-page/` | [SD-3462](https://castille-labs.atlassian.net/browse/SD-3462) | Channel breakdown tree & billing |
+| `internal-dashboard/SD-3464-engagements-benches/` | [SD-3464](https://castille-labs.atlassian.net/browse/SD-3464) | Engagements → Virtual Benches tab |
+| `internal-dashboard/SD-3465-bench-entry/` | [SD-3465](https://castille-labs.atlassian.net/browse/SD-3465) | Expanded bench entry |
+| `internal-dashboard/SD-3466-engagements-work-logs-filters/` | [SD-3466](https://castille-labs.atlassian.net/browse/SD-3466) | Work Logs tab — filters & batching |
+| `internal-dashboard/SD-3467-engagements-work-log-entry/` | [SD-3467](https://castille-labs.atlassian.net/browse/SD-3467) | Work log entry, history & per-engineer page |
+
+See `specs/internal-dashboard/README.md` for build order.
 
 Each folder holds `FE.md` (Angular components, service, models, SCSS) and `BE.md` (endpoints,
 payloads, validation order, data model, test cases). The Jira ticket carries the **FE UX

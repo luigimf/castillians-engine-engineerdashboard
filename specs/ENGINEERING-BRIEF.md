@@ -224,9 +224,28 @@ On the **last day of the month**, once all engineer invoices are submitted, an a
 | Client | Client Name, Client Code, VBench Code |
 | Supplier (engineer) | Supplier, Supplier Company Name, SFM A/C, NAC, Payment Type, VAT Code, Currency |
 | Rates | Supplier Rate, Subscription Rate, Overage Rate (1st month) |
-| Hours | Normal Hours, Overage Hours |
+| Hours | Normal Hours, Overage Hours, **Period Earned**, **Period Billed**, **Carried Over** |
 | Amounts | Invoice Contractor, Client Overage |
 | Process tracking | T/Sheet Recvd, T/Sheet Apprvd, INV Calc Posted, Invoice Recvd, Invoice Number, Ready for SFM, Copied to File, SFM Posted, Payment Processed, Payment Checked |
+
+**Carry-over — hours approved late (SD-3467)**
+
+Approval required applies only to ongoing engagements, but on an ongoing engagement an entry from a **previous billing period can still be approved**. Approving late bills those hours in the **next** period, and the export must say so rather than absorbing them into the wrong month.
+
+| Column | Meaning |
+|---|---|
+| `Period Earned` | The billing period the entry's date falls in, resolved against **that bench's own** subscription period (BE-02, BE-03) |
+| `Period Billed` | The period the hours are invoiced in — the first period still open at the moment of approval |
+| `Carried Over` | Yes/No, **derived** from the two. No new stored state; it gives Finance a column to filter on |
+
+**Acceptance criteria**
+- Both columns appear on the **payroll checklist** and on the **engineer invoicing** spreadsheet. They are appended to the Hours group; every existing column keeps its position and name.
+- The two are **equal** for an entry approved inside its own period. Where they differ the row is a carry-over.
+- Rows are keyed **engineer × bench × Period Earned**, so one export may carry several rows for the same engineer and bench.
+- **Carried hours are never merged into the normal row.** 150 hours earned this period plus 12 approved late must not appear as a single 162-hour row.
+- The **SFM supplier upload's 22 fixed columns are untouched** — an SFM row follows the invoice, which is issued in the Period Billed.
+- Approving late **never rewrites a closed period**; re-running that month still reproduces byte-identical output.
+- The month-end email body already lists entries held back at the 23:59 cut-off. The export must now show **where those hours landed** once they were approved.
 
 **Sheet 2 — SFM supplier bulk upload (22 fixed columns, one row per supplier invoice)**
 
@@ -525,7 +544,7 @@ Every list that paginates or truncates must state **its own** page size or revea
 | Surface | Behaviour | Size |
 |---|---|---|
 | Engineer → Work Log → **Entries** (list view) | Paginated, prev/next with "Page N of M" | **5 per page** |
-| Internal → Engagements → **Work Logs** | Paginated | **8 per page** |
+| Internal → Engagements → **Work Logs** | **First 10 shown**, then a "See more (N)" button appends the next 10 | **10 per batch** |
 | Manager → Virtual Bench → **Engineer Work Logs** | **First 3 shown**, then a "See more (N)" button expands the list; once expanded it paginates | **3 collapsed / 20 per page expanded** |
 | Manager → Virtual Bench → **Skills Matrix** | First 12 skills, then "See more" | **12** |
 
@@ -820,7 +839,7 @@ Rules every list, form and async surface follows. Written because these are the 
 |---|---|---|
 | Engineer → Work Log → Entries (list) | Paginated | **5 / page** |
 | Engineer → Invoices | One period at a time, not paginated | — |
-| Internal → Engagements → Work Logs | Paginated | **8 / page** |
+| Internal → Engagements → Work Logs | First **10**, then "See more (N)" appends 10 more | **10 per batch** |
 | Internal → Channel & Billing → bench rows | Not paginated (accordion tree) | — |
 | Manager → Virtual Bench → Engineer Work Logs | First **3**, then "See more (N)" → paginated | **3 collapsed / 20 expanded** |
 | Manager → Virtual Bench → Skills Matrix | First **12**, then "See more" | **12** |
@@ -932,3 +951,87 @@ Every async surface has **four** states. A story that names only the happy path 
 - Hours render as bare integers where the label already says hours.
 - Dates are computed **server-side** and returned resolved (`minLoggableDate`, `maxLoggableDate`) — the client never derives a period boundary.
 - All timestamps are stored UTC and rendered in **CET** with the zone named where it matters.
+
+
+---
+
+# H. Client hierarchy — recursive lineage (SD-3416 / SD-3417)
+
+Foundational. Every ecosystem-level figure on the Internal and Manager dashboards — engineers, billing, skills, capacity — rolls up through this structure.
+
+## H1. Source of truth
+
+Built from Zoho's **`Parent Brand`** field on each client record. Nothing about the tree is stored in the portal; it is derived on read.
+
+## H2. Recursive access
+
+Viewing a client returns **that client plus every descendant in its lineage**, to unbounded depth.
+
+**Acceptance criteria**
+- Recursion is **depth-unbounded**. No hardcoded generation limit.
+- A client with no `Parent Brand` is a **Root**.
+- **Siblings are supported**: any number of brands may share the same `Parent Brand`, at any depth.
+- A parent may itself be a child — branching points occur at every level.
+- Aggregates (engineers, benches, skills, capacity, billing) sum the **selected client and all descendants**, never its ancestors or its siblings' subtrees.
+
+## H3. Generation labels — derived from depth
+
+Labels describe **position in the tree**, never a stored attribute:
+
+| Depth | Label |
+|---|---|
+| 0 | `ROOT` |
+| 1 | `PARENT` |
+| 2 | `CHILD GENERATION 1` |
+| 3 | `CHILD GENERATION 2` |
+| n | `CHILD GENERATION n-1` |
+
+**Acceptance criteria**
+- The label is computed from depth on render. Re-parenting a brand changes its label with no data migration.
+- **Siblings at the same depth carry the same label** — two Generation 2 brands under one parent both read `CHILD GENERATION 2`.
+- Colour-coding is by depth, using the established palette, in Bricolage uppercase.
+
+## H4. Worked examples
+
+**Simple chain** — B→A, C→B, D→C:
+
+```
+ROOT                 Brand A
+  PARENT             Brand B
+    CHILD GEN 1      Brand C
+      CHILD GEN 2    Brand D
+```
+
+**With siblings** — add E→C:
+
+```
+ROOT                 Brand A
+  PARENT             Brand B
+    CHILD GEN 1      Brand C
+      CHILD GEN 2    Brand D
+      CHILD GEN 2    Brand E     ← sibling of D, same depth, same label
+```
+
+**Multiple branching points** — B→A, C→B, D→C, E→C, F→B, G→F, H→A, I→H, J→I, K→H:
+
+```
+ROOT                 Brand A
+  PARENT             Brand B          (children: C, F)
+    CHILD GEN 1      Brand C          (children: D, E)
+      CHILD GEN 2    Brand D
+      CHILD GEN 2    Brand E
+    CHILD GEN 1      Brand F          (child: G)
+      CHILD GEN 2    Brand G
+  PARENT             Brand H          (children: I, K)
+    CHILD GEN 1      Brand I          (child: J)
+      CHILD GEN 2    Brand J
+    CHILD GEN 1      Brand K
+```
+
+Note **two PARENT-level brands under one root** (B and H), and brands that are simultaneously child and parent (B, C, F, H, I).
+
+**Acceptance criteria**
+- All three examples render exactly as shown. Use them as test fixtures.
+- Sibling order is **deterministic** — alphabetical by client name, so the tree does not reshuffle between loads.
+- A **cycle** in `Parent Brand` (A→B→A, whether by data error or mid-edit) is detected and reported, not followed. An unguarded recursive query will hang.
+- A client whose `Parent Brand` names a **missing or archived** record is treated as a Root and flagged, rather than silently dropped from its channel.
