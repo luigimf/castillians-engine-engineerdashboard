@@ -5,15 +5,15 @@ Everything an engineer needs to build the Engineer Dashboard.
 ```
 prototype/index.html                  the prototype — open in any browser, no build step
 specs/ENGINEERING-BRIEF.md            whole-platform spec: 25 numbered BE rules, integrations
-specs/SD-3453-tabs-overview/FE.md     Angular code
-specs/SD-3453-tabs-overview/BE.md     endpoints, payloads, test cases
-specs/SD-3455-log-hours/
-specs/SD-3456-entries/
-specs/SD-3458-invoices/
+specs/engineer-dashboard/SD-3453-tabs-overview/FE.md     Angular code
+specs/engineer-dashboard/SD-3453-tabs-overview/BE.md     endpoints, payloads, test cases
+specs/engineer-dashboard/SD-3455-log-hours/
+specs/engineer-dashboard/SD-3456-entries/
+specs/engineer-dashboard/SD-3458-invoices/
 ```
 
 Every path above is **stable**. Files are updated in place, never renamed or moved, so a Jira
-ticket that points at `specs/SD-3455-log-hours/FE.md` stays correct however many times the
+ticket that points at `specs/engineer-dashboard/SD-3455-log-hours/FE.md` stays correct however many times the
 content is revised.
 
 ---

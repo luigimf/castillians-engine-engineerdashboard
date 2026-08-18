@@ -804,3 +804,131 @@ Everything else (Card, Input, Select, Button, StatusBadge, Avatar, SkillTag, Toa
 - **Pro-rating and the ×1.25 multiplier** (BE-03, BE-06) directly affect invoices. Finance must sign off the rules before build.
 - **Shared-bench concurrency** (BE-14) needs server-side capacity checks; a client-side guard will let double-submissions through.
 - **The billing floor** (BE-04) is commercially sensitive. Confirm no API response leaks the capacity-vs-logged difference to client-facing dashboards.
+
+
+---
+
+# G. Interaction patterns — platform-wide
+
+Rules every list, form and async surface follows. Written because these are the cases most often left to a developer's judgement, and where two developers reasonably diverge. Each story's criteria state its own values; this section states the **behaviour** those values plug into.
+
+## G1. Pagination
+
+### Page sizes — decided, not defaults
+
+| Surface | Behaviour | Value |
+|---|---|---|
+| Engineer → Work Log → Entries (list) | Paginated | **5 / page** |
+| Engineer → Invoices | One period at a time, not paginated | — |
+| Internal → Engagements → Work Logs | Paginated | **8 / page** |
+| Internal → Channel & Billing → bench rows | Not paginated (accordion tree) | — |
+| Manager → Virtual Bench → Engineer Work Logs | First **3**, then "See more (N)" → paginated | **3 collapsed / 20 expanded** |
+| Manager → Virtual Bench → Skills Matrix | First **12**, then "See more" | **12** |
+| Manager → Subscriptions → plan breakdown | Not paginated (grouped by client) | — |
+
+Each is a **named constant** on both client and server, never a literal inside a slice expression. They will be tuned.
+
+### Contract
+
+```
+GET /...?page={n}&pageSize={n}
+→ { page, pageSize, total, items[] }
+```
+
+**Acceptance criteria**
+- The response carries `total` so the client renders "Page N of M" **without a second call**.
+- `page` is **1-indexed**. A request for page 0 or a negative page returns page 1.
+- A request **beyond the last page returns the last page**, not an empty list. A stale page number in client state must never blank a card.
+- `pageSize` above a **server-side maximum** is clamped, not honoured — an unbounded page size is a denial-of-service vector.
+- Sort order is **stable and identical across pages**. An unstable sort duplicates or drops rows at page boundaries; where the sort key can tie (two entries on the same date), break the tie on a unique id.
+- Server-side pagination only. Never fetch the full set and slice on the client.
+
+### Client behaviour
+
+- Controls render **only** when `total > pageSize`. A lone "Page 1 of 1" is noise.
+- Prev/next disable at the first and last page — disabled, not hidden, so the control doesn't reflow.
+- **Reset to page 1** on: creating an item, changing a filter, changing a period, switching tab, or changing search terms. Anything that changes the result set resets the cursor.
+- **A newly created item resets to page 1** on every list showing it. It is the newest, so it belongs on the first page — leaving the user on page 3 hides what they just did.
+- Deleting the last item on the final page steps **back** one page rather than showing an empty one.
+- Page number is **not** persisted across navigation away and back.
+
+### Truncate-then-paginate
+
+Where a list shows a few rows and expands (Manager bench logs, Skills Matrix):
+
+- The collapsed count and the expanded page size are **different values** — state both.
+- **"See more (N)" states the remaining count**, not the total.
+- Expanding jumps to **page 1 of the paginated view**; it does not append to the collapsed rows.
+- The button is absent when the total is at or below the collapsed count.
+
+---
+
+## G2. Empty, loading and error states
+
+Every async surface has **four** states. A story that names only the happy path is incomplete.
+
+| State | Rule |
+|---|---|
+| **Loading** | Skeleton rows at the container's natural height — never a spinner that collapses the card, and never a layout shift when data arrives |
+| **Empty** | A plain sentence in `--gray-700` at 13px, inside the card. The card keeps its minimum height and its controls stay available |
+| **Error** | Inline message with a retry action, **inside** the card. Never a toast alone — a toast that is missed leaves an unexplained blank |
+| **Populated** | — |
+
+**Acceptance criteria**
+- Empty and error copy is **specific to the surface**: "No hours logged for this bench in this period", not "No data".
+- An empty result is **not** an error and must not surface as one.
+- A container's minimum height is set so switching between the four states never reflows the page.
+- Filters and navigation remain usable in the empty and error states — the user must be able to change what they asked for.
+
+---
+
+## G3. Forms and validation
+
+- **Validation is server-side.** Client checks are for immediacy, not correctness; a request bypassing the UI must still be refused.
+- The server returns the **first** failure in a defined order, not an aggregate — order is stated per endpoint.
+- Field-level errors render **beneath the field**; form-level errors above the submit action.
+- Validation that can run as the user types (an hours ceiling, a character limit) does so **live**, not on submit.
+- Submitting with required fields empty **highlights those fields in red** — `[data-invalid]` on the wrapper, applied platform-wide.
+- Required markers are a **black** asterisk.
+- The submit button label **does not change** with validation state.
+- A successful submit closes its modal and fires a **success toast** naming what happened.
+- **Double-submit is guarded server-side** (idempotency key or a state check), not only by disabling the button — a slow network invites a second click.
+
+---
+
+## G4. Optimistic updates and refetching
+
+- Mutations that change a derived figure (logging hours changes capacity, remaining hours, earnings) **refetch the affected reads** rather than patching client state. Recomputing thresholds client-side is how the two drift.
+- Where a refetch would feel slow, the row may update optimistically **but the derived totals must not** — a wrong total is worse than a slower one.
+- A failed mutation **rolls back** and surfaces the reason inline.
+- Shared-pool data (bench capacity) is **never cached across users**. One engineer's entry changes what every other engineer on that bench sees.
+
+---
+
+## G5. Concurrency
+
+- Any check-then-write against a shared limit is **atomic** server-side. Two engineers logging simultaneously against the same remaining hours: exactly one succeeds.
+- Sequences (invoice numbers) come from a **database-owned sequence**, never from counting existing rows.
+- Month-end jobs are **idempotent** — a re-run for a closed period reproduces identical output and does not re-send.
+
+---
+
+## G6. Filters, search and tabs
+
+- Filter state is **client-side**; the server receives it as query parameters and holds no session state.
+- Search is **debounced at 300ms**, and a request is cancelled if superseded.
+- Counts on filter chips are the **grand totals for their scope**, not the counts after the current search — a count that moves as you type is unreadable.
+- Changing any filter **resets pagination to page 1**.
+- The default filter state is stated per surface (Internal Work Logs default to *This period* and *Ongoing*).
+- An active tab or filter is visually distinct by **weight and fill**, never by colour alone.
+
+---
+
+## G7. Money, dates and numbers
+
+- Currency **codes**, never symbols. The code sits in the label — `EARNINGS (EUR)` — with a bare value.
+- **Exact cents.** Never round to whole units for display.
+- **No currency conversion anywhere.** Totals across differing currencies are shown **per currency**, never combined.
+- Hours render as bare integers where the label already says hours.
+- Dates are computed **server-side** and returned resolved (`minLoggableDate`, `maxLoggableDate`) — the client never derives a period boundary.
+- All timestamps are stored UTC and rendered in **CET** with the zone named where it matters.
