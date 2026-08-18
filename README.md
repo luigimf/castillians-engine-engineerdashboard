@@ -16,6 +16,7 @@ specs/internal-dashboard/SD-3464-engagements-benches/
 specs/internal-dashboard/SD-3465-bench-entry/
 specs/internal-dashboard/SD-3466-engagements-work-logs-filters/
 specs/internal-dashboard/SD-3467-engagements-work-log-entry/
+specs/internal-dashboard/SD-3468/
 ```
 
 Every path above is **stable**. Files are updated in place, never renamed or moved, so a Jira
@@ -73,6 +74,7 @@ All under Epic [SD-3452](https://castille-labs.atlassian.net/browse/SD-3452).
 | `internal-dashboard/SD-3465-bench-entry/` | [SD-3465](https://castille-labs.atlassian.net/browse/SD-3465) | Expanded bench entry |
 | `internal-dashboard/SD-3466-engagements-work-logs-filters/` | [SD-3466](https://castille-labs.atlassian.net/browse/SD-3466) | Work Logs tab — filters & batching |
 | `internal-dashboard/SD-3467-engagements-work-log-entry/` | [SD-3467](https://castille-labs.atlassian.net/browse/SD-3467) | Work log entry, history & per-engineer page |
+| `internal-dashboard/SD-3468/` | [SD-3468](https://castille-labs.atlassian.net/browse/SD-3468) | Month-end report generation (4 reports) |
 
 See `specs/internal-dashboard/README.md` for build order.
 

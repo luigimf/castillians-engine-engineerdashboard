@@ -10,6 +10,7 @@ Epic: [SD-3460](https://castille-labs.atlassian.net/browse/SD-3460)
 | `SD-3465-bench-entry/` | [SD-3465](https://castille-labs.atlassian.net/browse/SD-3465) | Expanded bench entry — overage, allocation, notes, order forms |
 | `SD-3466-engagements-work-logs-filters/` | [SD-3466](https://castille-labs.atlassian.net/browse/SD-3466) | Work Logs tab — search, filters & batching (10 + See more) |
 | `SD-3467-engagements-work-log-entry/` | [SD-3467](https://castille-labs.atlassian.net/browse/SD-3467) | Work log entry, edit history, View Work Log & the per-engineer page |
+| `SD-3468/` | [SD-3468](https://castille-labs.atlassian.net/browse/SD-3468) | Month-end report generation — supplier checklist, SFM upload, client billing, engineer invoicing |
 
 **SD-3459** — per-bench Start and Auto-Renew dates — is specified as **BE-07** in `../ENGINEERING-BRIEF.md` rather than in its own folder. The change is to the Internal dashboard's Manage Subscription modal, but it **blocks the Engineer Dashboard epic**: every date-derived figure resolves from those two fields.
 
@@ -27,4 +28,8 @@ Epic: [SD-3460](https://castille-labs.atlassian.net/browse/SD-3460)
 3. **SD-3466** — the Work Logs list, filters and batching.
 4. **SD-3467** — the entry, history, and the per-engineer page. Ship the BE-22 report columns with it.
 
-Scope still to spec, per `../ENGINEERING-BRIEF.md`: the month-end reports as a story, and the SFM integration.
+**There is no SFM integration** — the platform generates the 22-column file and a team member uploads it (§A6). All finance reference data is maintained in Zoho by our team (SD-3463).
+
+Scope still to spec, per `../ENGINEERING-BRIEF.md`: organisation, roles and access (§A4), and the email templates (Email Notifications epic).
+
+New spec folders are named by **Jira key only** — `SD-3468` — so a renamed ticket never invalidates a path.
