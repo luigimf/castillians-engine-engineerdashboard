@@ -15,6 +15,35 @@ Backend specification for **SD-3468**. Four reports, one snapshot, no SFM integr
 
 Column-by-column definitions: **BE-22**. Zoho field mapping: **BE-23**. Invoice PDF: **BE-27**.
 
+## The templates are the contract
+
+Finance's two templates are **attached to SD-3468**: `Payroll 2026 checklist - Subscription.xlsx` and `SFM Supplier Invoices Upload.xlsx`. BE-22 transcribes them; **where a transcription and an attachment disagree, the attachment wins**.
+
+**Where each populated column comes from** — transcribed from the annotation rows in John's sample (`SFM Supplier Invoices Upload.xlsx`, rows 3–4):
+
+| Col | Header | Meaning | Source |
+|---|---|---|---|
+| D | `ENTITYCODE` | Engineer's SFM account number | **Zoho** |
+| E | `NACCODE` | SFM nominal account number | **Zoho** |
+| F | `TRANDATE` | Invoice date | **Invoice capture** |
+| K | `INV NO` | Invoice number | **Invoice capture** |
+| M | `DETAILS` | VBench code | **Invoice capture** |
+| Q | `VATCODE` | VAT code | **Zoho** |
+| R | `CURRENCY` | Billing currency | **Invoice capture** |
+| S | `AMOUNT` | Invoice value in EUR | **Invoice capture** |
+| U | `FAMOUNT` | Invoice value in foreign currency | **Invoice capture** |
+
+"**Invoice capture**" now means **this platform**: the engineer invoice it generates, or the one the engineer uploaded in its place (BE-27, BE-28). Everything else on the row is either a **Zoho** reference code or a fixed constant.
+
+> ⚠ **The sample's annotation rows are documentation, not data.** Rows 3 and 4 of the template hold the column meanings and their sources. The generated file carries **row 1 (headers) then data from row 2** — never the note rows.
+
+The payroll checklist sample carries a **two-row header** and Finance's working notes in cell comments — reproduce the header exactly; the comments are context, not content.
+
+**Acceptance criteria**
+- A test asserts the generated header row is **byte-identical** to the sample's. A renamed or reordered header silently breaks the SFM import, and with no integration nothing else will catch it.
+- The generated file contains **headers then data**. The sample's annotation rows are never emitted.
+- Zoho supplies only the **static reference codes** (`ENTITYCODE`, `NACCODE`, `VATCODE`, payment type, IBAN, BIC, company name). Every invoice-derived value comes from the platform's own invoice record.
+
 ## SFM — file handoff, not an integration
 
 ```

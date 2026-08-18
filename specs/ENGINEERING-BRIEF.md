@@ -217,7 +217,11 @@ Approval applies **only** to hours exceeding the 100% capacity plan.
 
 On the **last day of the month**, once all engineer invoices are submitted, an automated email goes to **Shared Services** with a generated `.xlsx` populating the finance master file. It has two sheets.
 
+> **The two templates from Finance are attached to SD-3468** — `Payroll 2026 checklist - Subscription.xlsx` and `SFM Supplier Invoices Upload.xlsx`. They are the **authoritative** column order and header text; the tables below transcribe them. Where a transcription and an attachment disagree, **the attachment wins** — and the transcription is the bug.
+
 **Sheet 1 — Payroll checklist (one row per engineer × Virtual Bench × month)**
+
+The checklist sample carries a **two-row header** (label on row 1, continuation on row 2) and Finance's own working notes in cell comments. Reproduce the header exactly as supplied; the comments are context for us, not content to emit.
 
 | Group | Columns |
 |---|---|
@@ -273,6 +277,25 @@ Data rows begin at **row 2**. Columns split into two kinds.
 | `TRANTYPE`, `INTREF`, `DISCTYPE`, `DBCR` | **blank** — header present, cell empty |
 
 **Populated per line item** — the annotated columns:
+
+**Where each populated column comes from** — transcribed from the annotation rows in John's sample (`SFM Supplier Invoices Upload.xlsx`, rows 3–4):
+
+| Col | Header | Meaning | Source |
+|---|---|---|---|
+| D | `ENTITYCODE` | Engineer's SFM account number | **Zoho** |
+| E | `NACCODE` | SFM nominal account number | **Zoho** |
+| F | `TRANDATE` | Invoice date | **Invoice capture** |
+| K | `INV NO` | Invoice number | **Invoice capture** |
+| M | `DETAILS` | VBench code | **Invoice capture** |
+| Q | `VATCODE` | VAT code | **Zoho** |
+| R | `CURRENCY` | Billing currency | **Invoice capture** |
+| S | `AMOUNT` | Invoice value in EUR | **Invoice capture** |
+| U | `FAMOUNT` | Invoice value in foreign currency | **Invoice capture** |
+
+"**Invoice capture**" now means **this platform**: the engineer invoice it generates, or the one the engineer uploaded in its place (BE-27, BE-28). Everything else on the row is either a **Zoho** reference code or a fixed constant.
+
+> ⚠ **The sample's annotation rows are documentation, not data.** Rows 3 and 4 of the template hold the column meanings and their sources. The generated file carries **row 1 (headers) then data from row 2** — never the note rows.
+
 
 | Column | Header | Meaning | Source |
 |---|---|---|---|
