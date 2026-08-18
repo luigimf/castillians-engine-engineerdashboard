@@ -71,13 +71,21 @@ Backend specification for **SD-3467**. Carries a change to two month-end reports
 ```
 periodEarned = the bench period containing entry.date      // SD-3459, pro-rated first period included
 periodBilled = the first period still open at approval time
-carriedOver  = periodEarned != periodBilled                 // derived, never stored
+carriedOver  = approvedAt > periodEarned.end               // i.e. periodEarned != periodBilled
+payableNextPeriod = carriedOver                            // derived, never stored
 ```
+
+`approvedAt` is the timestamp of the **manual approval**, taken from the append-only history — not the entry date and not the read time.
 
 **Acceptance criteria**
 - Approving late adds the hours to the engineer's **next** period's invoicing.
 - `periodEarned` resolves against **that bench's own** subscription period — never the calendar month by default.
 - **Approving late never rewrites a closed period.** Re-running a closed month reproduces byte-identical output (§G5).
+- The entry payload carries **`payableNextPeriod: carriedOver`**, so every surface can render the **"Payable the following period"** label without recomputing periods client-side. One flag, one meaning, three dashboards.
+- **Entry age never sets the flag.** A June entry approved on 26 June reads `false` when it is fetched in September; the same entry approved on 9 July reads `true`. Compare `approvedAt` with the period end, never with today.
+- **Auto-approved entries are never carry-overs** — they are approved at the moment of logging, inside their own period, by definition.
+- The flag is computed once at approval and re-derives identically on every later read, so a closed period's exports and the label always agree.
+- The flag is false on declined entries and on anything still awaiting a decision, and it never alters `status` — a carried entry is still `approved`.
 
 ### Report columns — payroll checklist and engineer invoicing export
 

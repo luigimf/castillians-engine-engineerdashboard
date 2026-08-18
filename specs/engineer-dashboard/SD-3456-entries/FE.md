@@ -191,6 +191,20 @@ badgeLabel(s: EntryStatus) {
 
 Entries sort **most recent first**.
 
+### Payable the following period
+
+An entry **manually approved after the end date of the period the hours were worked in** is paid in the **next** period. Beside its status tag — never instead of it — the entry carries a second, quieter label reading **"Payable the following period"**.
+
+- **The trigger is the approval date, not the entry's age.** An entry logged in June and approved on 26 June — inside its own period — is paid with June, and carries **no** label however long ago that was. The same entry approved on 9 July, after the June period closed, is a carry-over and carries the label.
+- The comparison is the reviewer's approval timestamp against the **end date of the period the hours were worked in**, resolved on that bench's own cycle (SD-3459). Auto-approved entries are approved the moment they are logged, so they are never carry-overs.
+- Only a **manual approval taken on the Internal dashboard** can produce this state.
+
+- Rendered only when `payableNextPeriod` is true on the entry. The API sets it; the client never derives it from dates.
+- Treatment: white fill, `1px solid var(--gray-150)`, `var(--radius-md)`, padding `5px 9px`, body **10px weight 500**, `var(--gray-700)` — deliberately lighter than the status tag, so it reads as a qualifier rather than a second status.
+- Sits immediately after the status tag in the same flex row, with the row's own gap. It never changes the status tag's label or variant: an entry is still **Manually approved**.
+- Absent on entries approved inside their own period, on declined entries, and on anything still awaiting a decision.
+- The engineer sees the same label on their own entry, so the pay timing is never a surprise.
+
 ---
 
 ## 6. Edit history accordion

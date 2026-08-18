@@ -246,6 +246,8 @@ Approval required applies only to ongoing engagements, but on an ongoing engagem
 - The **SFM supplier upload's 22 fixed columns are untouched** — an SFM row follows the invoice, which is issued in the Period Billed.
 - Approving late **never rewrites a closed period**; re-running that month still reproduces byte-identical output.
 - The month-end email body already lists entries held back at the 23:59 cut-off. The export must now show **where those hours landed** once they were approved.
+- The same carry-over is visible **in the product**, not only in the export: the entry payload carries `payableNextPeriod`, and every entry surface renders a **"Payable the following period"** label beside the status tag (SD-3456, SD-3465, SD-3467). The status tag itself is unchanged — the entry is still **Manually approved**.
+- `payableNextPeriod` is true **only when the manual approval was taken after the end date of the period the hours were worked in** — `approvedAt > periodEarned.end`. An entry approved inside its own period is paid with that period however old it is now, and an auto-approved entry can never be a carry-over.
 
 **Sheet 2 — SFM supplier bulk upload (22 fixed columns, one row per supplier invoice)**
 

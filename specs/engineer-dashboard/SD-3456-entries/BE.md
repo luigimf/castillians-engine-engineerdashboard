@@ -81,6 +81,8 @@ Same validation as create (see the SD-3455 spec), plus:
 
 - `403` when the entry falls in a **prior** subscription period.
 - A **manually approved** entry in the **current** period **is** editable.
+- Every entry carries **`payableNextPeriod`** — true when the **manual approval was taken after the end date of the period the entry's hours fall in**, so the hours are invoiced in the next one (BE-22, SD-3467). Server-derived from `periodEarned` vs `periodBilled`; the client renders the **"Payable the following period"** label from this flag alone and never computes it from dates.
+- `payableNextPeriod` is false on declined entries, on anything awaiting a decision, on **auto-approved** entries (approved the instant they are logged), and on entries approved inside their own period — however old the entry is now. **Age never sets the flag; the approval timestamp does.**
 - Only `hours`, `date` and `description` are mutable.
 
 ---
@@ -181,8 +183,10 @@ An engagement that has ended cannot be re-scoped, so its entries are settled:
    `auto_approved`.
 5. `PATCH` an entry dated in the previous period → `403`.
 6. `PATCH` a manually approved entry in the current period → succeeds.
-7. Decline with an empty message → rejected.
-8. Declined entry → present in Engineer and Internal responses, **absent** from Manager.
+7. Approve a July entry in August → `payableNextPeriod: true`, status still `approved`, and the July period's figures are unchanged.
+8. A June entry approved on 26 June, read in September → `payableNextPeriod: false`. It was paid with June.
+9. Decline with an empty message → rejected.
+10. Declined entry → present in Engineer and Internal responses, **absent** from Manager.
 9. Declined entry's hours → excluded from `loggedHours` and earnings.
 10. Attempt to `UPDATE` or `DELETE` a history row → refused at the storage layer.
 11. Entry on an ended engagement previously `approval_required` → reads `approved`, `canEdit` false.
