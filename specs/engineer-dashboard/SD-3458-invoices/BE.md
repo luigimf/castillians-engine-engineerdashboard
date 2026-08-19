@@ -150,11 +150,13 @@ Specified in full as **BE-27** in `ENGINEERING-BRIEF.md`. In short: issued **fro
 
 ## Blank template endpoint
 
-Serves a static PDF from asset storage — no personal or period data merged in, identical for every engineer.
+Calls the **BE-27 renderer with the data omitted** — same layout, header block, line-item table and To block, with empty rows. It is **not** a separate stored PDF: a hand-maintained file would drift from the generated invoices the first time either changed.
 
 **Acceptance criteria**
-- Versioned so Finance can replace it without a deploy.
+- No personal or period data merged in; identical for every engineer.
 - Addressed to **Castille Resources Ltd.**, matching the generated invoices.
+- **The auto-generated download is this same template populated** — the engineer's Zoho header details, one line item per Virtual Bench for the period, and the totals, reconciling to the cent with the period rows on the Invoices page. An engineer who has seen the blank template must recognise their invoice as the same document filled in.
+- A layout change is made **once, in the renderer**, and all three surfaces follow.
 
 ---
 

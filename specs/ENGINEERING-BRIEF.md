@@ -612,9 +612,11 @@ Engineers without an invoice of their own can download a **blank template** from
 
 **Acceptance criteria**
 - A **Download template** action sits beneath the drop zone, prefaced "No invoice of your own?".
-- Serves a static PDF — the same document for every engineer, with no personal or period data merged in.
+- **It is the BE-27 renderer with the data omitted, not a separate document** — same layout, same header block, same line-item table, same To block, with empty rows. One renderer, three surfaces (BE-27); a hand-maintained static PDF would drift from the generated invoices the first time either changed.
+- The same document for every engineer, with **no** personal or period data merged in.
 - Addressed to **Castille Resources Ltd.**, matching the generated invoices (BE-27).
-- Stored as a versioned asset so Finance can replace it without a deploy.
+- **The auto-generated download is that same template populated**: the engineer's Zoho details in the header, one line item per Virtual Bench for that period, and the totals — matching the period rows on the Invoices page to the cent. An engineer who has seen the blank template must recognise their own invoice as the same document filled in.
+- Because it is rendered rather than stored, Finance changes the layout **once** in the renderer and all three surfaces follow. No versioned asset to replace, and no risk of the blank and the real invoice disagreeing.
 
 ### BE-24 — Automatic engineer invoice submissionFinance asked whether the engineer can submit an invoice directly from the portal, since the portal already captures the hours. **The system auto-submits it on their behalf** at the end of the last day of the month — the engineer never files an invoice manually.
 
