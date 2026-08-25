@@ -60,8 +60,9 @@ engagementEndDate = engagementEnded ? bench.autoRenewDate : null
 ## Approval queue
 
 - **Approval required applies to ongoing engagements only.** An entry left awaiting a decision when its engagement ended resolves as **approved** and is returned with no actions.
-- On an ongoing engagement an entry from a **previous billing period stays actionable** — never aged out, never silently approved.
-- Approving late bills the hours in the **next open period**; the two report columns carry it (**BE-22**, SD-3467).
+- On an ongoing engagement an entry from a **previous billing period stays actionable up to that period's close** — the 3rd of the following month (BE-29). It is never aged out and never silently approved.
+- At the close, anything still awaiting a decision becomes **`auto_declined`**, leaves the **Approval required only** filter, and drops out of `approvalsInPeriod` on the same read. The queue can therefore never hold an entry from a closed period.
+- Approving before the close bills the hours in the period they were **worked** in. Nothing is ever billed in a later period (**BE-29**).
 
 ---
 

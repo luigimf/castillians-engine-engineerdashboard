@@ -40,7 +40,7 @@ One card per **root client** — the top-most parent in its channel, resolved fr
 
 | Report | Contents |
 |---|---|
-| Payroll Checklist | One row per engineer per bench — codes, rates, normal and overage hours, amounts, **Period Earned / Period Billed / Carried Over** (BE-22, SD-3467), plus the hand-filled tracking columns left blank |
+| Payroll Checklist | One row per engineer per bench — codes, rates, normal and overage hours, amounts, plus the hand-filled tracking columns left blank |
 | SFM Supplier Upload | SFM's fixed 22-column format, one row per supplier invoice |
 | Client Billing | One row per Virtual Bench — subscription and overage separated |
 

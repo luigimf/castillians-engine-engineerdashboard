@@ -58,21 +58,18 @@ Rows sit flush in a **zero-padding Card**, separated by `1px solid var(--gray-75
 | Awaiting the engineer's submission | Requires approval | warning |
 | Awaiting a decision | Approval required | warning |
 | Signed off by a person | Manually approved | success |
-| Declined | Declined | danger |
+| Declined by a person | Declined | danger |
+| Not reviewed before the close | **Auto-declined** | danger |
 
-### Payable the following period
+### Auto-declined
 
-An entry **manually approved after the end date of the period the hours were worked in** is paid in the **next** period. It keeps its **Manually approved** tag and gains a second, quieter label beside it reading **"Payable the following period"**.
+Anything still awaiting a decision when the period closes on the **3rd of the following month** is declined automatically (**BE-29**).
 
-- **The trigger is the approval date, not the entry's age.** An entry logged in June and approved on 26 June — inside its own period — is paid with June, and carries **no** label however long ago that was. The same entry approved on 9 July, after the June period closed, is a carry-over and carries the label.
-- The comparison is the reviewer's approval timestamp against the **end date of the period the hours were worked in**, resolved on that bench's own cycle (SD-3459). Auto-approved entries are approved the moment they are logged, so they are never carry-overs.
-- Only a **manual approval taken on the Internal dashboard** can produce this state.
-
-- Rendered from `payableNextPeriod` on the entry — the API sets it; the client never derives it from dates.
-- White fill, `1px solid var(--gray-150)`, `var(--radius-md)`, padding `5px 9px`, body **10px weight 500**, `var(--gray-700)` — the same treatment as the ended-engagement tag, and deliberately lighter than the status tag so it reads as a qualifier, not a second status.
-- Sits immediately after the status tag in the same row, on the row's own gap; it never replaces or restyles the status tag.
-- Shown on the Work Logs list, the bench accordion (SD-3465) and the per-engineer page — the same component, so the three can never disagree. Also shown to the engineer on their own entry (SD-3456).
-- Absent on declined entries and on anything still awaiting a decision.
+- The status tag reads **Auto-declined**, in the same danger treatment as Declined — one tag, no second label beside it. The tag *is* the explanation.
+- **No decline panel.** A human decline quotes the reviewer's message; an auto-decline has neither reviewer nor reason, so nothing is quoted.
+- The reason lives in the **edit history**: a `Castillians System` record reading _"Automatically declined — not reviewed before the period close"_, timestamped at the close.
+- **Auto-declined and Declined are separate statuses**, for the same reason Auto-approved and Manually approved are — an auditor asks whether a person decided.
+- No Approve or Decline is offered, and there is no reinstatement control. **Hours never move into a later period** (BE-29), so there is no carry-over label anywhere on the entry.
 
 **Auto-approved and Manually approved stay distinct** — collapsing them loses the difference between a machine pass and a human signature, which is what an auditor asks about. Tag padding even on all sides.
 
@@ -143,7 +140,7 @@ An entry **manually approved after the end date of the period the hours were wor
 ## Reference
 
 ```
-BE.md                          approval, history, carry-over columns
+BE.md                          approval, history, the period close
 ../SD-3466-engagements-work-logs-filters/   the list this entry sits in
 ../../ENGINEERING-BRIEF.md     BE-11 to BE-14 approval and history, BE-22 month-end exports, §G states
 ../../../prototype/index.html  → Internal → Engagements → Work Logs → an entry, then View Work Log

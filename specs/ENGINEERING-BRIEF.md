@@ -228,34 +228,20 @@ The checklist sample carries a **two-row header** (label on row 1, continuation 
 | Client | Client Name, Client Code, VBench Code |
 | Supplier (engineer) | Supplier, Supplier Company Name, SFM A/C, NAC, Payment Type, VAT Code, Currency |
 | Rates | Supplier Rate, Subscription Rate, Overage Rate (1st month) |
-| Hours | Normal Hours, Overage Hours, **Period Earned**, **Hours earned this period**, **Hours earned in earlier periods** |
+| Hours | Normal Hours, Overage Hours |
 | Amounts | Invoice Contractor, Client Overage |
 | Process tracking | T/Sheet Recvd, T/Sheet Apprvd, INV Calc Posted, Invoice Recvd, Invoice Number, Ready for SFM, Copied to File, SFM Posted, Payment Processed, Payment Checked |
 
-**Carry-over — hours approved late (SD-3467)**
+**No carry-over — hours never move between periods (BE-29)**
 
-Approval required applies only to ongoing engagements, but on an ongoing engagement an entry from a **previous billing period can still be approved**. Approving late bills those hours in the **next** period, and the export must say so rather than absorbing them into the wrong month.
+Hours reach a report **only once approved**, and that one approval drives **both** sides. Combined with the close model in **BE-29** — approvals up to the 3rd file against the period the hours were **worked** in, and anything unresolved is automatically declined — hours can never move between months.
 
-**Every engineer- and client-facing report replaces its single Hours figure with a period split:**
-
-| Column | Meaning |
-|---|---|
-| **Period Earned** | The month the hours were worked, resolved against that bench's own subscription period |
-| **Hours earned this period** | The row's hours, when Period Earned **is** the report's own period |
-| **Hours earned in earlier periods** | The row's hours, when Period Earned is **earlier** |
-
-- Exactly one of the two hours columns is filled per row; together they always equal the row's hours.
-- **There is no `Period Billed` column.** It would equal the report's own period on every row — it is already the file's header and filename, so it carries no information.
-- The **column totals** answer the question Finance asks of a month at a glance: _"August: 312 hours earned in August, 12 carried in from July."_
-- **Amounts stay a single figure per row.** Period Earned identifies the row, so splitting money as well only widens the sheet.
-- **Normal Hours and Overage Hours keep their own columns**, unchanged; the split applies to the row's hours as a whole.
-- Rows are keyed **engineer × bench × Period Earned** on the supplier side and **bench × Period Earned** on client billing, so earlier-period hours sit on their own line with their month beside them rather than being buried in a total.
-- **Carried hours are never merged into the normal row.** 150 hours earned this period plus 12 approved late are two rows, not a single 162-hour one.
-- **All three reports carry the split** — supplier checklist, engineer invoicing and client billing. Finance audits the two sides against each other, so each side of a period must be explicable from its own file.
-- The **SFM supplier upload's 22 columns are untouched**: an SFM row follows the invoice, which is issued in the period it is billed in.
-- The month-end email body already lists entries held back at the 23:59 cut-off. The export must now show **where those hours landed** once they were approved.
-- The same carry-over is visible **in the product**, not only in the export: the entry payload carries `payableNextPeriod`, and every entry surface renders a **"Payable the following period"** label beside the status tag (SD-3456, SD-3465, SD-3467). The status tag itself is unchanged — the entry is still **Manually approved**.
-- `payableNextPeriod` is true **only when the manual approval was taken after the end date of the period the hours were worked in** — `approvedAt > periodEarned.end`. An entry approved inside its own period is paid with that period however old it is now, and an auto-approved entry can never be a carry-over.
+**Acceptance criteria**
+- A period's file contains **that period's hours and nothing else**. There is no `Period Earned`, no `Period Billed` and no carry-over column, because there is nothing for them to distinguish.
+- For every period, **the client hours and the supplier hours are identical**. The engineer invoices us for the month they worked; we bill the client for the same month. A period where the two differ is a defect, not a rounding matter.
+- **Nothing is ever back-dated into a closed period**, and nothing is ever pushed forward out of an open one.
+- Entries auto-declined at the close (BE-29) enter **no** report on either side, so both sides stay symmetric.
+- The month-end email body names what was auto-declined, per engineer and bench — that is the only record of hours that did not make a period.
 
 **Sheet 2 — SFM supplier bulk upload (22 fixed columns, one row per supplier invoice)**
 
@@ -365,6 +351,29 @@ Plus one per engineer: the auto-submitted invoice copy (BE-24).
 - Currency per row comes from the relevant party's record — a supplier paid in USD against a client billed in EUR produces two rows in two currencies. **No cross-currency totalling.**
 - Process-tracking columns are emitted blank for Shared Services to complete, except those the portal genuinely knows (T/Sheet Recvd, T/Sheet Apprvd).
 - The file also serves as the CSV attachment described in BE-20's month-end payroll export.
+
+### BE-29 — Period close, and automatic decline of anything unresolved
+
+Finance's requirement is that **the client is billed in the month the hours were consumed, and the engineer is paid for the hours they worked in that month**. Hours must never move between months. The close model below is what guarantees it.
+
+| Moment | What happens |
+|---|---|
+| **23:59, last day of the period** | Logging stops. Engineer invoices auto-submit (BE-24) |
+| **1st – 3rd** | The review window. Approvals taken here are filed against the period the hours were **worked** in |
+| **3rd, the close** | The four reports generate (SD-3468). Anything still awaiting a decision is **automatically declined** |
+
+**Acceptance criteria**
+- The close date is the **3rd of the month following the period end**, resolved against that bench's own period (BE-02, BE-03) — never a fixed calendar assumption.
+- An approval taken in the review window files against the **period earned**, so both sides land in the right month. Nothing carries over.
+- At the close, every entry still awaiting a decision moves to **`auto_declined`**. Its hours count towards **nothing** — not capacity, not remaining hours, not earnings, not client billing, not the supplier checklist.
+- The status tag reads **Auto-declined**, in the same danger treatment as Declined. It is a **distinct status from a human decline**, because an auditor asks which it was.
+- **There is no reviewer and no message.** No decline panel is shown — an auto-decline has no reason to quote, and inventing one would be a fiction. The entry gains a `Castillians System` history record, _"Automatically declined — not reviewed before the period close"_, timestamped at the close.
+- A closed period is **immutable** afterwards. Re-running it reproduces byte-identical output (§G5).
+- **The client and supplier hours therefore tally for every period, always.** A period where they differ is a defect.
+
+**Auto-decline is a fallback, not a process.** It exists so a period can always close; it is not how hours are meant to be resolved. Two reminder emails — **three days before** the cut-off and **on the cut-off date** — fire to Human Capital and Shared Services whenever the queue is non-empty, precisely so the close never has to do this.
+
+**An auto-decline is final.** There is no reinstatement path in the product: hours cannot be moved into a later period, because that is precisely the carry-over Finance ruled out. If a genuine error has to be corrected, it is handled **outside the platform** as a manual adjustment by Finance — the platform's records stay a truthful account of what was and was not approved in time.
 
 ### BE-23 — Finance reference data
 

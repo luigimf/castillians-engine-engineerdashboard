@@ -64,47 +64,32 @@ Backend specification for **SD-3467**. Carries a change to two month-end reports
 - Its history remains readable in full.
 - None of this writes to the entries — ending the subscription is the only change.
 
-## Late approval and carry-over — extends BE-22
-
-**Approval required applies only to ongoing engagements**, but on an ongoing engagement an entry from a **previous billing period stays approvable or declinable**. It is not aged out and not silently approved.
+## The period close, and automatic decline — BE-29
 
 ```
-periodEarned = the bench period containing entry.date      // SD-3459, pro-rated first period included
-periodBilled = the first period still open at approval time
-carriedOver  = approvedAt > periodEarned.end               // the hours bill in a later period
-payableNextPeriod = carriedOver                            // derived, never stored
+cutOff    = 23:59 on the period's last day        // logging stops
+close     = the 3rd of the following month        // reports generate (SD-3468)
 ```
 
-`approvedAt` is the timestamp of the **manual approval**, taken from the append-only history — not the entry date and not the read time.
+**Approval required applies only to ongoing engagements**, but on an ongoing engagement an entry from a **previous billing period stays approvable or declinable right up to the close**. It is not aged out and not silently approved.
 
 **Acceptance criteria**
-- Approving late adds the hours to the engineer's **next** period's invoicing.
-- `periodEarned` resolves against **that bench's own** subscription period — never the calendar month by default.
-- **Approving late never rewrites a closed period.** Re-running a closed month reproduces byte-identical output (§G5).
-- The entry payload carries **`payableNextPeriod: carriedOver`**, so every surface can render the **"Payable the following period"** label without recomputing periods client-side. One flag, one meaning, three dashboards.
-- **Entry age never sets the flag.** A June entry approved on 26 June reads `false` when it is fetched in September; the same entry approved on 9 July reads `true`. Compare `approvedAt` with the period end, never with today.
-- **Auto-approved entries are never carry-overs** — they are approved at the moment of logging, inside their own period, by definition.
-- The flag is computed once at approval and re-derives identically on every later read, so a closed period's exports and the label always agree.
-- The flag is false on declined entries and on anything still awaiting a decision, and it never alters `status` — a carried entry is still `approved`.
+- An approval taken **between the cut-off and the close** is filed against the period the hours were **worked** in, so the client charge and the engineer's payment both land in that month. Nothing carries over.
+- At the close, every entry still `submitted` becomes **`auto_declined`** — a distinct status from a human `declined`, because an auditor asks which it was.
+- `auto_declined` hours count towards **nothing**: not capacity, not remaining hours, not earnings, not billing, not any report.
+- The entry carries **no decline message and no reviewer** — the endpoints never set one. It gains an append-only `Castillians System` history record, _"Automatically declined — not reviewed before the period close"_, timestamped at the close.
+- Both approve and decline are refused on an `auto_declined` entry — `409`, current status returned. Reinstatement is a deliberate internal action, not the ordinary approve path.
+- The close is derived from the bench's own period (SD-3459); two benches on one account may close on different dates.
+- Auto-decline is a **fallback**. The two reminder emails (three days before the cut-off, and on the cut-off date) fire only when the queue is non-empty, so the close should never have to do this.
 
-### Report columns — supplier checklist, engineer invoicing and client billing
+## No carry-over — extends BE-22
 
-| Column | Meaning |
-|---|---|
-| **Period Earned** | The billing period the entry's date falls in, against the bench's own period |
-| **Hours earned this period** | The row's hours, when Period Earned is the report's own period |
-| **Hours earned in earlier periods** | The row's hours, when Period Earned is earlier |
-
-There is **no `Period Billed` column**: hours reach a report only when approved, so a row's billed period is always the report's own — it is the file's header, not a field.
-
-- An entry approved inside its own period fills **earned this period**; one approved after its period closed fills **earned in earlier periods**, on its own row with its month beside it.
-- Exactly one of the two columns is filled per row, and they always sum to the row's hours.
-- **All three reports carry the split**, so the client and supplier sides of a period explain the same timing.
-- Rows are keyed **engineer × bench × Period Earned**, so one export can carry two or more rows for the same engineer and bench.
-- **Carried hours are never merged into the normal row.** 150 hours earned this period plus 12 approved late must not appear as a single 162-hour row — Finance has to see the carry-over rather than absorb it into the wrong month.
-- Every existing column keeps its position and name; the new ones are **appended to the Hours group**. Normal Hours and Overage Hours are unchanged, and **amounts stay a single figure per row**.
-- The **SFM supplier upload's 22 fixed columns are untouched** — an SFM row follows the invoice, which is issued in the Period Billed.
-- The month-end email body already lists entries held back at the 23:59 cut-off; the export must now show **where those hours landed** when they were eventually approved.
+**Acceptance criteria**
+- An approved entry's hours are invoiced in the period they were **worked** in. There is no state in which hours are paid or billed in a later period.
+- `Period Earned`, `Period Billed`, `Carried Over` and `payableNextPeriod` **do not exist** — not on the entry payload, not in any report, not on any surface.
+- **Client hours = supplier hours, every period.** The same approval bills the client and pays the engineer, and it can only fall inside one period.
+- An **auto-decline is final**. There is no reinstatement endpoint: moving hours into a later period is exactly the carry-over Finance ruled out. A genuine error is corrected by Finance **outside the platform**, so the platform's record stays a truthful account of what was approved in time.
+- Approving late **never rewrites a closed period** — the endpoints refuse it (`409`).
 
 ---
 
@@ -120,7 +105,6 @@ Every action writes to shared state; every figure is read from one source.
 | Capacity, hours used | Approved logs against the bench's own period (SD-3459) | Virtual Benches tab, Manager bench page, Engineer overview |
 | Engagement ended date | Per-bench subscription (SD-3459) | Ongoing/Past filter (SD-3466), engineer page bench tabs |
 | Engineer name, email, vetting score | Engineer profile | Every dashboard, payroll checklist, invoice PDF |
-| Period Earned / Period Billed | Derived — entry date against the bench period, and the open period at approval | Payroll checklist, engineer invoicing export |
 
 **Acceptance criteria**
 - Approving makes the entry count towards billing, surfaces it on Manager, and emails the engineer. Hours used, capacity bar and remaining hours all move on the next read — **recomputed, never patched client-side**.

@@ -81,8 +81,9 @@ Same validation as create (see the SD-3455 spec), plus:
 
 - `403` when the entry falls in a **prior** subscription period.
 - A **manually approved** entry in the **current** period **is** editable.
-- Every entry carries **`payableNextPeriod`** — true when the **manual approval was taken after the end date of the period the entry's hours fall in**, so the hours are invoiced in the next one (BE-22, SD-3467). Server-derived from the approval date against `periodEarned.end`; the client renders the **"Payable the following period"** label from this flag alone and never computes it from dates.
-- `payableNextPeriod` is false on declined entries, on anything awaiting a decision, on **auto-approved** entries (approved the instant they are logged), and on entries approved inside their own period — however old the entry is now. **Age never sets the flag; the approval timestamp does.**
+- **`auto_declined`** is a status in its own right, set by the close job on the 3rd of the following month (BE-29) — never by a person, and never confused with `declined`. It carries **no `declineMsg`**; the reason is the `Castillians System` history record. Its hours are excluded from every figure, exactly as a human decline's are.
+- An `auto_declined` entry is **not editable** — its period has closed.
+- There is **no `payableNextPeriod` flag and no carry-over state**. An approved entry's hours are invoiced in the period they were worked in, always (BE-29). An entry that missed the close is `auto_declined` and invoiced nowhere.
 - Only `hours`, `date` and `description` are mutable.
 
 ---
@@ -183,8 +184,8 @@ An engagement that has ended cannot be re-scoped, so its entries are settled:
    `auto_approved`.
 5. `PATCH` an entry dated in the previous period → `403`.
 6. `PATCH` a manually approved entry in the current period → succeeds.
-7. Approve a July entry in August → `payableNextPeriod: true`, status still `approved`, and the July period's figures are unchanged.
-8. A June entry approved on 26 June, read in September → `payableNextPeriod: false`. It was paid with June.
+7. Approve a July entry on 2 August, before the close → status `approved`, hours invoiced in **July**.
+8. A July entry still `submitted` when the 3 August close runs → status `auto_declined`, no `declineMsg`, one `Castillians System` history record, hours in no figure and no report.
 9. Decline with an empty message → rejected.
 10. Declined entry → present in Engineer and Internal responses, **absent** from Manager.
 9. Declined entry's hours → excluded from `loggedHours` and earnings.

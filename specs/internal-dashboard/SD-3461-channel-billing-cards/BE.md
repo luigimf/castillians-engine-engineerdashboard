@@ -38,7 +38,7 @@ One entry per **root client**, each aggregating its whole subtree.
 - Any prior period is requestable; the current period is served with a to-date flag.
 - **No email is sent.**
 - Filenames `castillians-{report}-{YYYY-MM}.xlsx`.
-- Payroll checklist, engineer invoicing **and client billing** all carry **Period Earned** plus the two hours columns — **earned this period** and **earned in earlier periods** (BE-22, SD-3467). Both sides of an audit explain their own timing, and no report carries a redundant `Period Billed`.
+- No report carries a period-split or carry-over column: a period's file holds that period's hours only, and client hours equal supplier hours exactly (BE-29).
 - The SFM upload's 22 columns and header row are **untouched** by that change.
 - Finance fields are read from **Zoho at generation time** (BE-23) — never copied into the portal.
 - A record missing a **mandatory** field **blocks that row** and is named in the response; it never exports as a blank cell that fails on SFM import.
@@ -62,5 +62,5 @@ Every figure is an aggregation of rows that appear elsewhere.
 - A card total and the sum of its rows can never disagree — benches, capacity and billing reconcile with SD-3462, SD-3464 and the Manager bench page.
 - Supplier amounts use the **engineer-facing** rate and client amounts the **blended** rate; the two are never mixed.
 - The SFM upload sets exactly one of `AMOUNT` (EUR) or `FAMOUNT` (other) per row — nothing is converted.
-- Hours approved after a period closes bill in the **next** period and never rewrite the closed one; `Period Earned` / `Period Billed` carry it (SD-3467).
+- Hours unresolved at the close are **auto-declined** (BE-29) and enter no report on either side; nothing is billed or paid in a later period.
 - A blocked row never silently shrinks a card total.

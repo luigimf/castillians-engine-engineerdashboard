@@ -191,19 +191,19 @@ badgeLabel(s: EntryStatus) {
 
 Entries sort **most recent first**.
 
-### Payable the following period
+### Auto-declined
 
-An entry **manually approved after the end date of the period the hours were worked in** is paid in the **next** period. Beside its status tag — never instead of it — the entry carries a second, quieter label reading **"Payable the following period"**.
+Hours still awaiting a decision when the period closes on the **3rd of the following month** are declined automatically (**BE-29**). The engineer sees the outcome on the entry rather than an entry that sits pending forever.
 
-- **The trigger is the approval date, not the entry's age.** An entry logged in June and approved on 26 June — inside its own period — is paid with June, and carries **no** label however long ago that was. The same entry approved on 9 July, after the June period closed, is a carry-over and carries the label.
-- The comparison is the reviewer's approval timestamp against the **end date of the period the hours were worked in**, resolved on that bench's own cycle (SD-3459). Auto-approved entries are approved the moment they are logged, so they are never carry-overs.
-- Only a **manual approval taken on the Internal dashboard** can produce this state.
+- The badge reads **Auto-declined**, `danger` variant — the same treatment as Declined, and a **distinct label** so the engineer can tell a human decision from a missed deadline.
+- **No red message panel.** A human decline quotes the reviewer; an auto-decline has no reviewer and no message, and a quoted sentence with no author reads as though someone said it.
+- The reason is in the **edit history**: a `Castillians System` record, _"Automatically declined — not reviewed before the period close"_, timestamped at the close. The engineer can always see when and why.
+- The hours count towards **nothing** — excluded from `HOURS LOGGED`, the capacity bar, earnings and invoicing.
+- Rendered from `status: "auto_declined"` on the entry. The client never derives it from dates.
 
-- Rendered only when `payableNextPeriod` is true on the entry. The API sets it by comparing the approval date with the end of the period the hours fall in; the client never derives it from dates.
-- Treatment: white fill, `1px solid var(--gray-150)`, `var(--radius-md)`, padding `5px 9px`, body **10px weight 500**, `var(--gray-700)` — deliberately lighter than the status tag, so it reads as a qualifier rather than a second status.
-- Sits immediately after the status tag in the same flex row, with the row's own gap. It never changes the status tag's label or variant: an entry is still **Manually approved**.
-- Absent on entries approved inside their own period, on declined entries, and on anything still awaiting a decision.
-- The engineer sees the same label on their own entry, so the pay timing is never a surprise.
+### Hours never move between periods
+
+There is no "payable next period" state and no carry-over label. An entry is paid in the month its hours were worked, or — if it was never reviewed before the close — it is auto-declined and paid not at all (**BE-29**). Nothing on this card should suggest a third possibility.
 
 ---
 

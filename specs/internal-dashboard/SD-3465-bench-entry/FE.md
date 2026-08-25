@@ -54,7 +54,7 @@ One card per overage request, newest first: **period as a full date range** (nev
 - Entries needing review carry **Approve** and **Decline** at Small Tertiary size, grouped with an "Approval required" tag.
 - **Decline requires a message** — the modal cannot be submitted empty.
 - The reveal count resets when the accordion is closed and reopened.
-- An entry **manually approved here after the end date of its own period** carries the **"Payable the following period"** label beside its status tag, from `payableNextPeriod` (SD-3467). Approving an in-period entry never produces it.
+- An entry not reviewed before its period's close reads **Auto-declined** (BE-29, SD-3467) — no actions, no message, the reason in its history.
 - Entry layout, history rendering and the ended-engagement rules are specified once in **SD-3467** — this surface reuses that component rather than restating it.
 
 ---

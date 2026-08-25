@@ -8,7 +8,7 @@ Backend specification for **SD-3468**. Four reports, one snapshot, no SFM integr
 
 | Report | Grain | Emailed | Downloadable |
 |---|---|---|---|
-| Supplier checklist | engineer × bench × Period Earned | month-end | any period (SD-3461) |
+| Supplier checklist | engineer × bench | month-end | any period (SD-3461) |
 | SFM supplier upload | one row per supplier invoice | month-end | any period (SD-3461) |
 | Client billing | one row per Virtual Bench | month-end | any period (SD-3461), per channel (SD-3462) |
 | Engineer invoicing | engineer × bench | month-end + PDF zip (BE-27) | any period (SD-3464) |
@@ -58,11 +58,21 @@ platform → .xlsx in SFM's 22-column format → a person uploads it to SFM
 - Exactly one of `AMOUNT` (EUR) or `FAMOUNT` (non-EUR) is set per row.
 - The generated file is validated against a **real SFM import in a non-production company** before the first live run. The format is the whole contract.
 
-## One snapshot
+## One snapshot, taken at the close
 
 ```
-snapshot(period) = approved work logs at 23:59 on the period's last day, after BE-24 auto-submission
+cutOff             = 23:59 on the period's last day        // logging stops, BE-24 auto-submission
+close              = the 3rd of the following month        // this job runs
+snapshot(period)   = approved work logs as at the close
 ```
+
+The three-day window between the cut-off and the close is deliberate: it gives the team room to clear the approval queue, and an approval taken in it is filed against the period the hours were **worked** in (BE-29).
+
+**Acceptance criteria**
+- The job runs at the **close**, not at the cut-off.
+- Before generating, it **automatically declines** every entry in the period still awaiting a decision — status `auto_declined`, no reviewer, no message, one `Castillians System` history record each. Those hours enter no report.
+- The auto-decline and the generation are **one transaction**: a period can never be reported with entries still pending, and a failed generation must not leave entries declined against a period that was never closed.
+- The number of entries auto-declined is **named in the month-end email body**, per engineer and bench, so Finance and Human Capital can see what was lost rather than discovering it from a query.
 
 **Acceptance criteria**
 - All four reports for a period derive from that one snapshot and **reconcile to the hour and the cent** with each other, with the Engineer Invoices page (SD-3458) and with the Channel page billing (SD-3462).
@@ -72,19 +82,16 @@ snapshot(period) = approved work logs at 23:59 on the period's last day, after B
 - Supplier amounts use `configured ÷ (1 + mark-up)` (BE-08); client amounts use the configured blended rate, overage at 1.25× for the first 3 months (BE-06). The two rates are never mixed.
 - No currency is ever converted; mixed-currency periods total **per currency**.
 
-## Carry-over columns
+## No carry-over
 
-The supplier checklist, the engineer invoicing export **and the client billing report** each replace their single Hours figure with **Period Earned**, **Hours earned this period** and **Hours earned in earlier periods** (BE-22, SD-3467). There is **no `Period Billed` column** — it would be the report's own period on every row.
-
-Hours count towards billing **only when approved**, so an approval taken after a period closes moves the **client** charge and the **engineer** payment into the same later period. The two sides never diverge; these columns exist to explain the timing, not to reconcile a difference.
+Hours reach a report **only once approved**, and that one approval drives **both** sides. With the close model above, approvals file against the period the hours were **worked** in and anything unresolved is auto-declined — so hours never move between months.
 
 **Acceptance criteria**
-- Rows are keyed **engineer × bench × Period Earned** on the supplier side, and **bench × Period Earned** on the client billing report; carried hours are never merged into the normal row on either side.
-- Exactly one of the two hours columns is filled per row, and the two always sum to the row's hours. Column totals give Finance the month's split without a pivot.
-- **Amounts remain a single figure per row**; Normal Hours and Overage Hours keep their own columns.
-- For any period, the **client hours and the supplier hours tally exactly** — same approvals, same snapshot. A period where they differ is a defect, not a rounding matter.
-- The SFM upload's 22 columns are untouched — an SFM row follows the invoice, issued in the Period Billed.
-- A late approval never rewrites a closed period's files.
+- A period's file holds **that period's hours only**. No `Period Earned`, no `Period Billed`, no carry-over column — there is nothing for them to distinguish, and a column that reads the same on every row is noise.
+- For every period, **client hours = supplier hours**, exactly. Worth an explicit reconciliation test per period; a difference is a defect.
+- Nothing is back-dated into a closed period and nothing is pushed forward out of an open one.
+- Auto-declined entries enter **no** report on either side.
+- Rows are keyed **engineer × bench** on the supplier side and **bench** on client billing — one row each, never split.
 
 ## Blocked rows
 
@@ -116,12 +123,11 @@ The reports author nothing; every figure is read from the surface that owns it.
 | Capacity, overage | Bench subscription and overage state (SD-3465, BE-05) | Virtual Benches tab, Channel page |
 | Supplier rate | `configured ÷ (1 + mark-up)` (BE-08) | Engineer Invoices page, invoice PDF |
 | Client rate | Configured blended rate | Channel page billing |
-| Period Earned / Billed | Derived at approval (SD-3467) | Entry label on Engineer and Internal |
 | Invoice number | Database-owned sequence (§G5) | Invoice PDF, supplier checklist row |
 | Finance reference codes | **Zoho**, maintained by our team (SD-3463) | Every report, the invoice PDF |
 
 **Acceptance criteria**
 - The on-demand file for a period is **identical** to the month-end attachment for that period.
-- An entry approved after the cut-off lands in the **next** period's files as a carry-over.
+- An entry **auto-declined at the close** (BE-29) appears in no file, on either side, and its hours are in no total.
 - Five surfaces agree for a closed period: the four reports, the Engineer Invoices page and the Channel page billing.
 - No finance field is cached in the portal.

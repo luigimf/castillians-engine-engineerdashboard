@@ -19,7 +19,7 @@ Epic: [SD-3460](https://castille-labs.atlassian.net/browse/SD-3460)
 ## Two rules worth reading before writing code
 
 - **The authorised block replaces the 20% tolerance.** 160h plan + 40h block → **200h**, not 232h. (`SD-3465-bench-entry/BE.md`)
-- **Late approvals carry over.** An entry from a previous period, approved late on an ongoing engagement, bills in the **next** period and must show as `Period Earned` ≠ `Period Billed` on the payroll checklist and the engineer invoicing export. (`SD-3467-engagements-work-log-entry/BE.md`, BE-22)
+- **Hours never move between periods.** A period closes on the **3rd of the following month**; approvals up to then file against the period the hours were worked in, and anything unresolved is **auto-declined** and paid nowhere. Client hours equal supplier hours, every period. (`SD-3467-engagements-work-log-entry/BE.md`, BE-29)
 
 ## Build order
 
