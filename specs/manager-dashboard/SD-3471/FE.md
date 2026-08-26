@@ -85,13 +85,43 @@ The three sections beneath — Skills & Hours (SD-3472), Engineer Work Logs (SD-
 | Action | Who |
 |---|---|
 | Add an existing member | Admin, Manager |
-| Invite a new person | **Admin only** |
+| Invite a new person | **Admin and Manager** |
 | Remove access | **Admin only**, with a confirmation naming the person and the bench |
 
-- **Only an Admin brings someone new into the organisation.** A Manager can grant access to an existing colleague, but creating an account has billing and confidentiality consequences.
+- **A Manager may invite a colleague as a Manager or a Viewer** — the two roles that can be granted on a bench. Neither an Admin nor a Manager can create another **Admin** this way: account ownership moves through Change Account Admin, not an invitation.
+- **Removing access stays Admin-only.** Granting a colleague sight of a bench is routine; taking it away affects someone else's work, and one role should own that.
 - An invite checks the organisation's **email domain allow-list**; a mismatch is refused with a plain explanation.
 - An invited person renders as **pending** until they accept, so it is clear they cannot see the bench yet.
 - Removing bench access does **not** remove them from the organisation.
+
+### What an invitation actually does
+
+An invite is the **start of an account**, not a permission grant on an account that already exists. The journey is:
+
+1. The invitee receives an email carrying a **link to the Manager sign-up page**, pre-bound to this organisation and to the role and bench access the Admin gave them.
+2. They complete **Manager onboarding** — the platform's existing sign-up and onboarding flow, unchanged by this story. Both roles go through the same onboarding; the role decides what they can do afterwards, not which flow they take.
+3. On finishing, they land on **their own Manager dashboard**, showing **exactly the benches the Admin gave them access to** — no more.
+
+**Acceptance criteria**
+- The invite email's call to action goes to the **Manager sign-up page**, never to a bare login. An invitee has no account yet, and a login screen is a dead end.
+- The link **carries the invitation**, so the role and bench access the inviter chose are applied on completion. The invitee never chooses their own role or picks benches.
+- An invitation can grant **Manager** or **Viewer**. **Admin is never invitable.**
+- They must register with the **exact address the invitation was sent to** — the email says so plainly (BE-21). Signing up with another address is a different person.
+- Until onboarding completes they remain **pending** in the members list, and they can see nothing.
+- On completion their dashboard shows **only their granted benches** (SD-3470) — every bench an **Admin or a Manager** has given them access to, in one list, however many people did the granting. A Viewer lands read-only, with no request controls anywhere; a Manager lands with the full request set.
+- Access granted or removed **after** they accept takes effect on their next read — the same membership record, no re-invitation, whoever grants it.
+- An expired or already-used link explains itself and offers a route to ask again — never a generic error.
+- **On completing onboarding, a manager profile is created on the Zoho client record** — the same **brand** the bench belongs to, as named on this page. A manager of a Northmill Insurance bench is a contact on **Northmill Insurance**, not on the root client.
+
+### A new brand brings its own Email Domains column
+
+When our team sets a brand up in Zoho and parents it into this lineage, the **Email Domains** section gains a **column of its own for that brand** — the section renders one column per brand in the channel, derived from the client records, not from a fixed list.
+
+**Acceptance criteria**
+- The column appears as soon as the Zoho record exists and its Parent places it in the channel. No separate configuration step, and nothing to add by hand.
+- A brand with no domains yet renders its column with an **empty input**, ready to fill — not omitted. An absent column looks like the brand was not set up.
+- Domains are held **per brand**, never pooled across the channel: an address on one brand's domain does not grant access to another brand's benches.
+- Removing a brand from the lineage in Zoho removes its column on the next read, and its domains stop admitting anyone.
 
 ### Bench membership also confers Performance Log eligibility
 

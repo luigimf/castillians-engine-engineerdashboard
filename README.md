@@ -22,6 +22,9 @@ specs/manager-dashboard/SD-3471/
 specs/manager-dashboard/SD-3472/
 specs/manager-dashboard/SD-3473/
 specs/manager-dashboard/SD-3474/
+specs/manager-dashboard/SD-3477/
+specs/manager-dashboard/SD-3478/
+specs/manager-dashboard/SD-3479/
 ```
 
 Every path above is **stable**. Files are updated in place, never renamed or moved, so a Jira
@@ -83,7 +86,7 @@ All under Epic [SD-3452](https://castille-labs.atlassian.net/browse/SD-3452).
 
 ### Manager Dashboard — Epic [SD-3469](https://castille-labs.atlassian.net/browse/SD-3469)
 
-Replaces the existing pages at `castillians.com/v-benches` and `/v-benches/{id}`. Virtual Benches module only in this round.
+Replaces the existing pages at `castillians.com/v-benches` and `/v-benches/{id}`, and `castillians.com/brand-profile`, which is unpublished as part of SD-3477. Virtual Benches and Organisation modules in this round.
 
 | Spec folder | Jira | Covers |
 |---|---|---|
@@ -92,6 +95,11 @@ Replaces the existing pages at `castillians.com/v-benches` and `/v-benches/{id}`
 | `manager-dashboard/SD-3472/` | [SD-3472](https://castille-labs.atlassian.net/browse/SD-3472) | V Bench page: Skills Mix, Matrix & Hours |
 | `manager-dashboard/SD-3473/` | [SD-3473](https://castille-labs.atlassian.net/browse/SD-3473) | V Bench page: Engineer Work Logs |
 | `manager-dashboard/SD-3474/` | [SD-3474](https://castille-labs.atlassian.net/browse/SD-3474) | V Bench page: Engineers |
+| `manager-dashboard/SD-3477/` | [SD-3477](https://castille-labs.atlassian.net/browse/SD-3477) | Organisation page: Access |
+| `manager-dashboard/SD-3478/` | [SD-3478](https://castille-labs.atlassian.net/browse/SD-3478) | Organisation page: Functions |
+| `manager-dashboard/SD-3479/` | [SD-3479](https://castille-labs.atlassian.net/browse/SD-3479) | Organisation page: Member Roles & Removal |
+
+The **Subscriptions module** is filed as **SD-3480**–**SD-3483** under the same epic; spec folders follow.
 
 See `specs/manager-dashboard/README.md` for build order.
 

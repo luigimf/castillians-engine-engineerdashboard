@@ -47,6 +47,17 @@ else                      → ceiling = capacity × 1.20
 
 ---
 
+## Paging inside the bench entry
+
+Both lists in the expanded bench — **order form history** and **work log entries** — are paged at `BENCH_ENTRY_PAGE = 5`. The bench detail page's work logs use the same 5.
+
+**Acceptance criteria**
+- The constant lives **server-side** and the client reads it from the response rather than duplicating it. It will be tuned.
+- Each list returns its **own grand total** alongside the page, so the client renders "Page N of M" without counting rows on screen.
+- Sort is **newest first**, tie-broken on id — **stable**, so no row duplicates or drops across a page boundary.
+- A page beyond the last returns the **last** page, not an empty list. A stale page number must never blank a section mid-modal.
+- Neither list holds session state: the same query always returns the same page.
+
 ## Integration & sync
 
 Nothing on this page owns its own copy of a shared figure.

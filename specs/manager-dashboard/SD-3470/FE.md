@@ -60,8 +60,10 @@ Angular handoff for **SD-3470**. Replaces the existing page at `castillians.com/
 
 Button top-right, aligned with the page title. **Absent for a Viewer.**
 
-Fields: bench name (mandatory) · type (mandatory) · client entity (only when >1) · skills needed · engineers needed · monthly hours needed · when needed · anything else (optional).
+Fields: bench name (mandatory) · type (mandatory) · client entity (only when >1) · monthly engineering hours (mandatory) · **billing currency (mandatory)** · skills needed · engineers needed · when needed · anything else (optional).
 
+- **Brand, monthly engineering hours and currency sit on one row**, three across, auto-laid-out so they wrap to fewer columns on narrow viewports rather than overflowing. A **hairline divider** closes that row, and another sits above the optional free-text field.
+- **Currency is a property of the subscription, not of the brand or the channel** (BE-27). A client can hold benches billed in different currencies, so it is asked for per request rather than inherited — helper text says so: *"The currency this subscription is billed in. It can differ from your other benches."*
 - Labels Bricolage **16px/400** — the platform standard, **not bold**. Typed input weight 500.
 - Mandatory marked with a **black** asterisk, not red.
 - Fields 45px; textarea resizes vertically, 96px minimum.
@@ -72,6 +74,7 @@ Fields: bench name (mandatory) · type (mandatory) · client entity (only when >
 ### It is a request
 
 - Submitting creates a **request**, not a bench. Nothing is provisioned, priced or billed.
+- **Both request emails carry the billing currency** alongside the brand and the hours — the internal email to Human Capital and the copy to the requesting Admin (`emails/11-bench-request.html`, `emails/11-bench-request-manager.html`). Templates and copy are specified in the **Email Notifications** epic.
 - The success copy says the team will come back with a proposed plan and rate. **Do not imply the bench exists.**
 - A **pending request renders as a card** in a distinct pending treatment, with **no capacity bar** — there is no capacity yet — and is **not clickable**.
 

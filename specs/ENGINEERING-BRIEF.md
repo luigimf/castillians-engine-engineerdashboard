@@ -583,6 +583,9 @@ Every list that paginates or truncates must state **its own** page size or revea
 |---|---|---|
 | Engineer → Work Log → **Entries** (list view) | Paginated, prev/next with "Page N of M" | **5 per page** |
 | Internal → Engagements → **Work Logs** | **First 10 shown**, then a "See more (N)" button appends the next 10 | **10 per batch** |
+| Internal → Engagements → **bench entry** → Order Form History | Paged, prev/next with "Page N of M" | **5 per page** |
+| Internal → Engagements → **bench entry** → Work Logs | Paged, prev/next with "Page N of M" | **5 per page** |
+| Internal → **bench detail page** → Work Logs | Paged, prev/next with "Page N of M" | **5 per page** |
 | Manager → Virtual Bench → **Engineer Work Logs** | **First 3 shown**, then a "See more (N)" button expands the list; once expanded it paginates | **3 collapsed / 20 per page expanded** |
 | Manager → Virtual Bench → **Skills Matrix** | First 12 skills, then "See more" | **12** |
 
@@ -884,6 +887,7 @@ Rules every list, form and async surface follows. Written because these are the 
 | Engineer → Work Log → Entries (list) | Paginated | **5 / page** |
 | Engineer → Invoices | One period at a time, not paginated | — |
 | Internal → Engagements → Work Logs | First **10**, then "See more (N)" appends 10 more | **10 per batch** |
+| Internal → bench entry / bench detail → Order Forms, Work Logs | Paged, prev/next | **5 / page** |
 | Internal → Channel & Billing → bench rows | Not paginated (accordion tree) | — |
 | Manager → Virtual Bench → Engineer Work Logs | First **3**, then "See more (N)" → paginated | **3 collapsed / 20 expanded** |
 | Manager → Virtual Bench → Skills Matrix | First **12**, then "See more" | **12** |

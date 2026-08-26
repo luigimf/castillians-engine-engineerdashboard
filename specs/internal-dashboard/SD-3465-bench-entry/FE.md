@@ -49,11 +49,15 @@ One card per overage request, newest first: **period as a full date range** (nev
 
 ## Work log entries
 
-- Newest first, batched at **10** with **See more (n remaining)** loading 10 more.
+- Newest first, **paged at 5** with the same prev/next chevrons and **"Page N of M"** label as the order form history above it. Both lists page at 5 — one modal, one rhythm.
+- The pager renders **only when there are more than 5 entries**.
+- **A reveal-style "See more" is wrong here.** It suits a list you scroll to the end of; these two sit **mid-modal**, and an unbounded reveal pushes the sections beneath them off the screen. A pager keeps the modal a predictable height.
+- `BENCH_ENTRY_PAGE = 5` — a **named constant** shared by both lists, never a literal in a slice expression. It will be tuned.
+- The **bench detail page**'s work logs page at **5** too — one bench, one rule, wherever its logs are read.
 - Each entry: hours, date, engineer, description, status tag, edit-history accordion.
 - Entries needing review carry **Approve** and **Decline** at Small Tertiary size, grouped with an "Approval required" tag.
 - **Decline requires a message** — the modal cannot be submitted empty.
-- The reveal count resets when the accordion is closed and reopened.
+- The page resets to 1 when the accordion is closed and reopened, and when a new entry is created — the newest entry belongs on the first page.
 - An entry not reviewed before its period's close reads **Auto-declined** (BE-29, SD-3467) — no actions, no message, the reason in its history.
 - Entry layout, history rendering and the ended-engagement rules are specified once in **SD-3467** — this surface reuses that component rather than restating it.
 

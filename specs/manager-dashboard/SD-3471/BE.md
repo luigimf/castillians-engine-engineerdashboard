@@ -44,8 +44,22 @@ Returns the bench, its plan and period, its members, and any pending requests. *
 ### Membership — `POST` / `DELETE /api/manager/benches/{benchId}/members`
 
 **Acceptance criteria**
-- Add existing → Admin and Manager. **Invite new → Admin only.** Remove → **Admin only.** Enforced `403` server-side, not by the absent button.
-- An invitation's email domain is checked against the organisation's allow-list (§A4, INT-10) **server-side** → `422` on mismatch.
+- Add existing → Admin and Manager. **Invite new → Admin and Manager.** Remove → **Admin only.** Enforced `403` server-side, not by the absent button.
+- An invitation may grant **`manager` or `viewer` only**. A request to invite an **Admin** is refused `422` — account ownership moves through Change Account Admin, never an invitation.
+- An invitation's email domain is checked against **that brand's own** allow-list (§A4, INT-10) **server-side** → `422` on mismatch. Domains are never pooled across the channel.
+- The allow-list is keyed **per client record**, so a brand newly parented into the lineage in Zoho arrives with its **own Email Domains column** — derived from the client records, with no configuration step. A brand with no domains yet returns an empty list rather than being omitted.
+- An invitation **creates no user**. It creates a pending invitation record holding the organisation, the invitee's address, their role, and the benches the Admin granted — and issues a **single-use token**.
+- The email links to the **Manager sign-up page** with that token, never to login. The invitee has no account to log into.
+- **The token carries the grant.** On completing Manager onboarding the platform creates the user, attaches them to the organisation with the invited **role**, and grants exactly the **bench access** recorded on the invitation. The invitee cannot alter either.
+- The invitation records **who invited them**, so a grant made by a Manager is auditable, but the resulting access is indistinguishable from one an Admin made — one membership model, no second class of grant.
+- Sign-up is refused unless the address matches the invitation **exactly** (BE-21) → `422`.
+- The token is **single-use and expiring**; a spent or expired token returns a state the UI can explain, not a generic error.
+- Until onboarding completes the invitee reads as **pending** in the members list and **no bench response includes them** — they can see nothing.
+- Once complete, their Virtual Benches list (SD-3470) returns **only their granted benches**, filtered server-side — the union of every grant made by an **Admin or a Manager**, in one list.
+- Changing their access afterwards is a **membership** change, not a new invitation — one record, read by both the list and the notifications.
+- **Onboarding also writes a manager profile onto the Zoho client record for the brand the invitation was scoped to** — the brand named on the bench, not the root client. It is written **once, at completion**; a pending invitation writes nothing to Zoho.
+- The Zoho contact and the platform user are **one identity**: the address on the profile is the invited address, so the two never drift.
+- If the Zoho write fails, the account is still created and the failure is **reported rather than swallowed** — the person can work, and our record is visibly incomplete rather than silently wrong.
 - **Removing the last Admin or Manager with access is refused** `409`. A bench nobody can act on is a dead end.
 - Granting access makes the bench visible on that member's list immediately, and **subscribes them to its notifications**. Removing it does both in reverse — one membership, read by both.
 - Removing bench access never removes the member from the organisation.
@@ -64,7 +78,9 @@ Returns the bench, its plan and period, its members, and any pending requests. *
 | Period | Per-bench Start + Auto-Renew (SD-3459) | Every period label |
 | Client-facing rate | Configured blended rate (BE-08) | Cost implication here, Channel page billing |
 | Membership | Organisation + bench membership (§A4) | List visibility, notification recipients |
-| Domain allow-list | Manage Client modal (§A4, INT-10) | Every invitation on the platform |
+| Domain allow-list | Manage Client modal (§A4, INT-10), held **per brand** | Every invitation on the platform; one Email Domains column per brand |
+| Invitation → account | Pending invitation + single-use token; resolved by Manager onboarding | The invitee's own Manager dashboard and bench list (SD-3470) |
+| Manager profile on the client record | Written to **Zoho** at onboarding completion, against the **brand** the bench belongs to (SD-3463) | Zoho client contacts; every report that names a client contact |
 | Capacity requests | Written here, actioned on Internal (SD-3465) | Internal bench entry's order form history |
 
 **Acceptance criteria**
