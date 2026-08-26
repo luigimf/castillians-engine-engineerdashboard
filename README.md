@@ -17,6 +17,11 @@ specs/internal-dashboard/SD-3465-bench-entry/
 specs/internal-dashboard/SD-3466-engagements-work-logs-filters/
 specs/internal-dashboard/SD-3467-engagements-work-log-entry/
 specs/internal-dashboard/SD-3468/
+specs/manager-dashboard/SD-3470/
+specs/manager-dashboard/SD-3471/
+specs/manager-dashboard/SD-3472/
+specs/manager-dashboard/SD-3473/
+specs/manager-dashboard/SD-3474/
 ```
 
 Every path above is **stable**. Files are updated in place, never renamed or moved, so a Jira
@@ -75,6 +80,20 @@ All under Epic [SD-3452](https://castille-labs.atlassian.net/browse/SD-3452).
 | `internal-dashboard/SD-3466-engagements-work-logs-filters/` | [SD-3466](https://castille-labs.atlassian.net/browse/SD-3466) | Work Logs tab — filters & batching |
 | `internal-dashboard/SD-3467-engagements-work-log-entry/` | [SD-3467](https://castille-labs.atlassian.net/browse/SD-3467) | Work log entry, history & per-engineer page |
 | `internal-dashboard/SD-3468/` | [SD-3468](https://castille-labs.atlassian.net/browse/SD-3468) | Month-end report generation (4 reports) |
+
+### Manager Dashboard — Epic [SD-3469](https://castille-labs.atlassian.net/browse/SD-3469)
+
+Replaces the existing pages at `castillians.com/v-benches` and `/v-benches/{id}`. Virtual Benches module only in this round.
+
+| Spec folder | Jira | Covers |
+|---|---|---|
+| `manager-dashboard/SD-3470/` | [SD-3470](https://castille-labs.atlassian.net/browse/SD-3470) | Virtual Benches page & Create a new bench |
+| `manager-dashboard/SD-3471/` | [SD-3471](https://castille-labs.atlassian.net/browse/SD-3471) | V Bench page: Bench Setup & Sharing |
+| `manager-dashboard/SD-3472/` | [SD-3472](https://castille-labs.atlassian.net/browse/SD-3472) | V Bench page: Skills Mix, Matrix & Hours |
+| `manager-dashboard/SD-3473/` | [SD-3473](https://castille-labs.atlassian.net/browse/SD-3473) | V Bench page: Engineer Work Logs |
+| `manager-dashboard/SD-3474/` | [SD-3474](https://castille-labs.atlassian.net/browse/SD-3474) | V Bench page: Engineers |
+
+See `specs/manager-dashboard/README.md` for build order.
 
 See `specs/internal-dashboard/README.md` for build order.
 
