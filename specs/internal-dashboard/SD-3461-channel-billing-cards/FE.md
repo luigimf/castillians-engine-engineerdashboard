@@ -19,7 +19,7 @@ One card per **root client** — the top-most parent in its channel, resolved fr
 
 - White, `1px var(--border)`, 8px radius, 30px padding. **No hover lift** — informational, not the click target.
 - Eyebrow `ROOT CLIENT`; title the client name; subtitle **"X Clients"**, counting the root itself.
-- Stats in order: Virtual Benches · Engineers · Total Skills · Monthly Capacity (**hrs**, not h) · Monthly Billing (CUR).
+- Stats in order: Virtual Benches · Engineers · Total Skills · Monthly Capacity (**hrs**, not h) · Monthly Billing.
 - Labels Bricolage 12px/500 uppercase, 0.7px tracking, `var(--gray-700)`. Values Bricolage 22px/700.
 - **View Channel** — Medium Secondary, 45px.
 - Responsive grid, wrapping rather than scrolling.
@@ -29,8 +29,12 @@ One card per **root client** — the top-most parent in its channel, resolved fr
 ## Currency
 
 - From the **billing client's Zoho record**. No default, no hardcoding.
-- Currency **codes** in the label — `MONTHLY BILLING (EUR)` — with a bare value, exact cents.
-- Mixed-currency channel → one figure **per currency**. Never combined, never converted.
+- The label reads **MONTHLY BILLING**, with **no currency in it**, and **each figure carries its own code** — `EUR 74,250.00` — exact cents.
+- Mixed-currency channel → one figure **per currency**, stacked, one line each. Never combined, never converted.
+
+_Outdated on 26 Aug. Previously: "Currency codes in the label — `MONTHLY BILLING (EUR)` — with a bare value, exact cents."_
+
+A code in the label cannot hold two currencies, so a mixed channel rendered one label and either a wrong combined figure or an ambiguous one. The code moves onto the value, and the cell renders one line per currency. **Currency is a property of the subscription, not of the channel or the client** (BE-27) — a single brand can hold benches billed in different currencies, so this is the normal case, not an edge case.
 
 ---
 

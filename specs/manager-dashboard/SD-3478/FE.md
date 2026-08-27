@@ -48,7 +48,7 @@ One card, titled **Brands & Members**, listing every brand in the channel with i
 ### Bench access carries the role — because the role is per bench
 
 - **Manager and Viewer are held per bench.** A member row shows **one chip per bench, with the role on that bench** — `Core Platform · Manager`, `Payments Squad · Viewer`. A single role tag on the row would be a lie.
-- Each chip **links to that bench's page**, so an Admin can go and check what the person can actually see.
+- **The chips are labels, not links.** They are not interactive: no hover treatment, no pointer cursor, no click target, and nothing navigates. A chip states the bench and the role held on it — that is its whole job. A link invites an Admin to leave a page they are part-way through administering, and a chip that looks clickable but leads somewhere unexpected is worse than one that plainly does not.
 - The **Admin's row** shows a single **`Admin · All Virtual Benches`** chip instead. Admin is the one account-wide role; it is not held per bench and carries no per-bench chips.
 - A member with no benches yet renders **`No bench access yet`** as a single chip — never an empty row.
 - **Bench access is synced with the bench pages** (SD-3471): granting or removing access there changes these chips on the next read, and vice versa. One membership record, two surfaces.

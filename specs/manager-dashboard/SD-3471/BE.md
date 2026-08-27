@@ -63,9 +63,11 @@ Returns the bench, its plan and period, its members, and any pending requests. *
 - **Removing the last Admin or Manager with access is refused** `409`. A bench nobody can act on is a dead end.
 - Granting access makes the bench visible on that member's list immediately, and **subscribes them to its notifications**. Removing it does both in reverse — one membership, read by both.
 - Removing bench access never removes the member from the organisation.
+- **A bench has exactly one Admin.** There is one Admin per client and a bench belongs to exactly one client, so the members response for a bench carries **exactly one member with `accountRole: "admin"`** — that client's. Another client's Admin in the same channel is **absent** from the response, not merely hidden. Scope the roster to the bench's own `clientId` before applying any access filter; a channel-wide roster is the wrong starting point.
+- **The account Admin is an eligible reviewer on every bench belonging to their client**, returned in the reviewer list beside the Managers. Eligibility derives from the **account role**, not from a bench membership row, so there is nothing to grant and revoking bench access cannot remove it. Assert that an Admin appears as eligible on a bench they hold no membership row for.
 - **Bench membership is what makes a Manager eligible to review that bench's engineers** on the Performance Log. One membership record, read for both purposes — there is no separate reviewer assignment to keep in step.
 - A **Viewer** is never an eligible reviewer, on any bench.
-- Because at least one Admin or Manager must retain access, **a bench always retains at least one eligible reviewer**. Assert both readings of that rule in one test.
+- Because a bench has exactly one Admin and that Admin is always eligible, **a bench always retains exactly one always-eligible reviewer** — even with every Manager removed. Assert both readings of that rule in one test, plus that two `admin` rows can never appear for one bench.
 
 ---
 

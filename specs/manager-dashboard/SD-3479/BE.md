@@ -4,7 +4,7 @@ Backend specification for **SD-3479**. Per-bench role changes, the two removal s
 
 Every endpoint here is **Admin only** — `403` for anyone else, whatever per-bench roles they hold.
 
-> **Roles are per bench.** Admin is the only account-wide role. Manager and Viewer are attributes of a **bench membership**, so a role change targets a `(memberId, benchId)` pair — never a member alone. SD-3479's Jira description still carries the earlier account-wide wording; this document is the model to build.
+> **Roles are per bench.** Admin is the only account-wide role. Manager and Viewer are attributes of a **bench membership**, so a role change targets a `(memberId, benchId)` pair — never a member alone. SD-3479's Jira description was corrected on 26 Aug: the earlier account-wide wording is retained there under an *Outdated on 26 Aug* note, with this model beneath it.
 
 ---
 

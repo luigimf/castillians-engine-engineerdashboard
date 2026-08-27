@@ -18,7 +18,7 @@ Angular handoff for **SD-3479**. Two functions on the `/organisation` page, spli
 >
 > A role control therefore belongs **on a bench**, not on a member. There is no single "this person's role" to set.
 >
-> **SD-3479's Jira description still carries the earlier account-wide wording** ("Role is the organisation's role. It is not set per bench"). That wording is out of date; the per-bench model in this document is the one to build, and matches SD-3478's member rows, the prototype's invite modal, and the bench pages' Members with access card (SD-3471). Confirm with Samuel before the ticket is updated if there is any doubt.
+> This matches SD-3478's member rows, the prototype's invite modal, and the bench pages' Members with access card (SD-3471). **SD-3479's Jira description was corrected on 26 Aug** — the earlier account-wide wording ("Role is the organisation's role. It is not set per bench") is retained there under an *Outdated on 26 Aug* note, with this model beneath it.
 
 ---
 

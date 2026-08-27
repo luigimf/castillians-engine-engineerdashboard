@@ -37,7 +37,7 @@ Returns the channel's root, its summary aggregates, and the full descendant tree
 Per-client bench rows for one period, plus totals and the available period range.
 
 **Acceptance criteria**
-- Totals are keyed **by currency**; a channel spanning currencies returns one entry each.
+- Totals are keyed **by currency**; a channel spanning currencies returns one entry each. A client with **no benches returns an empty array**, not a zero in some assumed currency — there is no currency to key it to, and the client renders an em dash. This applies to **every** level of the tree — each client row and the channel row — **and to the page header's own summary totals**, not only the grand total, because **currency is held per subscription** (BE-27) and one client can hold benches billed differently. The header is not a tree row and is the easiest place to leave a combined figure behind — assert that it matches the root row's channel total per currency.
 - The **current, open** period is flagged so the client can label it as to-date.
 - `earliestPeriod` / `latestPeriod` bound the client's navigation.
 

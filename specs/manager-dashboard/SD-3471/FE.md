@@ -127,6 +127,17 @@ When our team sets a brand up in Zoho and parents it into this lineage, the **Em
 
 **A Manager with access to a bench is eligible to act as the reviewing manager for the engineers on it** — approving and generating their reviews on the Performance Log.
 
+> ### A bench has exactly one Admin
+>
+> **There is one Admin per client**, and **a bench is never shared across clients** — it belongs to exactly one. Therefore **a bench has exactly one Admin: its own client's.**
+>
+> Another client's Admin in the same channel has **no access to this bench** and **must not appear** in its members list. Two ADMIN rows on one bench is a defect, not a valid state — assert it.
+>
+> The members list is scoped to the bench's **own client** before any access filter is applied. A channel-wide roster is the wrong starting point.
+
+- **The Admin is eligible on every bench belonging to their client, and appears in the reviewer list alongside the Managers.** They hold no per-bench role (SD-3479) — their eligibility comes from the account role, so it needs no grant and cannot be removed by revoking bench access. On this card the Admin's row shows an **ADMIN** tag rather than a role control, and they are still an eligible reviewer for that bench's engineers.
+- Because a bench has exactly one Admin, **it always has exactly one always-eligible reviewer** — no more, and never none.
+- That is what keeps the last-reviewer rule satisfiable: a bench whose only Manager is removed still has the Admin, so **no engineer is ever left without an eligible reviewer**.
 - Eligibility follows **bench membership**, so granting or removing access here changes who can review that bench's engineers. Say so on this card: it is a consequence a manager should not discover later.
 - A **Viewer** is never eligible, however many benches they can see.
 - **A bench must always retain at least one eligible reviewer** — the same rule that keeps at least one Admin or Manager with access, read for a second purpose. An engineer with nobody able to review them has no route to a performance record.
