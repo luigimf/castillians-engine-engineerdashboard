@@ -25,6 +25,14 @@ specs/manager-dashboard/SD-3474/
 specs/manager-dashboard/SD-3477/
 specs/manager-dashboard/SD-3478/
 specs/manager-dashboard/SD-3479/
+specs/email-notifications/SD-3493/
+specs/email-notifications/SD-3494/
+specs/email-notifications/SD-3495/
+specs/email-notifications/SD-3496/
+specs/email-notifications/SD-3497/
+specs/email-notifications/SD-3498/
+specs/email-notifications/SD-3499/
+emails/                              the 39 templates + the header logo asset
 ```
 
 Every path above is **stable**. Files are updated in place, never renamed or moved, so a Jira
@@ -101,7 +109,15 @@ Replaces the existing pages at `castillians.com/v-benches` and `/v-benches/{id}`
 
 The **Subscriptions module** is filed as **SD-3480**–**SD-3483** under the same epic; spec folders follow.
 
-See `specs/manager-dashboard/README.md` for build order.
+| `email-notifications/SD-3493/` | [SD-3493](https://castille-labs.atlassian.net/browse/SD-3493) | Email shell + rules every template follows |
+| `email-notifications/SD-3494/` | [SD-3494](https://castille-labs.atlassian.net/browse/SD-3494) | Work log approvals & timesheet reminders |
+| `email-notifications/SD-3495/` | [SD-3495](https://castille-labs.atlassian.net/browse/SD-3495) | Capacity & overage notifications |
+| `email-notifications/SD-3496/` | [SD-3496](https://castille-labs.atlassian.net/browse/SD-3496) | Client requests & acknowledgements |
+| `email-notifications/SD-3497/` | [SD-3497](https://castille-labs.atlassian.net/browse/SD-3497) | Client feedback |
+| `email-notifications/SD-3498/` | [SD-3498](https://castille-labs.atlassian.net/browse/SD-3498) | Month-end finance emails |
+| `email-notifications/SD-3499/` | [SD-3499](https://castille-labs.atlassian.net/browse/SD-3499) | Access & ownership |
+
+See `specs/manager-dashboard/README.md` and `specs/email-notifications/README.md` for build order.
 
 See `specs/internal-dashboard/README.md` for build order.
 
@@ -113,7 +129,14 @@ requirements**; backend detail lives only in `BE.md`.
 
 ## Email notifications
 
-Flow stories name the emails that fire within them, for awareness only — recipients and timing, not copy. Templates are specified separately in the **Email Notifications** epic.
+Flow stories name the emails that fire within them, for awareness only — recipients and timing, not copy. The templates themselves are specified in **`specs/email-notifications/`**, under epic [SD-3492](https://castille-labs.atlassian.net/browse/SD-3492) — **39 templates** across seven stories (SD-3493–SD-3499).
+
+Two rules from that epic bind work elsewhere in the repo:
+
+- **CTAs deep-link to the page the email is about**, never a dashboard home; signed out, the reader hits their own dashboard's sign-in and is redirected to the target (**BE-30**).
+- **Client-facing emails point at `customerexperience@`**; Human Capital owns the engineer-facing flows.
+
+The **Request a Capacity Quote** emails are not here — they belong to website epic SD-3487, in `castillians-enquire-page`.
 
 ## Build order
 

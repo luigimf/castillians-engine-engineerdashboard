@@ -808,7 +808,8 @@ A CTA links to the **specific page on the recipient's own dashboard** that the e
 | Entry exceeds capacity → approval required | `humancapital@` + `sharedservices@` | **Distinct template** from the above. Must carry enough for a reviewer to decide without opening the dashboard: **hours requested**; the engineer's **assigned hours** this period, **hours already logged**, and **hours needing approval**; and the client position — **capacity plan**, **overages agreed**, **overages used**, **overage rate**, and bench capacity used. "Overages agreed" resolves per BE-13: the authorised total where one is set, otherwise the standard 20% tolerance |
 | Entry approved | Engineer | Confirmation |
 | Entry declined | Engineer | Carries the decline message verbatim |
-| Bench invite sent | Invitee | Link to the bench |
+| Bench invite sent — **no account yet** | Invitee | Link to `manager-sign-up?invite=TOKEN`, Work Email pre-populated and locked (BE-22) |
+| Bench access granted — **existing member** | The member | **A distinct template.** They already have an account, so there is nothing to accept and no token: the access is already live. Links straight to the bench. Names the role they hold **on that bench**, and states their role elsewhere is unchanged |
 | Admin ownership transferred — to the **new Admin** | Incoming Admin | Confirms they now hold the account: subscription ownership, billing responsibility, full channel access, ability to invite Managers and Viewers |
 | Admin ownership transferred — to the **outgoing Admin** | Previous Admin | Confirms the transfer, names who it moved to, and states they are now a Manager |
 | Admin ownership transferred — notice | `customerexperience@` **and** `sharedservices@castillians.com` | Audit record: client, previous Admin, new Admin, timestamp. **Both teams**: a transfer changes who CX deals with on the account, and it changes the billing contact Shared Services holds |

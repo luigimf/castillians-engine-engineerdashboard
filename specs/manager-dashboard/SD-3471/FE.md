@@ -94,6 +94,20 @@ The three sections beneath — Skills & Hours (SD-3472), Engineer Work Logs (SD-
 - An invited person renders as **pending** until they accept, so it is clear they cannot see the bench yet.
 - Removing bench access does **not** remove them from the organisation.
 
+### Two paths: a new person, or someone already here
+
+Adding somebody to a bench has **two outcomes**, and they must not share a template.
+
+| The person | What happens | What they are sent |
+|---|---|---|
+| **Has no account** | An invitation is created; nothing exists until they onboard | The bench invite — sign-up link, token, Work Email locked |
+| **Already a member of the organisation** | **Access is granted immediately.** No invitation, no token, nothing to accept | `emails/11-bench-access-granted.html` — links straight to the bench |
+
+- **An existing member is never sent to sign-up.** They have an account; a sign-up page is a dead end that reads as though we have lost them.
+- The grant is **live before the email lands** — the email announces it rather than asking for anything.
+- The email names the role they hold **on that bench**, and says their role on every other bench is unchanged. **Manager and Viewer are per bench** (SD-3479), so a person made a Viewer here may still be a Manager elsewhere, and a mail that implies otherwise will be read as a demotion.
+- The CTA links to the bench; signed out, they hit `castillians.com/manager-login` and are redirected to it (BE-30).
+
 ### What an invitation actually does
 
 An invite is the **start of an account**, not a permission grant on an account that already exists. The journey is:
