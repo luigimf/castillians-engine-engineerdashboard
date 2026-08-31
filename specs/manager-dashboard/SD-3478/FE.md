@@ -68,7 +68,8 @@ One card, titled **Brands & Members**, listing every brand in the channel with i
 - **Admin is never invitable.** Ownership moves through Change Account Admin.
 - The address must be on **that brand's own** email domains. A mismatch is refused with a plain explanation, **server-side**.
 - An invitee appears in the list as **Invited** until they complete onboarding, so it is clear they cannot see anything yet.
-- The invitation email links to the **Manager sign-up page** and carries the per-bench grants — the full journey is specified in **SD-3471**.
+- The invitation email's CTA lands on **`https://castillians.com/manager-sign-up?invite=TOKEN`** and carries the per-bench grants — the full journey is specified in **SD-3471**.
+- **The Work Email field there is pre-populated with the invited address and locked**, resolved server-side from the token. The address is the identity the invitation was issued against; it is never editable, and a mismatched submission is refused server-side.
 
 ---
 

@@ -49,7 +49,9 @@ Returns the bench, its plan and period, its members, and any pending requests. *
 - An invitation's email domain is checked against **that brand's own** allow-list (§A4, INT-10) **server-side** → `422` on mismatch. Domains are never pooled across the channel.
 - The allow-list is keyed **per client record**, so a brand newly parented into the lineage in Zoho arrives with its **own Email Domains column** — derived from the client records, with no configuration step. A brand with no domains yet returns an empty list rather than being omitted.
 - An invitation **creates no user**. It creates a pending invitation record holding the organisation, the invitee's address, their role, and the benches the Admin granted — and issues a **single-use token**.
-- The email links to the **Manager sign-up page** with that token, never to login. The invitee has no account to log into.
+- The email's CTA links to **`https://castillians.com/manager-sign-up?invite=TOKEN`**, never to login. The invitee has no account to log into.
+- **The sign-up page pre-populates Work Email from the token and locks the field.** The address is resolved **server-side from the token**, never from the query string — a recipient who edits the URL gets a rejection, not a different address. The field is read-only and visibly fixed, with a line saying why.
+- **The lock is a convenience, not the guard.** Sign-up is refused server-side whenever the submitted email does not match the invitation, so bypassing the client changes nothing.
 - **The token carries the grant.** On completing Manager onboarding the platform creates the user, attaches them to the organisation with the invited **role**, and grants exactly the **bench access** recorded on the invitation. The invitee cannot alter either.
 - The invitation records **who invited them**, so a grant made by a Manager is auditable, but the resulting access is indistinguishable from one an Admin made — one membership model, no second class of grant.
 - Sign-up is refused unless the address matches the invitation **exactly** (BE-21) → `422`.

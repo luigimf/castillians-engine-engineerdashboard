@@ -98,7 +98,9 @@ The three sections beneath — Skills & Hours (SD-3472), Engineer Work Logs (SD-
 
 An invite is the **start of an account**, not a permission grant on an account that already exists. The journey is:
 
-1. The invitee receives an email carrying a **link to the Manager sign-up page**, pre-bound to this organisation and to the role and bench access the Admin gave them.
+1. The invitee receives an email whose CTA lands on **`https://castillians.com/manager-sign-up?invite=TOKEN`** — the existing Manager sign-up page, pre-bound to this organisation and to the role and bench access the Admin gave them.
+   - **The Work Email field is pre-populated with the invited address and locked.** Read-only and visibly fixed, with a line saying why. The address is the identity the invitation was issued against, so it must not be typed over.
+   - The value is resolved **server-side from the token**, never from an editable query parameter, and a submission whose email does not match the token's is refused even if the client were bypassed.
 2. They complete **Manager onboarding** — the platform's existing sign-up and onboarding flow, unchanged by this story. Both roles go through the same onboarding; the role decides what they can do afterwards, not which flow they take.
 3. On finishing, they land on **their own Manager dashboard**, showing **exactly the benches the Admin gave them access to** — no more.
 

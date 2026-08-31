@@ -108,7 +108,10 @@ Hours reach a report **only once approved**, and that one approval drives **both
 - Four emails to `sharedservices@castillians.com`, one per report; engineer invoicing also carries the **zip of per-engineer PDFs**.
 - The body lists entries **held back at the cut-off**, so Finance knows what is not in the file.
 - A failed run is **retryable without double-sending**, regenerating from the same snapshot rather than live data.
-- An engineer who **uploaded their own invoice** consumes no invoice number and appears in the zip with their own PDF (SD-3458).
+- An engineer who **uploaded their own invoice** appears in the zip with their own PDF (SD-3458).
+- **Uploading suppresses generation only — it never removes the engineer from the run.** They appear on the payroll checklist, in the SFM supplier upload and in the invoicing spreadsheet exactly as everyone else does, with their row built from the same approved work logs; only the invoice document differs. Their checklist row stamps Invoice Number and Invoice Recvd from **their** invoice.
+- **Assert this directly:** a run containing an uploaded invoice has the same engineer count and the same payable total as the same run with a generated one. An engineer dropped from the run does not get paid, and the omission stays invisible until they chase it.
+- **Zero approved hours is the only exclusion rule** in the run (BE-27).
 - On-demand downloads send **no** email.
 
 ---

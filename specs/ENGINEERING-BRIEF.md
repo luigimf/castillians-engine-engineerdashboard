@@ -639,6 +639,17 @@ Engineers without an invoice of their own can download a **blank template** from
 - The engineer is emailed a copy of what was submitted.
 - Hour verification is already covered: approval flow (BE-13) plus immutable edit history (BE-14) resolve Finance's "verification of engineer hours worked" concern.
 
+#### An engineer who uploads their own invoice stays in the run
+
+An engineer may upload their own invoice instead of using the generated one. That **suppresses generation for them, and nothing else.**
+
+**Acceptance criteria**
+- **They remain in every month-end output**: the payroll checklist, the SFM supplier upload, the engineer invoicing spreadsheet and the PDF zip (BE-27). Their row is built from the same approved work logs as everyone else's — only the invoice document differs.
+- Their checklist row stamps Invoice Number and Invoice Recvd from **their** invoice, not a generated one.
+- **Dropping them from the run is a defect, not a shortcut.** An engineer who does not appear in the run does not get paid, and the omission is invisible until they chase it. Assert with a run containing at least one uploaded invoice that the engineer count and the payable total are unchanged from the same run with a generated one.
+- The internal notification says this explicitly, so nobody hand-excludes them on reading it.
+- Only engineers with **zero approved hours** are omitted (BE-27) — that is the sole exclusion rule in the run.
+
 ### BE-25 — Ad-hoc Excel export
 Finance asked for the flexibility to generate any report to Excel.
 
@@ -767,6 +778,29 @@ Per-client allow-list of one or more domains. Only these addresses may sign up o
 
 ## A5. Notifications
 
+### BE-30 — Email CTAs: deep link, sign-in hop, redirect back
+
+**Platform-wide. Applies to every CTA in every transactional email.**
+
+A CTA links to the **specific page on the recipient's own dashboard** that the email is about — never a dashboard home, and never a generic landing page. A notification that names a bench, an entry or an invoice and then drops the reader on a home screen makes them hunt for what we just told them about.
+
+**If the recipient is not signed in**, they land on the sign-in page for **their** dashboard, and are redirected to the original target on success:
+
+| Recipient's dashboard | Sign-in page |
+|---|---|
+| **Internal** (`humancapital@`, `sharedservices@`, `customerexperience@`, `brand@`) | `https://castillians.com/internal-dashboard` |
+| **Engineer** | `https://castillians.com/login` |
+| **Manager** (Admin, Manager, Viewer) | `https://castillians.com/manager-login` |
+
+**Acceptance criteria**
+- The CTA carries the **full deep link**. The sign-in hop is the app's doing, not a different `href` in the email.
+- **The deep link survives the round trip.** After signing in the reader lands on the exact target — the bench, the entry, the filtered queue, the invoice — not the dashboard home. This is the criterion most likely to be missed, and it is the whole point of the rule.
+- **The sign-in page is chosen by recipient type, not by guesswork.** Three dashboards, three sign-in pages; an internal recipient must never be sent to the engineer sign-in.
+- An **already-signed-in** reader goes straight to the target with no interstitial.
+- A reader signed in as the **wrong role** is not silently redirected to their own dashboard — they are told the link is not for their account.
+- Links in an email are **not** authenticated shortcuts. The target still enforces its own role check server-side; a deep link grants nothing (§A4).
+- **Invitation and one-tap links are the deliberate exceptions**: bench and organisation invites carry a single-use token to the sign-up page (BE-22), and the weekly satisfaction CTAs record a rating without a session. Both are specified where they occur.
+
 ### BE-20 — Transactional emails
 | Trigger | Recipient | Contents |
 |---|---|---|
@@ -777,7 +811,7 @@ Per-client allow-list of one or more domains. Only these addresses may sign up o
 | Bench invite sent | Invitee | Link to the bench |
 | Admin ownership transferred — to the **new Admin** | Incoming Admin | Confirms they now hold the account: subscription ownership, billing responsibility, full channel access, ability to invite Managers and Viewers |
 | Admin ownership transferred — to the **outgoing Admin** | Previous Admin | Confirms the transfer, names who it moved to, and states they are now a Manager |
-| Admin ownership transferred — notice | `sharedservices@castillians.com` | Audit record: client, previous Admin, new Admin, timestamp — the subscription's billing contact has changed |
+| Admin ownership transferred — notice | `customerexperience@` **and** `sharedservices@castillians.com` | Audit record: client, previous Admin, new Admin, timestamp. **Both teams**: a transfer changes who CX deals with on the account, and it changes the billing contact Shared Services holds |
 | Weekly satisfaction report (per bench) | Manager | Sent **weekly**. Traffic-light colour **plus** hours used vs total for the bench — e.g. "68 / 80h — 85%". Three equal-width rating CTAs; no reply is treated as a green |
 | Satisfaction response received | **Human Capital team** (`humancapital@castillians.com`) | Fires the moment a Manager taps a rating. States the client's response, the bench, the client, who responded, and the hours context at the time of the rating |
 | 90% capacity, overages OFF | Internal + Manager | Logging will be blocked at the plan (BE-13). **Two separate templates** — the client's carries no overage mechanics and invites a capacity request; Castillians' keeps the hard-cap detail |
@@ -804,7 +838,15 @@ Automated reminders prompting engineers to keep their work log current.
 - The cut-off date is derived from the period rules in BE-02, not stored separately.
 
 ### BE-22 — Bench invite journey
+
+**The invitation CTA lands on `https://castillians.com/manager-sign-up?invite=TOKEN`** — the existing Manager sign-up page, not a new one.
+
 **Acceptance criteria**
+- **The Work Email field is pre-populated with the invited address and locked.** Read-only, visibly fixed, and not editable by any means — the address is the identity the invitation was issued against, so letting it be typed over is the whole failure this prevents.
+- The value is resolved **server-side from the token**, never from a query parameter the recipient could edit. A tampered address is rejected outright rather than silently corrected.
+- The locked field is styled as **filled and disabled**, with a line saying why it cannot be changed. A greyed box with no explanation reads as a broken form.
+- **The token still governs.** A submission whose email does not match the token's is refused server-side even if the client were bypassed.
+- Registration is refused if the token is expired, already used, or revoked — the invitee is told which, and told to ask for a new invitation.
 - No account → the invitee must register with the **exact** invited email address; any other address is rejected.
 - Existing account → log in.
 - Either path redirects to the invited bench on success.
