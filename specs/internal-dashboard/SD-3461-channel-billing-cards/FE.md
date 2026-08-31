@@ -83,3 +83,5 @@ BE.md                          aggregation rules, report endpoints
 ../../ENGINEERING-BRIEF.md     BE-22, BE-23, §A6 (SFM), §G (interaction patterns)
 ../../../prototype/index.html  → Internal → Channel & Billing
 ```
+
+> **`BE-nn` refers to numbered requirement sections inside `specs/ENGINEERING-BRIEF.md`** — e.g. **BE-30** is *"Email CTAs: deep link, sign-in hop, redirect back"*. They are **not** the `BE.md` files in spec folders, which are backend specs for a single story.

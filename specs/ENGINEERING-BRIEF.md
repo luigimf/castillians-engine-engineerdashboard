@@ -1,6 +1,9 @@
 # Castillians Platform — Engineering Brief
 
 Scope of work represented by the interactive prototype (`Castillians Platform.dc.html`).
+
+> **How to read `BE-nn`.** The requirements below are numbered **BE-01 … BE-30** and are cited by that number from every Jira story and spec folder — "BE-30" means the section in **this file**, not a `BE.md` in a spec folder. A spec folder's `BE.md` is the backend spec for one story; a `BE-nn` is a platform rule here. Likewise `INT-nn` for integration points and `§G` for the interaction patterns.
+
 Estimates assume 1 backend + 1 frontend engineer working in parallel, Angular 11 portal + existing API, Zoho as source of truth for client and currency data.
 
 **How to read this document.** Section A is the backend specification: every rule carries a stable ID (`BE-xx`), the integration it touches, and testable acceptance criteria. These are written to be converted into Jira items one-to-one. Sections B–E describe the UI work per dashboard. Section F covers effort and risk.

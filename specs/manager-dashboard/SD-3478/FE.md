@@ -165,4 +165,6 @@ BE.md                          endpoints, the transfer, invitations, domains, th
 ../../../prototype/index.html  → Manager → Organisation
 ```
 
+> **`BE-nn` refers to numbered requirement sections inside `specs/ENGINEERING-BRIEF.md`** — e.g. **BE-30** is *"Email CTAs: deep link, sign-in hop, redirect back"*. They are **not** the `BE.md` files in spec folders, which are backend specs for a single story.
+
 **Prototype:** open `prototype/index.html` → **Manager** → **Organisation**. **Northmill Markets** is a brand with no members yet, so the empty state and its Invite members action are both visible. **Claire Bonnici** holds two benches at different roles — the case a single role tag would misrepresent.

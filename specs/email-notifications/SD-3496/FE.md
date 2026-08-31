@@ -81,3 +81,5 @@ The substance of this story. Every one of these creates a **request**, never the
 ../../manager-dashboard/SD-3471/   the capacity plan change request
 ../../ENGINEERING-BRIEF.md    BE-04/08 confidentiality, BE-20 triggers, BE-27 currency
 ```
+
+> **`BE-nn` refers to numbered requirement sections inside `specs/ENGINEERING-BRIEF.md`** — e.g. **BE-30** is *"Email CTAs: deep link, sign-in hop, redirect back"*. They are **not** the `BE.md` files in spec folders, which are backend specs for a single story.

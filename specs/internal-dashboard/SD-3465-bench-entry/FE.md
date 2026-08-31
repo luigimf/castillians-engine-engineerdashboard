@@ -79,4 +79,6 @@ BE.md                          overage state machine, allocation, work logs
 ../../../prototype/index.html  → Internal → Engagements → Virtual Benches → expand a bench
 ```
 
+> **`BE-nn` refers to numbered requirement sections inside `specs/ENGINEERING-BRIEF.md`** — e.g. **BE-30** is *"Email CTAs: deep link, sign-in hop, redirect back"*. They are **not** the `BE.md` files in spec folders, which are backend specs for a single story.
+
 **Prototype:** _Core Platform_ has an authorised block, _Payments Squad_ and _Mobile App_ have overages off, and _Insurance Web_ has a two-engineer allocation split.

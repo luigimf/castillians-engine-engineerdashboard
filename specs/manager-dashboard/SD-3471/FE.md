@@ -176,3 +176,5 @@ BE.md                          endpoints, rename, requests, membership
 ../../ENGINEERING-BRIEF.md     §G patterns, §A4 roles + INT-10 domains, BE-02/03 periods, BE-08 rates
 ../../../prototype/index.html  → Manager → Virtual Benches → open a bench
 ```
+
+> **`BE-nn` refers to numbered requirement sections inside `specs/ENGINEERING-BRIEF.md`** — e.g. **BE-30** is *"Email CTAs: deep link, sign-in hop, redirect back"*. They are **not** the `BE.md` files in spec folders, which are backend specs for a single story.

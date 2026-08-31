@@ -143,3 +143,5 @@ BE.md                          endpoints, figures, the capacity request
 ../../ENGINEERING-BRIEF.md     BE-03 pro-rating, BE-05/06 overage + rate, BE-08 mark-up, BE-11 to BE-13 thresholds
 ../../../prototype/index.html  → Manager → Virtual Benches → open a bench
 ```
+
+> **`BE-nn` refers to numbered requirement sections inside `specs/ENGINEERING-BRIEF.md`** — e.g. **BE-30** is *"Email CTAs: deep link, sign-in hop, redirect back"*. They are **not** the `BE.md` files in spec folders, which are backend specs for a single story.

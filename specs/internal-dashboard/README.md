@@ -2,6 +2,8 @@
 
 Epic: [SD-3460](https://castille-labs.atlassian.net/browse/SD-3460)
 
+> **Reading `BE-nn`.** Stories and specs cite platform rules as **BE-01 … BE-30** — these are **numbered sections in `specs/ENGINEERING-BRIEF.md`**, not the `BE.md` files in spec folders. A `BE.md` is the backend spec for one story; a `BE-nn` is a platform-wide rule in the brief. Same two letters, two different things.
+
 | Folder | Jira | Covers |
 |---|---|---|
 | `SD-3461-channel-billing-cards/` | [SD-3461](https://castille-labs.atlassian.net/browse/SD-3461) | Channel & Billing — root client cards & report downloads |

@@ -60,3 +60,5 @@ Everything in **SD-3493** applies: the 600px Arial shell, the hidden preheader, 
 ../SD-3493/                   the shell and shared rules
 ../../ENGINEERING-BRIEF.md    BE-20 triggers and recipients, BE-30 CTAs and this exception
 ```
+
+> **`BE-nn` refers to numbered requirement sections inside `specs/ENGINEERING-BRIEF.md`** — e.g. **BE-30** is *"Email CTAs: deep link, sign-in hop, redirect back"*. They are **not** the `BE.md` files in spec folders, which are backend specs for a single story.

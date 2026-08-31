@@ -100,3 +100,5 @@ BE.md                          endpoint, filtering, batching
 ../../ENGINEERING-BRIEF.md     §G1 pagination, §G2 states, §G6 filters, BE-29 the period close
 ../../../prototype/index.html  → Manager → Virtual Benches → open a bench → Engineer Work Logs
 ```
+
+> **`BE-nn` refers to numbered requirement sections inside `specs/ENGINEERING-BRIEF.md`** — e.g. **BE-30** is *"Email CTAs: deep link, sign-in hop, redirect back"*. They are **not** the `BE.md` files in spec folders, which are backend specs for a single story.

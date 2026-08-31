@@ -3,6 +3,8 @@
 Backend specification for **SD-3458**. Reading an engineer's earnings per billable period, and
 the automatic invoice submitted on their behalf.
 
+> **`BE-nn` refers to numbered requirement sections inside `specs/ENGINEERING-BRIEF.md`** — e.g. **BE-30** is *"Email CTAs: deep link, sign-in hop, redirect back"*. They are **not** this file: `BE.md` is the backend spec for one story, `BE-nn` is a numbered rule in the brief.
+
 Depends on the period engine from **SD-3453** and the approved-hours store from **SD-3456**.
 
 ---

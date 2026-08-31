@@ -85,3 +85,5 @@ Adding somebody to a bench has **two outcomes**, and conflating them is the defe
 ../../manager-dashboard/SD-3479/   per-bench roles
 ../../ENGINEERING-BRIEF.md         §A4 roles, BE-20 triggers, BE-22 invite journey, BE-30 CTAs
 ```
+
+> **`BE-nn` refers to numbered requirement sections inside `specs/ENGINEERING-BRIEF.md`** — e.g. **BE-30** is *"Email CTAs: deep link, sign-in hop, redirect back"*. They are **not** the `BE.md` files in spec folders, which are backend specs for a single story.

@@ -100,4 +100,6 @@ Currency **codes**, never symbols — `EUR 1,234.56`, exact cents. **Never conve
 ../../../emails/              all 39 templates
 ```
 
+> **`BE-nn` refers to numbered requirement sections inside `specs/ENGINEERING-BRIEF.md`** — e.g. **BE-30** is *"Email CTAs: deep link, sign-in hop, redirect back"*. They are **not** the `BE.md` files in spec folders, which are backend specs for a single story.
+
 **Preview:** the `Castillians Emails` canvas. `08-capacity-120-on.html` shows the amber panel, `06-satisfaction-weekly.html` the white one, `11-bench-invite.html` the blue one.

@@ -3,6 +3,8 @@
 Backend specification for **SD-3456**. Reading entries, editing them, and the append-only
 history that records every change.
 
+> **`BE-nn` refers to numbered requirement sections inside `specs/ENGINEERING-BRIEF.md`** — e.g. **BE-30** is *"Email CTAs: deep link, sign-in hop, redirect back"*. They are **not** this file: `BE.md` is the backend spec for one story, `BE-nn` is a numbered rule in the brief.
+
 Depends on the period and allocation endpoints from **SD-3453**.
 
 ---

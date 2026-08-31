@@ -127,6 +127,9 @@ requirements**; backend detail lives only in `BE.md`.
 
 ---
 
+
+> **Reading `BE-nn`.** Stories and specs cite platform rules as **BE-01 … BE-30** — these are **numbered sections in `specs/ENGINEERING-BRIEF.md`**, not the `BE.md` files in spec folders. A `BE.md` is the backend spec for one story; a `BE-nn` is a platform-wide rule in the brief. Same two letters, two different things.
+
 ## Email notifications
 
 Flow stories name the emails that fire within them, for awareness only — recipients and timing, not copy. The templates themselves are specified in **`specs/email-notifications/`**, under epic [SD-3492](https://castille-labs.atlassian.net/browse/SD-3492) — **39 templates** across seven stories (SD-3493–SD-3499).

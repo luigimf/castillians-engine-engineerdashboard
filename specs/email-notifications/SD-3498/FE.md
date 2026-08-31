@@ -78,3 +78,5 @@ Currency **codes**, exact cents. A mixed-currency period shows **one figure per 
 ../../internal-dashboard/SD-3468/  what the attachments contain
 ../../ENGINEERING-BRIEF.md         BE-22 columns, BE-24 uploads stay in the run, BE-27 PDFs
 ```
+
+> **`BE-nn` refers to numbered requirement sections inside `specs/ENGINEERING-BRIEF.md`** — e.g. **BE-30** is *"Email CTAs: deep link, sign-in hop, redirect back"*. They are **not** the `BE.md` files in spec folders, which are backend specs for a single story.

@@ -145,3 +145,5 @@ BE.md                          approval, history, the period close
 ../../ENGINEERING-BRIEF.md     BE-11 to BE-14 approval and history, BE-22 month-end exports, §G states
 ../../../prototype/index.html  → Internal → Engagements → Work Logs → an entry, then View Work Log
 ```
+
+> **`BE-nn` refers to numbered requirement sections inside `specs/ENGINEERING-BRIEF.md`** — e.g. **BE-30** is *"Email CTAs: deep link, sign-in hop, redirect back"*. They are **not** the `BE.md` files in spec folders, which are backend specs for a single story.

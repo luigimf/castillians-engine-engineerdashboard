@@ -2,6 +2,8 @@
 
 Backend specification for **SD-3468**. Four reports, one snapshot, no SFM integration.
 
+> **`BE-nn` refers to numbered requirement sections inside `specs/ENGINEERING-BRIEF.md`** — e.g. **BE-30** is *"Email CTAs: deep link, sign-in hop, redirect back"*. They are **not** this file: `BE.md` is the backend spec for one story, `BE-nn` is a numbered rule in the brief.
+
 ---
 
 ## Scope

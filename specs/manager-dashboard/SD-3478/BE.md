@@ -2,6 +2,8 @@
 
 Backend specification for **SD-3478**. The ownership transfer, the brands-and-members read, invitations, the new-brand request, and per-brand email domains.
 
+> **`BE-nn` refers to numbered requirement sections inside `specs/ENGINEERING-BRIEF.md`** — e.g. **BE-30** is *"Email CTAs: deep link, sign-in hop, redirect back"*. They are **not** this file: `BE.md` is the backend spec for one story, `BE-nn` is a numbered rule in the brief.
+
 Every endpoint here is **Admin only** and refused `403` for anyone else — no combination of per-bench Manager or Viewer roles grants any of it.
 
 ---
