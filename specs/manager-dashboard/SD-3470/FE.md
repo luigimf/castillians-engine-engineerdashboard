@@ -33,7 +33,7 @@ Angular handoff for **SD-3470**. Replaces the existing page at `castillians.com/
 
 | Element | Treatment |
 |---|---|
-| Type tag | Permanent / Project, with its icon, in the type's own colour treatment |
+| Type tag | **Global** / **Data Regulated**, with its icon, in the type's own colour treatment |
 | Bench name | Bricolage 22px/700 |
 | Client | Body 14px `var(--gray-700)` — only when the organisation has more than one client entity |
 | Engineer count | Activated engineers only |
@@ -41,11 +41,29 @@ Angular handoff for **SD-3470**. Replaces the existing page at `castillians.com/
 | Period | The bench's **own** period as a date range, with days remaining |
 | Over-capacity tag | Only when past plan. Fill + weight, never colour alone (§G6) |
 
+_Outdated on 4 Sep. Previously: "Type tag | Permanent / Project, with its icon, in the type's own colour treatment" — the tag never carried Permanent/Project; it carries the bench type, whose two values were "Work From Anywhere" and "EU & Data Safe"._
+
 **Bands:** ≤59% green `#10b77f`, 60–89% amber `#f59f0a`, ≥90% red `#ef4343`, each on its **tinted** track — never grey. Fill animates from 0 over 300ms `cubic-bezier(0.35,0,0.25,1)`.
 
 **Bar geometry is identical on every card** — the 100% mark sits at the same width whatever the plan, so two cards can be compared at a glance. **Remaining reads `0h` when over plan**, never a negative figure.
 
 ---
+
+### Terminology — bench type names (updated 4 Sep)
+
+The two Virtual Bench types have been renamed. The card type tag and the **new-bench request modal** type selector both offer only these two values, with their existing descriptions.
+
+| Was | Is now |
+|---|---|
+| Work From Anywhere | **Global** |
+| EU & Data Safe | **Data Regulated** |
+
+_Outdated on 4 Sep. Previously: the two bench types were named "Work From Anywhere" and "EU & Data Safe"._
+
+- The rename is **display terminology only** — the taxonomy is unchanged: still exactly two types, still one per bench, still set once on the bench record and never edited per period.
+- **Every surface reads the same two strings**: manager Virtual Benches cards and the new-bench request modal, Internal Engagements bench rows, the Channel page billing rows, the engineer Overview bench tabs, the capacity-quote form, and all bench notification emails.
+- Persisted `benchType` values and any stored request records **migrate with the rename** — no surface may show the old string once deployed, including historic periods and closed benches.
+- Existing icons and colour treatments per type are unchanged; **only the label changes.**
 
 ## Client filter
 

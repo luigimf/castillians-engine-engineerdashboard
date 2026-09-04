@@ -30,13 +30,29 @@ None of these are re-keyed or stored by this module — they are read at request
 Virtual Benches the authenticated engineer is **activated** on. Shortlisted-only benches
 are excluded — this drives the tab row.
 
+### Terminology — bench type names (updated 4 Sep)
+
+The two Virtual Bench types have been renamed. `benchType` in this payload returns the new values; the enum is `Global | Data Regulated`.
+
+| Was | Is now |
+|---|---|
+| Work From Anywhere | **Global** |
+| EU & Data Safe | **Data Regulated** |
+
+_Outdated on 4 Sep. Previously: the two bench types were named "Work From Anywhere" and "EU & Data Safe"._
+
+- The rename is **display terminology only** — the taxonomy is unchanged: still exactly two types, still one per bench, still set once on the bench record and never edited per period.
+- **Every surface reads the same two strings**: manager Virtual Benches cards and the new-bench request modal, Internal Engagements bench rows, the Channel page billing rows, the engineer Overview bench tabs, the capacity-quote form, and all bench notification emails.
+- Persisted `benchType` values and any stored request records **migrate with the rename** — no surface may show the old string once deployed, including historic periods and closed benches.
+- Existing icons and colour treatments per type are unchanged; **only the label changes.**
+
 ```json
 [
   {
     "benchId": "vb-core",
     "benchName": "Core Platform",
     "clientName": "Northmill Bank",
-    "benchType": "Work From Anywhere",
+    "benchType": "Global",
     "managers": [
       { "name": "James Whitmore", "email": "james.whitmore@northmill.com" },
       { "name": "Claire Bonnici", "email": "claire.bonnici@northmill.com" }

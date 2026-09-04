@@ -45,6 +45,23 @@ A Virtual Bench subscription holds: `includedHours`, `purchasedHours`, `startDat
 **Acceptance criteria**
 - Every field is sourced from the Manage Subscription modal (INT-5 → INT-8); none are duplicated or independently editable in the new modules.
 - Currency resolves from the Client record in Zoho (INT-2). No default, no hardcoding.
+- `benchType` carries one of **two** values — see the terminology note below.
+
+### Terminology — bench type names (updated 4 Sep)
+
+The two Virtual Bench types have been renamed. `benchType` on the subscription record (BE-01) carries the new values everywhere it is written or read.
+
+| Was | Is now |
+|---|---|
+| Work From Anywhere | **Global** |
+| EU & Data Safe | **Data Regulated** |
+
+_Outdated on 4 Sep. Previously: the two bench types were named "Work From Anywhere" and "EU & Data Safe"._
+
+- The rename is **display terminology only** — the taxonomy is unchanged: still exactly two types, still one per bench, still set once on the bench record and never edited per period.
+- **Every surface reads the same two strings**: manager Virtual Benches cards and the new-bench request modal, Internal Engagements bench rows, the Channel page billing rows, the engineer Overview bench tabs, the capacity-quote form, and all bench notification emails.
+- Persisted `benchType` values and any stored request records **migrate with the rename** — no surface may show the old string once deployed, including historic periods and closed benches.
+- Existing icons and colour treatments per type are unchanged; **only the label changes.**
 
 ### BE-02 — Billing cycle
 Subscriptions bill on **calendar months**, with one exception for the first period.
