@@ -40,6 +40,8 @@ These are the existing systems the prototype's data must read from and write bac
 > This is the critical path. Every dashboard reads from it. Build and test it first.
 
 ### BE-01 — Subscription record
+The manager bench card labels this figure **`SUBSCRIPTION (CUR)`**, beside **`CAPACITY (HRS)`** (renamed from `BILLING (CUR)` and `CAPACITY / MONTH` on 11 Sep — labels only; the figures and their derivations are unchanged). **The unit belongs in the label, never beside the value** — both values render bare. `BILLING (CUR)` remains correct where a figure is a genuinely billed total: the Internal subscription rows and the Channel & Billing breakdowns.
+
 A Virtual Bench subscription holds: `includedHours`, `purchasedHours`, `startDate`, `configuredBlendedRate`, `currency`, `autoRenewDate`, `benchType`, `timeZoneGroup`, `coreSkills[]`, `additionalSkills[]`.
 
 **Acceptance criteria**

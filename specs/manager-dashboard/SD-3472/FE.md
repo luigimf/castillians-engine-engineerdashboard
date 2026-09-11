@@ -83,10 +83,23 @@ The capacity bar is the shared `CapacityBarComponent` from SD-3470 — same band
 - Hour values are **bare integers** — no `h` suffix.
 - `OVERAGES AGREED`, `OVERAGES USED` and `OVERAGE RATE` each carry an **info tooltip**, one sentence each. The tooltip is a **button**, not hover-only — it must be reachable on touch.
 - **Overage Rate is the blended client rate**, at **1.25× for the first three months** (BE-06). The engineer-facing rate and mark-up never appear on this page.
-- Bar beneath: 233px wide, 8px track, 4px radius, percentage at Bricolage 22px/700 beside it, and a **plain-English sentence** under it describing where the bench stands.
+- Bar beneath: **up to 320px wide and free to shrink**, 8px track, 4px radius, percentage at Bricolage 22px/700 beside it, and a **plain-English sentence** under it describing where the bench stands.
+
+_Outdated on 11 Sep. Previously: "Bar beneath: 233px wide, 8px track, 4px radius, percentage at Bricolage 22px/700 beside it, and a plain-English sentence under it describing where the bench stands." — a fixed 233px left no room for the button beside it on a narrow viewport._
 - **Pending-approval hours are excluded from CAPACITY USED**, the bar and the percentage — a manager must never plan against hours that may yet be declined.
 - They are, however, **named**: where a bench or an engineer has hours awaiting a decision, a note states how many — _"8h awaiting approval from the Castillians team"_. Excluding them from the figures while saying nothing would leave a manager wondering why the numbers do not match what their engineers told them. **Excluded from the arithmetic, disclosed in words.**
 - **Unlimited overage** → the overage figures read as uncapped rather than showing a misleading ceiling.
+
+### Responsive behaviour of this card — *added 11 Sep*
+
+The card must hold together from the widest desktop down to a phone. **Nothing in it may carry a fixed pixel width or height.**
+
+- **Card header wraps.** The section glyph, the title block and the **Current period / days-remaining** pair sit on one wrapping row; the title block flexes from a ~300px basis. The period pair keeps `margin-left: auto` on a wide row and drops to the next line intact — **it must never overlap the title**, which is what a non-wrapping row produced.
+- **The five figures wrap as a group**, full width, at their natural size, with a row gap so two wrapped lines do not touch. Labels keep `white-space: nowrap`; the row wraps instead of the labels breaking mid-phrase.
+- **Bar and button share a wrapping row.** The bar block flexes from a ~240px basis up to 320px; the **Request more capacity** button is `flex: none` and drops below the bar when there is no room. The button must never be clipped by the card edge.
+- **Bench usage per engineer rows wrap.** Avatar `flex: none`; name block flexes from a ~160px basis; the usage bar takes the remaining space with a ~90px floor; the pending chip and the hours column shrink before anything overflows. **No element in the row carries both a flex basis and a conflicting fixed width.**
+- Long copy in the title and sub-line uses `text-wrap: pretty`.
+- **Test at the breakpoints, not just the design width.** The failure this rule exists to prevent is a card that is correct at 1440px and unreadable at 900px.
 
 ---
 

@@ -37,11 +37,27 @@ Angular handoff for **SD-3470**. Replaces the existing page at `castillians.com/
 | Bench name | Bricolage 22px/700 |
 | Client | Body 14px `var(--gray-700)` — only when the organisation has more than one client entity |
 | Engineer count | Activated engineers only |
+| `CAPACITY (HRS)` | The subscribed monthly hours, bare integer |
+| `SUBSCRIPTION (CUR)` | The bench's monthly subscription figure, currency code in the label |
 | Capacity bar | 8px track, 4px radius, percentage beside it, `used / plan` beneath |
 | Period | The bench's **own** period as a date range, with days remaining |
 | Over-capacity tag | Only when past plan. Fill + weight, never colour alone (§G6) |
 
 _Outdated on 4 Sep. Previously: "Type tag | Permanent / Project, with its icon, in the type's own colour treatment" — the tag never carried Permanent/Project; it carries the bench type, whose two values were "Work From Anywhere" and "EU & Data Safe"._
+
+_Outdated on 11 Sep. Previously: the two figures were labelled `CAPACITY / MONTH` and `BILLING (CUR)` — e.g. "BILLING (EUR)". An interim revision the same day read `MONTHLY CAPACITY (HRS)` and `MONTHLY SUBSCRIPTION (CUR)`, and the capacity value briefly carried an `hrs` suffix._
+
+### Card figure labels — *updated 11 Sep*
+
+The card's two figures read **`CAPACITY (HRS)`** and **`SUBSCRIPTION (CUR)`**.
+
+- **Use both labels verbatim**, uppercase, at Bricolage 12px/700 with 0.05em tracking.
+- **The unit lives in the label, never beside the value.** `CAPACITY (HRS)` carries `(HRS)`, so the value is a **bare integer** — no `hrs` suffix, no `h`. Same rule as money: `SUBSCRIPTION (EUR)` carries the currency code and the value beneath is bare.
+  - An interim build put `hrs` after the figure as well. **Do not restore it** — the unit stated twice competes with the number, which is the thing being read.
+- **"Monthly" is dropped from both labels.** The card is a monthly view throughout — the period tag, the capacity plan and the subscription are all per period — so repeating it on every label was noise. The **values and their derivations are unchanged**; this is label wording only, and nothing recomputes.
+- Rationale for `SUBSCRIPTION` over `BILLING`: "Billing" read as an invoice total on a card that shows a recurring plan figure. A manager comparing cards is comparing subscriptions, not invoices.
+- **Scope is the manager bench card only.** `BILLING (CUR)` stays where a figure genuinely is a billed total — the Internal subscription rows and the Channel & Billing breakdowns.
+- The two figures sit on **one wrapping row**, so a narrow card stacks them rather than letting a label overflow.
 
 **Bands:** ≤59% green `#10b77f`, 60–89% amber `#f59f0a`, ≥90% red `#ef4343`, each on its **tinted** track — never grey. Fill animates from 0 over 300ms `cubic-bezier(0.35,0,0.25,1)`.
 
