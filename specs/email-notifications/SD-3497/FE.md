@@ -63,9 +63,14 @@ Above the CTAs, a **grey panel headed "What to consider before you rate"** lists
 | 2 | **Is productivity satisfactory?** | Are the assigned engineers delivering the level of productivity expected by your team? |
 | 3 | **Is responsiveness satisfactory?** | Are the assigned engineers and Castillians team responding appropriately to requests, priorities and communication needs? |
 
-_Outdated on 14 Sep. Previously: questions 2 and 3 read "Is productivity acceptable?" and "Is responsiveness acceptable?"._
+_Outdated on 14 Sep. Previously the three titles were full questions — "Is progress satisfactory?", "Is productivity acceptable?" and "Is responsiveness acceptable?" — with question 2 reading "Are the assigned engineers delivering the level of productivity expected by your team?". An interim revision the same day changed "acceptable" to "satisfactory" in questions 2 and 3 while keeping the question form._
 
-- **All three questions use "satisfactory"**, matching question 1 and the word the whole flow is named after. "Acceptable" set a lower bar than "satisfactory" and asked two questions on a different scale from the first.
+### Titles name a value-proposition pillar — *revised 14 Sep*
+
+- **Each title is a single noun — Delivery, Quality, Responsiveness — not a question.** They are the three pillars Castillians sells on, so the panel reads as the value proposition being measured rather than three separate things to answer. The question form also invited a per-question answer, which this email does not collect.
+- **"Quality" replaced "productivity".** Productivity measures output volume; the proposition is vetted engineers producing work a client is satisfied with. The criteria line asks about **the quality of work delivered by your Virtual Bench** — the bench, not the individuals, because that is the unit the client buys.
+- **Delivery** is progress against **agreed objectives**; **Responsiveness** covers the engineers *and* the Castillians team, since a client's experience of responsiveness includes us.
+- Criteria lines are trimmed to one clause each. The pillar name carries the subject, so the line only has to state the test.
 
 - **The three criteria are guidance, not three questions.** There is exactly **one submission** — the single row of three traffic-light CTAs beneath them, and the sub-line **"One tap, taking all three together."**
 - **The CTA hrefs are unchanged** (`?r=green|amber|red`), so the response notice, the stored rating and the alerting all behave exactly as before. **Nothing per-criterion is captured, stored or emailed.**
@@ -75,6 +80,24 @@ _Outdated on 14 Sep. Previously: questions 2 and 3 read "Is productivity accepta
 **Rejected alternative, for the record:** three separate CTA rows, one per question. It was built and withdrawn — three rows means three submissions, which would change the response notice, the stored shape of a rating and every downstream alert. The criteria earn their place as context for a single tap.
 - **Silence is taken as "going well".** A **white panel** says so plainly. It is stated in the client's words, **not** as "we will take it as a green" — the traffic light is our internal vocabulary, not theirs.
 - Beneath it, an **amber panel** with an escalation route to `customerexperience@castillians.com`. The three taps are deliberately coarse, so anything needing a person rather than a colour needs a named way out — otherwise the amber tap becomes the only channel for real problems.
+
+### CTA labels — *revised 14 Sep*
+
+| Colour | Label |
+|---|---|
+| Green `#10B77F` | **On Track** |
+| Amber `#F59F0A` | **Attention Required** |
+| Red `#EF4343` | **Immediate Attention Required** |
+
+_Outdated on 14 Sep. Previously: "Going well" / "Some concerns" / "Needs attention"._
+
+- **The labels state what the client is asking us to do**, not how they feel. "Some concerns" described a mood and left the response ambiguous; "Attention Required" is an instruction, and the red escalates it with **Immediate**.
+- **Use the labels verbatim, in title case.** They are the platform's vocabulary for a satisfaction response and must match everywhere the rating is named — the internal notice, the bench's satisfaction history and the silence panel.
+- **The hrefs are unchanged** (`?r=green|amber|red`), so the stored values and every downstream alert are untouched. **Label only.**
+- **The three buttons are equal height and equal width.** "Immediate Attention Required" wraps to two lines at the email's width while the other two do not, so:
+  - the cell carries a **fixed 58px height** with `valign="middle"`, and cell padding rather than anchor padding, so the shorter labels centre in the same box instead of sitting in a shallower button;
+  - the anchor is `display:inline-block` — a `display:block` anchor with its own padding governs the height and defeats the fixed cell.
+- **Do not shorten the red label to fit on one line.** The escalation reading is the point; a ragged row of unequal buttons was the defect, and it is fixed by the cell geometry above.
 
 ### The escalation panel — *updated 14 Sep*
 
