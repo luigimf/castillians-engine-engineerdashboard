@@ -56,6 +56,20 @@ This is the core of the story, and the change from today's behaviour.
 - Confirmation names the **engineer** and the **bench**.
 - States that the team will confirm availability **and any effect on the capacity plan** — a new engineer may need more hours, and that is a conversation, not an automatic change.
 - Optional note: when they are needed, and what for.
+- **The modal collects no dates** — no start date, no end date, no open-ended flag. A request is a queue item, not a contract; when the engagement begins is settled by the Castillians team when they action it. Added 16 Sep: the prototype briefly carried the three date controls, and they are removed. Anything built against `startDate` / `endDate` on this request drops them.
+- **The only fields are the engineer, the bench and the optional note** — everything else on the email is derived (client, requester, timestamp, vetting score).
+
+### Email notifications in this flow
+
+For awareness only — the template is specified in **SD-3496**, under the Email Notifications epic.
+
+| Trigger | Recipient |
+|---|---|
+| **Request to activate engineer** submitted | `humancapital@castillians.com` — `15-engineer-activation-request.html` |
+| **Request removal** submitted | — **none**; handled in the internal queue |
+
+- The internal email names **which manager is requesting which engineer on which bench**, with the client, the engineer's email address and vetting score, the bench type, the timestamp and the manager's message verbatim. Its CTA opens **Manage Subscription** on the internal dashboard.
+- **No copy goes to the requester.** Their confirmation is the pending state on the engineer's own card, in this section.
 
 Both: submit disables on submit; double-submit is guarded **server-side** too.
 

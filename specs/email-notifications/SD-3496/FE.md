@@ -1,6 +1,6 @@
 # FE — Client requests & their acknowledgements
 
-Build spec for **SD-3496**, under epic **SD-3492**. **8 templates.**
+Build spec for **SD-3496**, under epic **SD-3492**. **9 templates.**
 
 Four flows, each firing **two emails in one run** — the internal one and a **copy to the requester**:
 
@@ -11,7 +11,12 @@ Four flows, each firing **two emails in one run** — the internal one and a **c
 | **New Virtual Bench requested** | `11-bench-request.html` → HC | `11-bench-request-manager.html` |
 | **Capacity plan change requested** | `11-plan-change-request.html` → CX + HC + SS | — |
 
-Plus `14-help-request.html` → CX, which has no copy: the client already knows what they typed.
+Plus two internal-only emails, neither of which has a copy to the requester:
+
+| Flow | Internal | Why no copy |
+|---|---|---|
+| **Help requested** | `14-help-request.html` → CX | The client already knows what they typed |
+| **Engineer activation requested** — added 16 Sep | `15-engineer-activation-request.html` → HC | The requester's confirmation is the in-app pending state on the engineer's own card (SD-3474) |
 
 ---
 
@@ -35,6 +40,21 @@ The substance of this story. Every one of these creates a **request**, never the
 - **New Virtual Bench** carries brand, **monthly engineering hours** and **billing currency** — currency is per subscription (BE-27), so a client may ask for a bench billed differently from their others.
 - **New brand** carries the name, its relationship to existing brands, the email domains, and the two Zoho actions.
 - **Capacity plan change** carries current plan and period, requested plan, and commencement date.
+
+## Engineer activation requested — added 16 Sep
+
+`15-engineer-activation-request.html` → **humancapital@castillians.com**. Fires when an Admin or Manager submits **Request to activate engineer** from the Engineers section of a bench (SD-3474).
+
+- **The email exists to answer one question: which manager wants which engineer on which bench.** Those three, plus the client, are the subject line and the first sentence — not buried in the label rows.
+- Subject: `Engineer activation requested — <engineer>, <bench>`. Preheader: `<manager> has asked us to activate <engineer> on <bench>.`
+- Label rows, in order: **Engineer** (name · **email address** · vetting score), **Virtual Bench** (name — bench type), **Client**, **Requested by** (name, role · email address), **Requested on** (timestamp).
+- The engineer's **email address is carried** so Human Capital can reach them without looking the record up; their **rate and earnings are not** (BE-04, BE-08) — this is an internal email, but the rate has no business in it.
+- The manager's optional message renders **quoted in a tinted panel**, verbatim.
+- **Human Capital, not CX.** Engineer-facing and recruitment flows are Human Capital's; a client-facing request would go to CX. This one is about a person we engage.
+- **No engagement dates.** The form collects none — a request is a queue item, not a contract — so the email carries none. _Outdated on 16 Sep. Previously the modal collected a start date, an end date and an “Open-ended engagement” flag; if any template or payload still carries `startDate` / `endDate` for this flow, drop them._
+- **CTA: “Open the bench” →** `castillians.com/internal-dashboard/v-benches/manage` — the Manage Subscription modal, where the activation is actually performed. Signed out, the reader hits the **internal** sign-in and is redirected there (BE-30).
+- Beneath the CTA, two plain notes: check the bench's **capacity plan** first, since another engineer on the same plan adds no hours; and **nothing has changed** — no roster row, no allocation, nothing billed — until the team actions it.
+- **A removal request sends no email.** It raises the same kind of request record (SD-3474) but is handled in the internal queue; only activation notifies.
 
 ## The copies to the requester
 

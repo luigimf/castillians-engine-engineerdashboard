@@ -1,6 +1,6 @@
 # Email Notifications — spec folders
 
-Epic **[SD-3492](https://castille-labs.atlassian.net/browse/SD-3492)**. **39 transactional email templates** across seven stories.
+Epic **[SD-3492](https://castille-labs.atlassian.net/browse/SD-3492)**. **40 transactional email templates** across seven stories.
 
 > **Reading `BE-nn`.** Stories and specs cite platform rules as **BE-01 … BE-30** — these are **numbered sections in `specs/ENGINEERING-BRIEF.md`**, not the `BE.md` files in spec folders. A `BE.md` is the backend spec for one story; a `BE-nn` is a platform-wide rule in the brief. Same two letters, two different things.
 
@@ -11,7 +11,7 @@ Flow stories in the other epics name the emails that fire within them, **for awa
 | `SD-3493/` | [SD-3493](https://castille-labs.atlassian.net/browse/SD-3493) | The shell and the rules every template follows — **build first** |
 | `SD-3494/` | [SD-3494](https://castille-labs.atlassian.net/browse/SD-3494) | Work log approvals & timesheet reminders — 8 |
 | `SD-3495/` | [SD-3495](https://castille-labs.atlassian.net/browse/SD-3495) | Capacity & overage notifications — 9 |
-| `SD-3496/` | [SD-3496](https://castille-labs.atlassian.net/browse/SD-3496) | Client requests & their acknowledgements — 8 |
+| `SD-3496/` | [SD-3496](https://castille-labs.atlassian.net/browse/SD-3496) | Client requests & their acknowledgements — 9 |
 | `SD-3497/` | [SD-3497](https://castille-labs.atlassian.net/browse/SD-3497) | Client feedback — 2 |
 | `SD-3498/` | [SD-3498](https://castille-labs.atlassian.net/browse/SD-3498) | Month-end finance emails — 6 |
 | `SD-3499/` | [SD-3499](https://castille-labs.atlassian.net/browse/SD-3499) | Access & ownership — 6 |
@@ -20,7 +20,7 @@ Each folder holds **FE.md**. There is no BE.md: these are templates and send rul
 
 ## Rules worth reading before writing code
 
-- **SD-3493 first.** The shell is one artefact, not copied per template — a footer change must apply to all 39 without 39 edits.
+- **SD-3493 first.** The shell is one artefact, not copied per template — a footer change must apply to all 40 without 40 edits.
 - **CTAs deep-link to the page the email is about**, never a dashboard home. Signed out, the reader hits **their own** dashboard's sign-in and is redirected to the target (BE-30). **The deep link must survive the round trip** — this is the rule most often shipped broken.
 - **Three sign-in pages, chosen by recipient**: internal `/internal-dashboard`, engineer `/login`, manager `/manager-login`.
 - **Client-facing emails point at `customerexperience@`.** Human Capital owns the engineer-facing and recruitment flows. Getting it backwards sends a client to the wrong team, and they will not know.
