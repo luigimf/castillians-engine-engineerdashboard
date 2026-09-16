@@ -46,7 +46,23 @@ _Outdated on 4 Sep. Previously: the two bench types were named "Work From Anywhe
 
 ## Search and filters
 
-One row, all controls **50px** fixed height: **Search** (client and bench names, live), **All channels**, **All clients**. They compose with AND; changing any resets the list to the top. An empty result shows a plain sentence, not a blank card.
+One row, all controls **50px** fixed height: **Search** (client and bench names, live), **All channels**, **All clients**. They compose with AND; changing any **resets the list to page 1**. An empty result shows a plain sentence, not a blank card.
+
+_Outdated on 16 Sep. Previously: "They compose with AND; changing any resets the list to the top."_
+
+The list is paged (below), so "the top" is no longer a complete instruction: a filter changed while the operator sits on page 3 has to return them to page 1, or the new result set renders with an out-of-range page and reads as empty.
+
+## Pagination — added 16 Sep
+
+The bench list pages at **10 rows per page**.
+
+- The pager sits **inside the card, below the last row**: the range label `Showing 1–10 of 14 Virtual Benches` on the left, `Page 1 of 2` between prev/next buttons on the right.
+- **The pager is always rendered**, including when every bench fits on one page (`Page 1 of 1`).
+- Prev/next are 35px square, 4px radius, `#F8F8F8` on a 2px `#E5E5E5` border, hover `#F2F2F2` — the same control as the work-log and order-form pagers in the bench entry (SD-3465) and the Channel & Billing pager (SD-3461).
+- Page is clamped to the available range: prev on page 1 and next on the last page are no-ops.
+- **The tab counts stay grand totals** — "Virtual Benches (14)" does not become "(10)" because a page shows ten. The range label is the only thing that describes the page.
+- Ordering is unchanged: capacity used **descending** across the whole filtered set, then sliced into pages — so page 2 continues the same order rather than re-sorting.
+- The row accordion state is per bench; changing page does not carry an expanded row's open state to a different bench.
 
 ## Results table
 

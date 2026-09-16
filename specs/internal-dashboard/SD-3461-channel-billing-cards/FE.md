@@ -21,8 +21,19 @@ One card per **root client** — the top-most parent in its channel, resolved fr
 - Eyebrow `ROOT CLIENT`; title the client name; subtitle **"X Clients"**, counting the root itself.
 - Stats in order: Virtual Benches · Engineers · Total Skills · Monthly Capacity (**hrs**, not h) · Monthly Billing.
 - Labels Bricolage 12px/500 uppercase, 0.7px tracking, `var(--gray-700)`. Values Bricolage 22px/700.
-- **View Channel** — Medium Secondary, 45px.
-- Responsive grid, wrapping rather than scrolling.
+- **View Channel** — Medium Secondary, 45px, pinned to the **bottom** of the card (`margin-top: auto`) so the CTAs line up across a row.
+- Responsive grid, wrapping rather than scrolling, built with `repeat(auto-fill, minmax(330px, 1fr))`.
+
+_Outdated on 16 Sep. Previously: "Responsive grid, wrapping rather than scrolling." with no track rule, and the CTA sat directly under the last stat._
+
+**`auto-fill`, not `auto-fit`.** With `auto-fit` a filtered result collapsed the empty tracks and stretched the surviving card across the full row — searching one parent client produced a single full-width card whose stats sat metres apart. `auto-fill` keeps the empty tracks, so a filtered card holds the same width it had in the unfiltered grid.
+
+### Cards in a row share the tallest card's height
+
+- Every card in a row is the height of the **tallest card in that row** — a channel with two billing currencies makes its row taller and its neighbours match it, rather than each card ending under its own last line.
+- Implementation: the grid row stretches (`align-items: stretch`, the default) **and `height: 100%` is set on the `Card` element itself**, passed as the component's own `style` prop.
+- **Setting the height on a wrapper around the card does not work.** A wrapper stretches to the row height while the card inside it keeps its content height, so the border still ends early and the fix looks applied but is not. The height has to reach the element that draws the border.
+- The card is a **flex column** so `margin-top: auto` on **View Channel** can hold the CTA at the bottom of the taller box.
 
 **Counts are distinct across the channel** — an engineer activated on two benches in one channel counts once, and their skills once.
 
@@ -35,6 +46,27 @@ One card per **root client** — the top-most parent in its channel, resolved fr
 _Outdated on 26 Aug. Previously: "Currency codes in the label — `MONTHLY BILLING (EUR)` — with a bare value, exact cents."_
 
 A code in the label cannot hold two currencies, so a mixed channel rendered one label and either a wrong combined figure or an ambiguous one. The code moves onto the value, and the cell renders one line per currency. **Currency is a property of the subscription, not of the channel or the client** (BE-27) — a single brand can hold benches billed in different currencies, so this is the normal case, not an edge case.
+
+---
+
+## Search — added 16 Sep
+
+A single full-width search field sits between the page intro and the card grid.
+
+- Placeholder **"Search by parent client"**. It matches the **root client name only** — the string on the card title — case-insensitive, matching on substring, live as the operator types.
+- Child client names are **not** searched here: the cards are one per root client, so a child match would have no card to return. The channel page (SD-3462) is where child clients are searchable.
+- Searching **resets the grid to page 1**.
+- No results → a plain sentence, *"No channels match that parent client."*, never a blank grid. The pager stays visible and reads `Showing 0–0 of 0 channels`.
+
+## Pagination — added 16 Sep
+
+The card grid pages at **9 cards per page** — three full rows at desktop width.
+
+- The pager sits **below the grid**: the range label `Showing 1–9 of 24 channels` on the left, and `Page 1 of 3` between prev/next buttons on the right.
+- **The pager is always rendered**, including when everything fits on one page (`Page 1 of 1`). An operator should be able to see that the list is paged without having to have enough data to trigger it.
+- Prev/next are 35px square, 4px radius, `#F8F8F8` fill on a 2px `#E5E5E5` border, hover `#F2F2F2` — the same pager control as Engagements (SD-3464) and the bench entry lists (SD-3465). One pager control, every list.
+- Page is clamped to the available range: prev on page 1 and next on the last page are no-ops, never a page 0 or an empty page.
+- The count in the label is the **filtered** count, not the grand total — it describes what the pager is paging.
 
 ---
 

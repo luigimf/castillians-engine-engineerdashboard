@@ -8,7 +8,7 @@ Backend specification for **SD-3461**.
 
 ## Endpoints
 
-### `GET /api/internal/channels/summary`
+### `GET /api/internal/channels/summary?q=&page=&pageSize=9`
 
 One entry per **root client**, each aggregating its whole subtree.
 
@@ -29,6 +29,12 @@ One entry per **root client**, each aggregating its whole subtree.
 - `monthlyBilling` is an array **per currency**. Never summed across currencies, never converted.
 - Hours pending approval are excluded from every figure.
 - Nothing here is stored — the whole payload is derived on read.
+
+**Search and pagination — added 16 Sep**
+- `q` matches the **root client name only**, case-insensitive substring. Child client names are out of scope for this endpoint (they are searchable on SD-3462).
+- `pageSize` defaults to **9**; `page` is 1-based and **clamped** to the available range rather than returning an empty page.
+- The response carries `{ "page", "pageSize", "totalCount" }` where `totalCount` is the count **after** `q` is applied — it is what the client's range label describes.
+- Paging is applied **after** aggregation, so a card's figures never depend on which page it lands on.
 
 ### `GET /api/internal/reports/{report}?period={YYYY-MM}`
 

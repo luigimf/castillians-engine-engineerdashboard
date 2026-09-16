@@ -8,7 +8,7 @@ Backend specification for **SD-3464**.
 
 ## Endpoints
 
-### `GET /api/internal/benches?channel=&client=&q=`
+### `GET /api/internal/benches?channel=&client=&q=&page=&pageSize=10`
 
 Active benches across all channels, filtered.
 
@@ -32,6 +32,11 @@ Active benches across all channels, filtered.
 - `q` matches client **and** bench name, case-insensitive.
 - `channel`, `client` and `q` compose with AND.
 - `hoursUsed` counts approved entries only.
+
+**Pagination — added 16 Sep**
+- `pageSize` defaults to **10**; `page` is 1-based and **clamped** to the available range rather than returning an empty page.
+- The response carries `{ "page", "pageSize", "filteredCount" }`. `filteredCount` is the count after `channel`, `client` and `q` are applied and is what the client's range label describes; `totals` remain **grand totals** and must not be recomputed per page.
+- Ordering by `percentUsed` descending is applied **before** slicing, so page 2 continues the sequence.
 
 ### `GET /api/internal/reports/engineer-invoicing?period={YYYY-MM}`
 
