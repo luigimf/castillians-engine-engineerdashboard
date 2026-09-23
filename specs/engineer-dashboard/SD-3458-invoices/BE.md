@@ -61,8 +61,15 @@ Omit `period` to get the **most recent closed period**, or the current one if no
 
 ## 3. Automatic invoice submission
 
-On the **last day of the month** the portal generates each engineer's invoice from their approved
-work logs and submits it **on their behalf**. The engineer never files one manually.
+At the **close on the 3rd of the following month** the portal generates each engineer's invoice from
+their approved work logs and submits it **on their behalf**. The engineer never files one manually.
+
+_Outdated on 17 Sep. Previously: "On the **last day of the month** the portal generates each engineer's
+invoice from their approved work logs and submits it on their behalf."_
+
+The cut-off at 23:59 on the period's last day stops **logging**. The **1st–3rd is the review window**,
+and the invoice is filed at the close once approvals are final — so an invoice can never be
+superseded by an approval taken after it was submitted (BE-24, BE-29).
 
 **Acceptance criteria**
 
@@ -106,7 +113,7 @@ already establish it.
 Returns the **stored** invoice PDF for that period as `application/pdf`. Not re-generated on request — the engineer must receive the identical document that was submitted on their behalf, same invoice number and figures.
 
 **Acceptance criteria**
-- `404` when the period is still **open** — no invoice exists until 23:59 on its last day.
+- `404` until the period **closes on the 3rd** — no invoice exists before then, so the whole of the review window returns `404` too.
 - `404` when the period had **no billable hours**.
 - The client hides the download button in both cases rather than relying on the error.
 - Where the engineer **uploaded their own** invoice, this endpoint returns **their** PDF, not a generated one.

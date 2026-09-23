@@ -16,10 +16,12 @@ Replaces the existing pages at `castillians.com/v-benches` and `castillians.com/
 | `SD-3477/` | [SD-3477](https://castille-labs.atlassian.net/browse/SD-3477) | Organisation page: Access — the route, the menubar entry, Admin-only |
 | `SD-3478/` | [SD-3478](https://castille-labs.atlassian.net/browse/SD-3478) | Organisation page: Functions — Change Account Admin, Brands & Members, invites, Add another brand, Email Domains |
 | `SD-3479/` | [SD-3479](https://castille-labs.atlassian.net/browse/SD-3479) | Organisation page: Member Roles & Removal |
+| `SD-3480/` | [SD-3480](https://castille-labs.atlassian.net/browse/SD-3480) | Subscriptions page: Access — route, Admin-only, **brand subtree scope** |
+| `SD-3482/` | [SD-3482](https://castille-labs.atlassian.net/browse/SD-3482) | Subscriptions page: Manage Subscription & New Bench Request — **which Admins can act** |
 
 This round covers the **Virtual Benches module** and the **Organisation module**.
 
-The **Subscriptions module** is filed into this same epic as **SD-3480** (page access + summary totals), **SD-3481** (Monthly Capacity Plans), **SD-3482** (Manage Subscription + Subscribe to a new Virtual Bench) and **SD-3483** (Monthly Billing History). Spec folders for those four follow; the Jira descriptions are authoritative until they land.
+The **Subscriptions module** is filed into this same epic as **SD-3480** (page access + summary totals), **SD-3481** (Monthly Capacity Plans), **SD-3482** (Manage Subscription + Subscribe to a new Virtual Bench) and **SD-3483** (Monthly Billing History). Spec folders for **SD-3480** and **SD-3482** have landed; **SD-3481** and **SD-3483** follow, and their Jira descriptions are authoritative until they do.
 
 ---
 

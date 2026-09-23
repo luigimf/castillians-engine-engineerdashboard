@@ -37,7 +37,7 @@ The reviewer must be able to **decide from the email**. That is its whole design
 
 - Both fire **only when entries are actually awaiting a decision**. An empty queue sends nothing — this is what stops them becoming background noise.
 - Both list every pending entry with engineer, bench, date and hours.
-- The cut-off one uses the **red treatment** and states the **consequence rather than implying loss**: after 23:59 the entries bill in the following month. They are not destroyed, and the copy must not suggest they are.
+- The cut-off one uses the **red treatment** and states the **consequence rather than implying loss**: after 23:59 the entries can no longer be logged, and anything still undecided at the **close on the 3rd** is auto-declined (BE-29). _Outdated on 17 Sep. Previously: "after 23:59 the entries bill in the following month."_ **Hours never move between periods** — there is no carry-over. The copy must not suggest they are.
 
 ## Approved and declined
 

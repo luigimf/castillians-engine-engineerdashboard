@@ -19,9 +19,10 @@ Everything in **SD-3493** applies: the 600px Arial shell, the hidden preheader, 
 
 ## Four emails, one snapshot
 
-- All four Shared Services emails fire from the **same 23:59 job**, from **one snapshot**, so the attachments **reconcile to the cent and to the hour** (SD-3468).
+- All four Shared Services emails fire from the **same close-of-period job on the 3rd**, from **one snapshot**, so the attachments **reconcile to the cent and to the hour** (SD-3468).
+- _Outdated on 17 Sep. Previously: "All four Shared Services emails fire from the **same 23:59 job**."_ The 23:59 cut-off stops logging; the job runs after the **1st–3rd review window**.
 - Each states the **period** in its subject and heading.
-- The invoicing email's body lists **entries held back at the cut-off**, so Finance knows what is not in the file and what will appear next month as hours earned in an earlier period.
+- The invoicing email's body lists **entries auto-declined at the close**, so Finance knows what is not in the file. _Outdated on 17 Sep. Previously: "lists **entries held back at the cut-off** … and what will appear next month as hours earned in an earlier period."_ **Nothing appears next month** — unresolved entries are auto-declined and enter no report on either side (BE-29).
 - **On-demand downloads send no email.**
 - A **failed run is retryable without double-sending**.
 

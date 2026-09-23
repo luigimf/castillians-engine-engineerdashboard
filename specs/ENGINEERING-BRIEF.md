@@ -237,7 +237,7 @@ Approval applies **only** to hours exceeding the 100% capacity plan.
 
 ### BE-22 — Month-end finance export (Payroll checklist + SFM batch)
 
-On the **last day of the month**, once all engineer invoices are submitted, an automated email goes to **Shared Services** with a generated `.xlsx` populating the finance master file. It has two sheets.
+At the **close on the 3rd** of the following month, once all engineer invoices are auto-submitted, an automated email goes to **Shared Services** with a generated `.xlsx` populating the finance master file. It has two sheets.
 
 > **The two templates from Finance are attached to SD-3468** — `Payroll 2026 checklist - Subscription.xlsx` and `SFM Supplier Invoices Upload.xlsx`. They are the **authoritative** column order and header text; the tables below transcribe them. Where a transcription and an attachment disagree, **the attachment wins** — and the transcription is the bug.
 
@@ -346,9 +346,13 @@ We bill the client and pay the engineer in the **same currency**, so nothing is 
 > ⚠ **`PAYEE` changed between template versions** — `29` in the first sample, `41` in this one. If it identifies the supplier it is **not** a constant and must be read per engineer from Zoho. Confirm before build.
 
 
-**Timing** — the export fires at **23:59 on the last calendar day of the month**, which is also the work-log cut-off. It runs **regardless of pending approvals**: entries still awaiting approval at 23:59 are excluded from the run and carry into the next month's export; the email body lists them so Shared Services can see what was held back.
+**Timing** — the export fires at the **close on the 3rd** of the following month, **not** at the work-log cut-off. The cut-off (23:59 on the period's last day) only stops logging; the **1st–3rd is the review window**, and the export runs once that window closes. Entries **still awaiting a decision at the close are auto-declined** (BE-29) and enter no report — nothing carries into the next month's export.
 
-**All four month-end emails are sent by the same 23:59 job**, in this order, so the numbers in each reconcile against a single snapshot:
+_Outdated on 17 Sep. Previously: "the export fires at **23:59 on the last calendar day of the month**, which is also the work-log cut-off. It runs **regardless of pending approvals**: entries still awaiting approval at 23:59 are excluded from the run and carry into the next month's export"._
+
+**Why it moved.** An export fired at the cut-off is built from hours that have not finished being reviewed, so its figures can be superseded by an approval taken on the 1st. Firing at the close means every report describes a period whose approvals are final — and it is what makes "no carry-over" (BE-29) true rather than aspirational.
+
+**All four month-end emails are sent by the same close-of-period job**, in this order, so the numbers in each reconcile against a single snapshot:
 
 | # | Email | Recipient | Attachment |
 |---|---|---|---|
@@ -360,8 +364,9 @@ We bill the client and pay the engineer in the **same currency**, so nothing is 
 Plus one per engineer: the auto-submitted invoice copy (BE-24).
 
 **Acceptance criteria for the job**
-- Scheduled at **23:59 local (CET)** on the last calendar day of the month — the same instant the work-log cut-off closes. It must not run before the cut-off, or late entries logged that evening are silently dropped from the period they belong to.
-- All four reports are generated from **one snapshot** taken at 23:59. Generating them sequentially against live state risks an entry landing mid-run and the totals disagreeing between attachments.
+- Scheduled at the **close on the 3rd of the following month (CET)**, after the review window. It must not run at the cut-off, or the figures are built from approvals that are still in progress.
+- All four reports are generated from **one snapshot taken at the close**. Generating them sequentially against live state risks an entry landing mid-run and the totals disagreeing between attachments.
+- _Outdated on 17 Sep. Previously: "Scheduled at **23:59 local (CET)** on the last calendar day of the month — the same instant the work-log cut-off closes", with the snapshot taken at 23:59._
 - The job is **idempotent**: re-running it for a closed period reproduces byte-identical files and does not re-send.
 - A failure on any one report does not suppress the others; each is sent independently and failures are alerted.
 - Every report is **also downloadable on demand** for the current or any prior period (BE-25) — Finance is never blocked waiting for the scheduled run. On-demand delivers the CSV directly in the browser; **no email is sent for an on-demand download.**
@@ -464,7 +469,7 @@ The checklist alternates **one client-level row** carrying the subscription rate
 **Acceptance criteria**
 - Each field has exactly one system of record. The portal **reads** these values at export time and never stores or re-keys them.
 - A missing mandatory field blocks that row from the SFM sheet and is reported in the email body rather than silently exporting a blank.
-- An engineer or client with an incomplete Finance section is surfaced **before** the month-end run, not at 23:59 — a validation view listing incomplete records is worth building alongside.
+- An engineer or client with an incomplete Finance section is surfaced **before** the month-end run, not at the close — a validation view listing incomplete records is worth building alongside.
 - Both reports are generated from the same Zoho read, so a supplier's currency cannot differ between the checklist and the SFM upload.
 
 #### Open questions on the checklist template
@@ -511,7 +516,7 @@ The Engineer invoicing email carries **two** attachments: the spreadsheet breakd
 - Zip name: `engineer-invoices-YYYY-MM.zip`.
 - An engineer who **uploaded their own** invoice (BE-24) has **their PDF** in the zip, not a generated one — the zip is the complete set for the period either way, never a mix of both for the same person.
 - Engineers with zero approved hours are **omitted**, not included as a zero invoice.
-- Generated from the same 23:59 snapshot as every other month-end report, so the zip and the spreadsheet always reconcile.
+- Generated from the same **close-of-period snapshot** (the 3rd) as every other month-end report, so the zip and the spreadsheet always reconcile.
 
 #### Invoice PDF template
 
@@ -655,7 +660,9 @@ Engineers without an invoice of their own can download a **blank template** from
 ### BE-24 — Automatic engineer invoice submissionFinance asked whether the engineer can submit an invoice directly from the portal, since the portal already captures the hours. **The system auto-submits it on their behalf** at the end of the last day of the month — the engineer never files an invoice manually.
 
 **Acceptance criteria**
-- On the last day of the month the portal generates each engineer's invoice from their approved work logs and submits it automatically, in the same run as the finance export (BE-22).
+- At the **close on the 3rd** the portal generates each engineer's invoice from their approved work logs and submits it automatically, in the same run as the finance export (BE-22).
+- _Outdated on 17 Sep. Previously: "On the last day of the month the portal generates each engineer's invoice … and submits it automatically."_ The cut-off stops logging; the invoice is filed after the **1st–3rd review window**, so it is never built from hours whose approval is still open.
+- **The engineer's auto-generated invoice becomes downloadable at the close**, not at the cut-off (SD-3458). Before the close there is no invoice to download, and none to state as submitted.
 - One invoice per engineer covering all their benches, itemised per bench (client, hours, engineer-facing rate, earnings) — matching the Invoices card on the Engineer dashboard.
 - Submission stamps Invoice Number and Invoice Recvd on the checklist row.
 - The engineer is emailed a copy of what was submitted.
@@ -751,8 +758,9 @@ Multiple engineers draw from one bench pool.
 Three roles per client organisation: **Admin**, **Manager**, **Viewer**.
 
 **Acceptance criteria**
-- Exactly **one Admin per client** at any time.
-- Admin: full channel access, invites Managers and Viewers, owns the subscription, creates benches.
+- Exactly **one Admin per client** (brand) at any time.
+- _Outdated on 23 Sep. Previously: "Admin: full channel access, invites Managers and Viewers, owns the subscription, creates benches."_
+- Admin: access to **their own brand and every brand below it** in the channel hierarchy (BE-16) — the root Admin's subtree is the whole channel. Within that scope they invite Managers and Viewers, see and act on subscriptions, and create benches. Several Admins can therefore act on one bench: its own brand's, and every Admin above that brand (SD-3480, SD-3482).
 - Manager: assigned benches only, invites Viewers, cannot create benches.
 - Viewer: read-only on assigned benches; no work-log detail.
 - Default role for a cobranded sign-up is **Manager**.
@@ -764,6 +772,7 @@ The Admin of a Root client sees members of every client beneath it in the channe
 **Acceptance criteria**
 - Members are grouped by client in the response.
 - A child-client Admin sees only its own subtree.
+- The same subtree scopes the **Virtual Benches**, **Organisation** and **Subscriptions** pages for every Admin, resolved server-side from the Zoho Parent field at read time (SD-3480).
 
 ### BE-17 — Transfer of Admin ownership
 **Acceptance criteria** — the API rejects a transfer unless all hold:
@@ -843,8 +852,8 @@ A CTA links to the **specific page on the recipient's own dashboard** that the e
 | 120% capacity, overages ON | Internal + Manager | **Only when no Total Authorised Overage is set** — the 20% tolerance is then the ceiling. Entries now queue for approval. **Two separate templates** — the client's omits the auto-accept ceiling and internal mechanics, and invites authorising more overage |
 | Total authorised overage used up | Internal + Manager | **Only when a Total Authorised Overage is set** — a named block supersedes the tolerance, so the ceiling is plan + authorised and the 120% notice does not fire. **Two separate templates**, same split as above |
 | Unlimited overage | — | **No capacity notifications at all** |
-| Month-end engineer invoicing | **Shared Services** | Sent on the **last day of the month**, once every engineer invoice has been auto-submitted (BE-24). Attaches `engineer-invoicing-YYYY-MM.xlsx` — one row per **engineer × Virtual Bench**, carrying engineer name and email, bench name, client name, bench manager(s), hours logged, engineer-facing rate, and earnings, plus a per-engineer total across their benches. Excluded entries (still awaiting approval at cut-off) are listed in the body and carry to the next run |
-| Month-end payroll export | **Shared Services** | Sent on the **last day of the month**. Carries the per-engineer earnings breakdown (bench, client, hours logged, hourly rate, earnings) **plus a CSV attachment covering every engineer across all benches**. Engineer-facing rates are post-mark-up-removal per BE-08. Body lists any entries held back for pending approval (BE-22) |
+| Month-end engineer invoicing | **Shared Services** | Sent at the **close on the 3rd**, once every engineer invoice has been auto-submitted (BE-24). Attaches `engineer-invoicing-YYYY-MM.xlsx` — one row per **engineer × Virtual Bench**, carrying engineer name and email, bench name, client name, bench manager(s), hours logged, engineer-facing rate, and earnings, plus a per-engineer total across their benches. Excluded entries (still awaiting approval at cut-off) are listed in the body and carry to the next run |
+| Month-end payroll export | **Shared Services** | Sent at the **close on the 3rd**. Carries the per-engineer earnings breakdown (bench, client, hours logged, hourly rate, earnings) **plus a CSV attachment covering every engineer across all benches**. Engineer-facing rates are post-mark-up-removal per BE-08. Body lists any entries held back for pending approval (BE-22) |
 | Auto-submitted invoice copy | Engineer | Sent when the system files their invoice on their behalf (BE-24) |
 | Weekly timesheet reminder | Engineer | Their bench(es) + outstanding unlogged hours (BE-21) |
 | Timesheet cut-off reminder (3 days before) | Engineer | Same scope, flagged as closing soon (BE-21) |

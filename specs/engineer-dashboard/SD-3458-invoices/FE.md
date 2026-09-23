@@ -226,8 +226,8 @@ One row per Virtual Bench worked in the period.
 </div>
 
 <p class="inv-note" *ngIf="period.isOngoing">
-  This period is still ongoing. Your invoice is submitted automatically on the last day of the
-  month, covering everything approved by then.
+  This period is still ongoing. Your invoice is submitted automatically once the period closes on
+  the 3rd, covering everything approved by then.
 </p>
 
 <p class="inv-note" *ngIf="!period.isOngoing && period.invoiceNumber">

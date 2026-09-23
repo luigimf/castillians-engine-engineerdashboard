@@ -70,7 +70,9 @@ Backend specification for **SD-3467**. Carries a change to two month-end reports
 
 ```
 cutOff    = 23:59 on the period's last day        // logging stops
-close     = the 3rd of the following month        // reports generate (SD-3468)
+close     = the 3rd of the following month        // reports generate (SD-3468), engineer
+                                                  // invoices auto-submit (BE-24), unresolved
+                                                  // entries are auto-declined (BE-29)
 ```
 
 **Approval required applies only to ongoing engagements**, but on an ongoing engagement an entry from a **previous billing period stays approvable or declinable right up to the close**. It is not aged out and not silently approved.

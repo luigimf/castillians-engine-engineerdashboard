@@ -10,7 +10,7 @@
 
 
 Angular handoff for **SD-3453**. The page frame for `/work-log` — bench tabs, overview card,
-days-remaining chip, capacity bar.
+capacity bar.
 
 > **On conventions.** `luigimf/castillians-engine` was empty when this was written, so the code
 > below follows standard Angular conventions rather than yours. Once real source lands, the
@@ -39,7 +39,6 @@ below** — this doc restates their internals only so the visual spec is unambig
 |---|---|
 | **Capacity bar** | Colour-banded progress bar, used on all three dashboards. Should be one component taking `used`, `total` and rendering the band + tinted track. Currently repeated markup. |
 | **Stat tile** | Label + value pair, ~9 instances on this screen alone, more on Internal and Manager. |
-| **Expandable chip** | The days-remaining chip. Rarer — a one-off here is defensible. |
 
 ---
 
@@ -221,9 +220,8 @@ appear — shortlisted benches are excluded by the API.
   <span class="meta-tag">
     <span class="meta-tag__label">Current period</span>
     <span class="meta-tag__value">{{ period | periodRange }}</span>
+    <app-info-dot [text]="periodTooltip"></app-info-dot>
   </span>
-
-  <app-days-remaining-chip [days]="period.daysRemaining"></app-days-remaining-chip>
 </header>
 ```
 
@@ -254,84 +252,46 @@ appear — shortlisted benches are excluded by the API.
 
 ---
 
-## 7. Days-remaining chip
+## 7. Current period tooltip
 
-Colour-coded, and it **expands on click**. Not a tooltip — it must be reachable on touch.
+> **Changed 22 Sep 2026.** The **days-remaining chip** ("{n} days left", colour-coded,
+> click-to-expand) has been **removed from the prototype** and from this spec. Do not build it.
+> The auto-submission information now lives in the tooltip below. Tracked on **SD-3532**;
+> the story criteria on **SD-3453** carry the outdated wording for reference.
+> The Manager V Bench page keeps its own days-left chip — unaffected.
 
-```ts
-@Component({
-  selector: 'app-days-remaining-chip',
-  templateUrl: './days-remaining-chip.component.html',
-  styleUrls: ['./days-remaining-chip.component.scss'],
-})
-export class DaysRemainingChipComponent {
-  @Input() days!: number;
-  open = false;
-
-  get tone(): 'green' | 'amber' | 'red' {
-    if (this.days >= 16) return 'green';
-    return this.days >= 6 ? 'amber' : 'red';
-  }
-}
-```
+The **Current period** `meta-tag` carries a small info dot. Hover or focus reveals the note; it is
+not a click-to-expand chip, and it is keyboard reachable.
 
 ```html
-<div class="chip" [ngClass]="'chip--' + tone">
-  <button type="button" class="chip__head" [attr.aria-expanded]="open" (click)="open = !open">
-    {{ days }} days left
-    <svg class="chip__chevron" [class.chip__chevron--open]="open"
-         width="11" height="8" viewBox="0 0 11 7" fill="none" aria-hidden="true">
-      <path d="M1 1L5.5 5.5L10 1" stroke="currentColor" stroke-width="2"
-            stroke-linecap="round" stroke-linejoin="round"/>
-    </svg>
-  </button>
-
-  <div class="chip__reveal" [class.chip__reveal--open]="open">
-    <div class="chip__reveal-inner">
-      <p class="chip__note">Your entries are submitted automatically on the last day of the period.</p>
-    </div>
-  </div>
-</div>
+<span class="info-dot" tabindex="0" [attr.aria-label]="text">
+  i
+  <span class="info-dot__body">{{ text }}</span>
+</span>
 ```
 
+Text, verbatim:
+
+> Logging closes at the end of this period. Your entries are reviewed between the 1st and the 3rd,
+> and your invoice is submitted automatically once the period closes on the 3rd.
+
 ```scss
-.chip {
-  display: inline-block;
-  border: 1px solid;
-  border-radius: var(--radius-md);
-  overflow: hidden;
+.info-dot {
+  position: relative; display: inline-flex; align-items: center; justify-content: center;
+  width: 16px; height: 16px; border-radius: 50%; flex: none;
+  background: #C9C9C9;
+  transition: background 300ms cubic-bezier(0.35, 0, 0.25, 1);
+  font-family: var(--font-body); font-size: 10px; font-weight: 700; color: #fff;
+  cursor: default; outline: none;
 
-  &--green { background: #E7F7F1; border-color: #B9E6D4; color: #0A5C43; }
-  &--amber { background: #FEF6E7; border-color: #F0D9A8; color: #7A5A12; }
-  &--red   { background: #FDECEC; border-color: #F3C9C9; color: #8C1F1F; }
+  &:hover, &:focus-visible { background: #9C9C9C; }
 
-  &__head {
-    display: inline-flex; align-items: center; justify-content: flex-end;
-    width: 100%; border: none; background: transparent; padding: 8px 12px; cursor: pointer;
-    font-family: var(--font-display); font-size: 11px; font-weight: 700;
-    letter-spacing: 0.5px; text-transform: uppercase; line-height: 100%;
-    color: inherit; white-space: nowrap;
+  &__body {
+    position: absolute; opacity: 0; pointer-events: none;
+    transition: opacity 300ms cubic-bezier(0.35, 0, 0.25, 1);
+    // positioning + surface per the platform tooltip treatment
   }
-
-  &__chevron {
-    margin-left: 8px; flex: none;
-    transition: transform 300ms cubic-bezier(0.35, 0, 0.25, 1);
-    &--open { transform: rotate(180deg); }
-  }
-
-  // grid-rows transition: animates cleanly with no hardcoded pixel height
-  &__reveal {
-    display: grid;
-    grid-template-rows: 0fr;
-    transition: grid-template-rows 300ms cubic-bezier(0.35, 0, 0.25, 1);
-    &--open { grid-template-rows: 1fr; }
-  }
-  &__reveal-inner { overflow: hidden; }
-
-  &__note {
-    margin: 0; padding: 8px 14px 12px; max-width: 300px; text-align: right;
-    font-family: var(--font-body); font-size: 12px; line-height: 150%; color: inherit;
-  }
+  &:hover &__body, &:focus-visible &__body { opacity: 1; }
 }
 ```
 

@@ -63,7 +63,7 @@ platform → .xlsx in SFM's 22-column format → a person uploads it to SFM
 ## One snapshot, taken at the close
 
 ```
-cutOff             = 23:59 on the period's last day        // logging stops, BE-24 auto-submission
+cutOff             = 23:59 on the period's last day        // logging stops — and nothing else
 close              = the 3rd of the following month        // this job runs
 snapshot(period)   = approved work logs as at the close
 ```
@@ -106,7 +106,8 @@ Hours reach a report **only once approved**, and that one approval drives **both
 ## Scheduling
 
 **Acceptance criteria**
-- Fires at **23:59 CET on the last calendar day** of the period, after engineer invoices are auto-submitted (BE-24).
+- Fires at the **close on the 3rd of the following month (CET)**, in the same run that auto-submits engineer invoices (BE-24).
+- _Outdated on 17 Sep. Previously: "Fires at **23:59 CET on the last calendar day** of the period, after engineer invoices are auto-submitted."_ The cut-off stops logging; the reports and the invoices both wait for the **1st–3rd review window** to close.
 - Four emails to `sharedservices@castillians.com`, one per report; engineer invoicing also carries the **zip of per-engineer PDFs**.
 - The body lists entries **held back at the cut-off**, so Finance knows what is not in the file.
 - A failed run is **retryable without double-sending**, regenerating from the same snapshot rather than live data.

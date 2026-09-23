@@ -143,16 +143,19 @@ When our team sets a brand up in Zoho and parents it into this lineage, the **Em
 
 **A Manager with access to a bench is eligible to act as the reviewing manager for the engineers on it** — approving and generating their reviews on the Performance Log.
 
-> ### A bench has exactly one Admin
+> ### Which Admins a bench has
 >
-> **There is one Admin per client**, and **a bench is never shared across clients** — it belongs to exactly one. Therefore **a bench has exactly one Admin: its own client's.**
+> _Outdated on 23 Sep. Previously: "There is one Admin per client, and a bench is never shared across clients — it belongs to exactly one. Therefore a bench has exactly one Admin: its own client's. Another client's Admin in the same channel has no access to this bench and must not appear in its members list. Two ADMIN rows on one bench is a defect, not a valid state — assert it. The members list is scoped to the bench's own client before any access filter is applied. A channel-wide roster is the wrong starting point."_
 >
-> Another client's Admin in the same channel has **no access to this bench** and **must not appear** in its members list. Two ADMIN rows on one bench is a defect, not a valid state — assert it.
+> There is still **one Admin per brand**, and a bench still belongs to exactly one brand. But an Admin's access covers **their own brand and every brand below it** (SD-3480). So a bench's Admins are **its own brand's Admin plus the Admin of every brand above it** — the root Admin is on every bench in the channel.
 >
-> The members list is scoped to the bench's **own client** before any access filter is applied. A channel-wide roster is the wrong starting point.
+> - List those Admins on the members card, each with an **ADMIN** tag, own brand's first then upward.
+> - An Admin of a **sibling** brand, or of a brand **below** the bench's brand, has no access and **must not appear**. Assert it.
+> - Build the list from the bench's own brand members **plus the ancestor Admins** — never from a channel-wide roster.
 
 - **The Admin is eligible on every bench belonging to their client, and appears in the reviewer list alongside the Managers.** They hold no per-bench role (SD-3479) — their eligibility comes from the account role, so it needs no grant and cannot be removed by revoking bench access. On this card the Admin's row shows an **ADMIN** tag rather than a role control, and they are still an eligible reviewer for that bench's engineers.
-- Because a bench has exactly one Admin, **it always has exactly one always-eligible reviewer** — no more, and never none.
+- _Outdated on 23 Sep. Previously: "Because a bench has exactly one Admin, it always has exactly one always-eligible reviewer — no more, and never none."_
+- Every Admin listed on the bench (its own brand's and every one above) is an always-eligible reviewer. A bench therefore always has **at least one** — never none.
 - That is what keeps the last-reviewer rule satisfiable: a bench whose only Manager is removed still has the Admin, so **no engineer is ever left without an eligible reviewer**.
 - Eligibility follows **bench membership**, so granting or removing access here changes who can review that bench's engineers. Say so on this card: it is a consequence a manager should not discover later.
 - A **Viewer** is never eligible, however many benches they can see.
