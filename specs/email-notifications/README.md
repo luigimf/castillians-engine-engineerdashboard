@@ -1,6 +1,6 @@
 # Email Notifications — spec folders
 
-Epic **[SD-3492](https://castille-labs.atlassian.net/browse/SD-3492)**. **40 transactional email templates** across seven stories.
+Epic **[SD-3492](https://castille-labs.atlassian.net/browse/SD-3492)**. **41 transactional email templates** across eight stories (SD-3567 added 8 Oct).
 
 > **Reading `BE-nn`.** Stories and specs cite platform rules as **BE-01 … BE-30** — these are **numbered sections in `specs/ENGINEERING-BRIEF.md`**, not the `BE.md` files in spec folders. A `BE.md` is the backend spec for one story; a `BE-nn` is a platform-wide rule in the brief. Same two letters, two different things.
 
@@ -15,6 +15,7 @@ Flow stories in the other epics name the emails that fire within them, **for awa
 | `SD-3497/` | [SD-3497](https://castille-labs.atlassian.net/browse/SD-3497) | Client feedback — 2 |
 | `SD-3498/` | [SD-3498](https://castille-labs.atlassian.net/browse/SD-3498) | Month-end finance emails — 6 |
 | `SD-3499/` | [SD-3499](https://castille-labs.atlassian.net/browse/SD-3499) | Access & ownership — 6 |
+| `SD-3567/` | [SD-3567](https://castille-labs.atlassian.net/browse/SD-3567) | Weekly inactive engineers report (CX) — 1. Added 8 Oct, tracked in epic SD-3531 |
 
 Each folder holds **FE.md**. There is no BE.md: these are templates and send rules, and the data each carries is owned by the flow story that fires it.
 

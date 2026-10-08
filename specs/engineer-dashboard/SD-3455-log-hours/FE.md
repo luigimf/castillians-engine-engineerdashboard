@@ -233,7 +233,8 @@ threshold. State and copy come from the API.
 |---|---|
 | Blocked | "This entry exceeds your assigned capacity and overages are not open on this bench, so it can't be logged. Speak to your manager if more hours are needed." |
 | Within tolerance | "This entry is within the hours agreed for this period and will be logged straight away." |
-| Needs approval | "This entry exceeds your assigned capacity and will be sent to the Castillians team for approval." |
+| Needs approval | _Outdated on 8 Oct. Previously: "This entry exceeds your assigned capacity and will be sent to the Castillians team for approval." (yellow, `--needs_approval`)_ |
+| Over allocation (replaces Needs approval) | "This entry exceeds your allocated hours for this period, so it can't be logged. Speak to us if more hours are needed." Uses the **red** `--blocked` style. |
 
 **No figures in the copy.** The note states the outcome, not the arithmetic — quoting hours
 would leak bench-level detail this dashboard deliberately withholds.
@@ -257,7 +258,8 @@ already explains what will happen. Do not switch it to "Log & Flag for Approval"
 - The entry appears in the list immediately; every overview figure recomputes. No reload.
 - **Pagination resets to page 1** on every list showing it — Engineer entries, Internal Work
   Logs, Manager bench logs — so a new entry can never land off the page being viewed.
-- A toast fires; a distinct copy states when an entry has been sent for approval.
+- _Outdated on 8 Oct. Previously: "A toast fires; a distinct copy states when an entry has been sent for approval."_
+- A toast fires on success. Engineer submissions are no longer sent for approval, because any entry beyond the engineer's allocated hours is blocked before it is created.
 
 ```scss
 .toast-host {
@@ -307,3 +309,13 @@ Platform-wide behaviour for pagination, empty/loading/error states, validation, 
 | On success | Modal-free form: clears, fires a success toast, and **resets the Entries list to page 1** |
 | Concurrency | Two engineers against the same remaining hours: exactly one succeeds — §G5 |
 | Threshold copy | Comes from the API response; the client never recomputes a threshold |
+
+
+## Change on 8 Oct: block entries beyond allocated hours
+
+- An entry that takes the engineer past their **allocated hours** (their share of the bench's auto-approved ceiling) is **blocked**, not sent for approval.
+- The projection returns `blocked`. `needs_approval` is no longer produced for engineer submissions.
+- The note above **Log Hours** is red (`--blocked`): "This entry exceeds your allocated hours for this period, so it can't be logged. Speak to us if more hours are needed."
+- On submit, the form shows the server's error and nothing is created.
+- Edits follow the same rule. An edit that **increases** hours past the allocation can't be saved. Edits that keep or reduce hours still save.
+- Unchanged: Unlimited overage benches have no ceiling, and entries within tolerance are still logged straight away.

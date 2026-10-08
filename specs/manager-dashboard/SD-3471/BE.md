@@ -40,8 +40,10 @@ Returns the bench, its plan and period, its members, and any pending requests. *
 **Acceptance criteria**
 - **Refused for a Viewer** (`403`).
 - Creates a request record. **No write to the subscription** — assert it.
-- An open request is returned on the bench read until actioned, so the client can render it as pending.
-- A second identical request while one is open is refused `409` — the pending state is not a suggestion.
+- _Outdated on 6 Oct. Previously: "An open request is returned on the bench read until actioned, so the client can render it as pending. A second identical request while one is open is refused 409 — the pending state is not a suggestion."_
+- **No pending state.** The bench read carries no open capacity request for rendering; the Change capacity plan button always stays.
+- A further request while one is open → `201`, a new record in the Internal queue (SD-3465). No `409`.
+- Has **no effect** on Request more capacity this month (SD-3472), and vice versa — separate request types, separate records.
 
 ### Membership — `POST` / `DELETE /api/manager/benches/{benchId}/members`
 

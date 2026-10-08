@@ -28,6 +28,7 @@ Angular handoff for **SD-3478**. The functions on the `/organisation` page. **SD
 
 - Top-right of the page, aligned with the title (SD-3477).
 - Opens a modal listing the organisation's **Managers**. A Viewer cannot become Admin without first becoming a Manager, and that is a role change (SD-3479), not an ownership transfer.
+- The modal's conditions list has **four** items. The fourth reads: **"The new Admin must have accepted their invitation, and must be a Manager on at least one bench."** Members still at **Invited** are never candidates — no account exists until onboarding completes. (Added 6 Oct.)
 - States plainly what transfers: **subscription ownership, billing, and this page**.
 - The outgoing Admin becomes a **Manager**, keeping their bench access.
 - **There is exactly one Admin.** The transfer is atomic — never two, never none, even if two are submitted at once.
@@ -55,7 +56,9 @@ One card, titled **Brands & Members**, listing every brand in the channel with i
 
 ### Empty brands
 
-- A brand with **no members yet** renders **`No members added yet.`** plus its own **Invite members** action — **never omitted**. An absent brand looks like it was never set up.
+- _Outdated on 6 Oct. Previously: "A brand with no members yet renders 'No members added yet.' plus its own Invite members action — never omitted. An absent brand looks like it was never set up."_
+- A brand with **no members yet** still renders, with **`No members added yet.`** — **never omitted**. An absent brand looks like it was never set up.
+- **Invite members shows only when the brand has at least one Virtual Bench.** Every invitation grants at least one bench, so a brand with no benches has nothing to invite anyone to. The action is **hidden**, not disabled, and never left to fail on send. In its place the brand shows **"You must be subscribed to a Virtual Bench in order to add a member."** — 13px body font, `var(--gray-700)`.
 - Empty copy `var(--gray-700)`, 13px, body font.
 
 ---
@@ -101,7 +104,7 @@ One card, titled **Brands & Members**, listing every brand in the channel with i
 |---|---|
 | Loading | Skeleton rows at each card's natural height |
 | Empty — brands | **Cannot occur**; an account always has at least one brand |
-| Empty — members of a brand | The sentence plus **Invite members** |
+| Empty — members of a brand | The sentence plus **Invite members** — _outdated on 6 Oct_. Now: the sentence, plus **Invite members only if the brand has at least one bench** |
 | Empty — domains of a brand | An empty input, ready to fill |
 | Error | Inline, with a retry **inside** the affected card |
 

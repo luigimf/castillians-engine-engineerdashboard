@@ -72,7 +72,10 @@ The three sections beneath — Skills & Hours (SD-3472), Engineer Work Logs (SD-
 - Collects new monthly hours, from when, and an optional note. **(optional)** in the **same ink** as the field title.
 - **Cost implication** beside the hours field at the bench's **client-facing** rate, **always visible** — a muted placeholder before any figure is entered, so the row never jumps.
 - **It is a request.** The copy says the team will confirm the plan and when it takes effect. The success state does **not** show the new plan as live.
-- A **pending request stays visible on the page**, stating what was asked and when; the action reads as pending rather than inviting a duplicate.
+- _Outdated on 6 Oct. Previously: "A pending request stays visible on the page, stating what was asked and when; the action reads as pending rather than inviting a duplicate."_
+- **The Change capacity plan button always stays in the header.** No pending chip or pending state replaces it after a request.
+- A further request while one is open is **accepted**, as its own record in the Internal queue (SD-3465).
+- A capacity plan request **never blocks Request more capacity this month** (SD-3472), and vice versa — one changes the plan going forward, the other asks for extra hours this period only.
 
 ---
 

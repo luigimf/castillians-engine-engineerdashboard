@@ -18,7 +18,8 @@ Both actions raise **requests** into the Castillians queue (SD-3465). Confirmati
 
 - **Every Admin who can see a bench can act on it**: the bench's own brand Admin and every Admin above that brand. The root Admin can act on every bench in the channel.
 - **None outranks another.** No approval step between Admins. Every request goes straight to the Castillians queue.
-- **One open capacity request per bench across all of them.** If one Admin has a request open, every other Admin sees it as pending, with the name of whoever raised it.
+- _Outdated on 6 Oct. Previously: "One open capacity request per bench across all of them. If one Admin has a request open, every other Admin sees it as pending, with the name of whoever raised it."_
+- **No pending state.** Manage Subscription stays available to every Admin who can see the bench. A further request, from any of them, is accepted as its own record.
 
 ## 3. Manage Subscription
 
@@ -26,7 +27,8 @@ Both actions raise **requests** into the Castillians queue (SD-3465). Confirmati
 - Opens the **same Change capacity plan modal** as the bench page (SD-3471). One flow, two entry points.
 - Current plan and current period first; new hours, from when, optional note.
 - Cost implication at the **client-facing** rate, in the bench's own currency, always visible.
-- Pending state: what was asked, when, **by whom**.
+- _Outdated on 6 Oct. Previously: "Pending state: what was asked, when, by whom."_
+- **The button always stays** — no pending chip (SD-3471). A capacity plan request never blocks Request more capacity this month (SD-3472).
 
 ## 4. Subscribe to a new Virtual Bench
 

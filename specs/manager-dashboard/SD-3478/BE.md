@@ -45,6 +45,7 @@ Every endpoint here is **Admin only** and refused `403` for anyone else — no c
 
 **Acceptance criteria**
 - Candidates are members who **hold at least one bench as Manager**. A member who is only ever a Viewer is **not** a valid target `422` — they must be made a Manager on a bench first (SD-3479).
+- Candidates must also have **`status: "active"`**. An `invited` member is never returned as a candidate and is refused `422` — no user exists until onboarding completes. (Added 6 Oct.)
 - **Atomic.** The account has exactly one Admin at every observable moment. Two concurrent transfers: one succeeds, the other `409`. Never two Admins, never none — assert under concurrency.
 - The outgoing Admin becomes a **Manager**, keeping every bench they had access to. Their existing per-bench Viewer roles are unchanged.
 - Moves **subscription ownership, billing and this page** in **one write** — never three that can partially fail.
@@ -57,6 +58,7 @@ Every endpoint here is **Admin only** and refused `403` for anyone else — no c
 
 **Acceptance criteria**
 - `benchAccess` carries **a role per bench**. An invitation with a bare account-level role is rejected `422` — the grant is per bench.
+- An invitation with **empty `benchAccess`** is refused `422`. Each brand in the read carries `hasBenches`, so the client can hide **Invite members** on a brand with none. (Added 6 Oct.)
 - Roles may be **`manager` or `viewer` only**. `admin` is refused `422`; ownership moves through the transfer endpoint.
 - The email domain is checked against **that brand's own** allow-list (§A4, INT-10) **server-side** → `422` on mismatch. **Domains are never pooled across the channel.**
 - Every `benchId` must belong to **that brand** → `422` otherwise. An invitation scoped to one brand cannot grant a sibling brand's bench.

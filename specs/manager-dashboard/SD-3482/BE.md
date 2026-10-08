@@ -16,8 +16,10 @@ Backend specification for **SD-3482**.
 ## 2. Capacity requests
 
 - The **same record** as the bench-page request (SD-3471). One queue.
-- **At most one open request per bench, across every Admin.** A second `POST` while one is open → `409`, returning the open request.
-- The record stores `raisedBy` (member id and name). Returned on every read so the pending state can name them.
+- _Outdated on 6 Oct. Previously: "At most one open request per bench, across every Admin. A second POST while one is open → 409, returning the open request. The record stores raisedBy (member id and name). Returned on every read so the pending state can name them."_
+- **Several open requests per bench are allowed.** A further `POST` while one is open → `201`, a new record. No `409`.
+- The record stores `raisedBy` (member id and name) for the Internal queue. **No open-request field is returned to the Manager dashboard** — there is no pending state to render.
+- Has **no effect** on `POST` for Request more capacity this month (SD-3472), and vice versa.
 - Creates a request only. Nothing on the subscription changes until the team actions it (SD-3465).
 
 ## 3. New-bench requests
@@ -28,6 +30,8 @@ Backend specification for **SD-3482**.
 ## 4. Tests
 
 - Root Admin raises a capacity request on Insurance Web → `201`.
-- Insurance Admin then raises one on the same bench → `409`, returns the root Admin's request with `raisedBy`.
+- _Outdated on 6 Oct. Previously: "Insurance Admin then raises one on the same bench → 409, returns the root Admin's request with raisedBy."_
+- Insurance Admin then raises one on the same bench → `201`, a second record; both carry their own `raisedBy`.
+- With a capacity plan request open, Request more capacity this month on the same bench → `201`.
 - Insurance Admin requests a bench for Northmill Bank → `422`.
 - Any request leaves every figure on every surface unchanged.

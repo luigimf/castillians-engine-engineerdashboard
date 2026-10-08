@@ -80,7 +80,8 @@ Let `projected = usedForEngineerShare + hours` and `ceiling = autoCeiling(bench)
 | Overage mode | Condition | Status | Email |
 |---|---|---|---|
 | `unlimited` | any | `auto_approved` | none |
-| `on` | `projected > ceiling` | `approval_required` | approval request → Castillians team |
+| `on` | `projected > ceiling` | _Outdated on 8 Oct. Previously: "approval_required — approval request → Castillians team"_ | |
+| `on` | `projected > ceiling` | **rejected `422`** — nothing created (from 8 Oct) | none |
 | `on` | `cap < projected ≤ ceiling` | `auto_approved` | **none** — accepted silently |
 | `on` | `projected ≤ cap` | `auto_approved` | none |
 | `off` | `projected ≤ cap` | `auto_approved` | none |
@@ -150,9 +151,11 @@ Cover it with a concurrent test, not just a sequential one.
 6. Overages `off`, capacity 80, used 78, submit 5 → `422` stating 2 h remain.
 7. Overages `off`, capacity 80, used 78, submit 2 → `201`, `auto_approved`.
 8. Overages `on`, capacity 160, block 0, used 150, submit 5 → `auto_approved`, **zero emails sent**.
-9. Overages `on`, capacity 160, block 0, used 190, submit 5 → `approval_required`, one email sent.
+9. _Outdated on 8 Oct. Previously: "Overages on, capacity 160, block 0, used 190, submit 5 → approval_required, one email sent."_
+9. Overages `on`, capacity 160, block 0, used 190, submit 5 → `422`, nothing created, **zero emails sent**.
 9b. Overages `on`, capacity 160, **block 40**, used 195, submit 4 → `auto_approved` (ceiling 200).
-9c. Same bench, used 199, submit 4 → `approval_required` (203 > 200). Assert the ceiling is
+9c. _Outdated on 8 Oct. Previously: "Same bench, used 199, submit 4 → approval_required (203 > 200)."_
+9c. Same bench, used 199, submit 4 → `422` (203 > 200). Assert the ceiling is
     **not** 232 — the tolerance must not stack on the block.
 9d. Grant made in period N, read in period N+1 → `overagesOn` returns false with no job having run.
 10. Overages `unlimited`, capacity 160, used 400, submit 20 → `auto_approved`, no email.
@@ -174,3 +177,10 @@ Platform-wide rules for pagination contracts, empty/error states, validation ord
 - The check-then-write against remaining hours is **atomic**. A read-then-write without a lock lets two concurrent submissions both through (§G5).
 - `POST` is **idempotent-guarded**: a repeated submit with the same payload within a short window must not create a duplicate entry.
 - On success the response carries the created entry, so the client can insert it without a refetch — but every **derived total** is refetched (§G4).
+
+
+## Change on 8 Oct: block entries beyond allocated hours
+
+- Create: if `projected > ceiling` (per-engineer share, not unlimited), return **`422`** with `code: "over_allocation"` and the message "This entry goes beyond your allocated hours for <bench> this period, so it can't be logged. Speak to us if more hours are needed." No entry, no history and no email are created.
+- Edit: the same `422` applies when the edit **increases** hours and the new total exceeds the ceiling.
+- Steps 2–3 under create (the "Sent for approval" record and the approval-request email) no longer run for engineer submissions. Existing `approval_required` entries keep their status and the internal approve and decline flow.
