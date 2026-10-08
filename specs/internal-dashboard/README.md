@@ -13,6 +13,7 @@ Epic: [SD-3460](https://castille-labs.atlassian.net/browse/SD-3460)
 | `SD-3466-engagements-work-logs-filters/` | [SD-3466](https://castille-labs.atlassian.net/browse/SD-3466) | Work Logs tab — search, filters & batching (10 + See more) |
 | `SD-3467-engagements-work-log-entry/` | [SD-3467](https://castille-labs.atlassian.net/browse/SD-3467) | Work log entry, edit history, View Work Log & the per-engineer page |
 | `SD-3468/` | [SD-3468](https://castille-labs.atlassian.net/browse/SD-3468) | Month-end report generation — supplier checklist, SFM upload, client billing, engineer invoicing |
+| `SD-3574/` | [SD-3574](https://castille-labs.atlassian.net/browse/SD-3574) | Engagements bench entry — **Managed by** shown first, in its own container (Enhancement, epic SD-3531, added 8 Oct) |
 
 **SD-3459** — per-bench Start and Auto-Renew dates — is specified as **BE-07** in `../ENGINEERING-BRIEF.md` rather than in its own folder. The change is to the Internal dashboard's Manage Subscription modal, but it **blocks the Engineer Dashboard epic**: every date-derived figure resolves from those two fields.
 

@@ -1,6 +1,8 @@
 # FE — Engagements: expanded bench entry
 
-Angular handoff for **SD-3465**. Five sections inside the bench accordion: overage controls, capacity allocation, notes, order forms, work logs.
+_Outdated on 8 Oct. Previously: "Angular handoff for SD-3465. Five sections inside the bench accordion: overage controls, capacity allocation, notes, order forms, work logs."_
+
+Angular handoff for **SD-3465**. Six sections inside the bench accordion: **Managed by** (first, in its own white container — see SD-3574), overage controls, capacity allocation, notes, order forms, work logs.
 
 > ### ⚠ The prototype's menubar is not part of this work
 >

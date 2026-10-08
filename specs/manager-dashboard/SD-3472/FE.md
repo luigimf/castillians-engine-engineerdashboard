@@ -87,7 +87,8 @@ The capacity bar is the shared `CapacityBarComponent` from SD-3470 — same band
 
 _Outdated on 11 Sep. Previously: "Bar beneath: 233px wide, 8px track, 4px radius, percentage at Bricolage 22px/700 beside it, and a plain-English sentence under it describing where the bench stands." — a fixed 233px left no room for the button beside it on a narrow viewport._
 - **Pending-approval hours are excluded from CAPACITY USED**, the bar and the percentage — a manager must never plan against hours that may yet be declined.
-- They are, however, **named**: where a bench or an engineer has hours awaiting a decision, a note states how many — _"8h awaiting approval from the Castillians team"_. Excluding them from the figures while saying nothing would leave a manager wondering why the numbers do not match what their engineers told them. **Excluded from the arithmetic, disclosed in words.**
+- _Outdated on 8 Oct. Previously: "They are, however, named: where a bench or an engineer has hours awaiting a decision, a note states how many — '8h awaiting approval from the Castillians team'. Excluding them from the figures while saying nothing would leave a manager wondering why the numbers do not match what their engineers told them. Excluded from the arithmetic, disclosed in words."_
+- **No pending-approval note on the Monthly Engineering Hours card.** The card shows the four figures, the bar, the percentage and "<used> of <plan> engineering hours consumed", and nothing else. Approval is between the engineer and the Castillians team, not the client. (Since SD-3566, engineers can no longer create entries that need approval.)
 - **Unlimited overage** → the overage figures read as uncapped rather than showing a misleading ceiling.
 
 ### Responsive behaviour of this card — *added 11 Sep*

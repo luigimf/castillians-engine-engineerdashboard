@@ -27,7 +27,8 @@ Backend specification for **SD-3472**.
 - `capacityUsedHours` counts **approved** work logs only, against **this bench's own** period (BE-02, BE-03) — pro-rated first period included. Never the calendar month by default.
 - **`perEngineer` hours sum exactly to `capacityUsedHours`.** A response where they differ is a defect; assert it in a test.
 - Every **activated** engineer appears in `perEngineer`, including at `hours: 0`. Omitting them would read as having left the bench.
-- `pendingHours` is reported so the client can name what is awaiting a decision, and is **excluded from `capacityUsedHours`** and from `perEngineer` hours. Excluded from the arithmetic, disclosed in words.
+- _Outdated on 8 Oct. Previously: "pendingHours is reported so the client can name what is awaiting a decision, and is excluded from capacityUsedHours and from perEngineer hours. Excluded from the arithmetic, disclosed in words."_
+- `pendingHours` is **no longer shown to the client**: the manager card has no pending note. Pending hours stay **excluded from `capacityUsedHours`** and from `perEngineer` hours. The field may stay in the response for internal use, but the manager UI must not render it.
 - `perEngineer` carries **no rate and no earnings** — assert that neither reaches this response (BE-04, BE-08).
 - `overageRate` is the **client-facing blended rate**, at **1.25× for the first three months** of the subscription (BE-06). `configured ÷ (1 + mark-up)` never appears.
 - `overagesAgreedHours` renders under the label **OVERAGES AGREED**; it is the **Authorised Total Overage** granted on Internal (SD-3465). It **replaces the 20% tolerance rather than stacking on it** — a 160h plan with a 40h block accepts **200h**, not 232h.
