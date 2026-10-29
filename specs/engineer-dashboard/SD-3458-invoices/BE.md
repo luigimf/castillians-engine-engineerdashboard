@@ -189,7 +189,8 @@ The same renderer serves the download endpoint, the per-engineer PDFs zipped int
 
 | Field | Rule |
 |---|---|
-| Invoice date | Period end date |
+| Invoice date | _Outdated on 29 Oct. Previously: "Period end date"_ |
+| Invoice date | Last day of the **calendar month** invoiced — never the bench's first-period end (BE-02) |
 | Invoice number | `INV00001` upward — single global sequence |
 | Name | Engineer's full name |
 | Address | From Zoho; **blank when null** |
@@ -251,3 +252,12 @@ Platform-wide rules for pagination contracts, empty/error states, validation ord
 - It returns **404 when no invoice exists** for that period (open, or no billable hours) — the client hides the button rather than offering a download that fails.
 - Invoice numbers come from a **database-owned sequence** (§G5); never derived by counting rows.
 - Upload enforces the **PDF type and 10MB ceiling server-side**, whatever the client accepts.
+
+## Change on 29 Oct: invoices follow the calendar month
+
+- _Outdated on 29 Oct. Previously: one invoice per bench period, so a bench in its two-month first period produced a single invoice at the end of the following month._
+- One invoice per engineer × bench per **calendar month**, generated at that month's close (3rd of the following month), even while the bench is still in its first period.
+- Example: bench starts 10 Oct → invoice for 10–31 Oct at the October close; invoice for 1–30 Nov at the November close.
+- The Invoices page lists **calendar months**; the period picker steps month by month.
+- Rates and amounts are unchanged; only the grouping of hours changes.
+- Test: bench starting 10 Oct, 30 h logged in Oct and 50 h in Nov → two invoices (30 h dated 31 Oct, 50 h dated 30 Nov), not one 80 h invoice.

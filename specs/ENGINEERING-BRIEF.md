@@ -76,6 +76,13 @@ Subscriptions bill on **calendar months**, with one exception for the first peri
 - A subscription starting on the 1st of a month still gets the two-month first period.
 - The period boundaries returned by the API are the same ones the Engineer date picker uses (BE-10).
 
+**Change on 29 Oct — engineer invoicing follows the calendar month (SD-3619)**
+- _Outdated on 29 Oct. Previously: the first period (startDate → last day of the following month) governed everything derived from the subscription, engineer invoicing included._
+- The two-month first period now governs the **client side only**: capacity, pro-rating (BE-03), approval thresholds and client billing.
+- The **supplier side** — engineer invoices, supplier checklist, SFM supplier upload — always runs on **calendar months**. Engineers are invoiced, and paid, for every month they log hours.
+- Example: bench starts 10 Oct → client first period 10 Oct – 30 Nov. The engineer is invoiced for 10–31 Oct at the October close and 1–30 Nov at the November close.
+- Reconciliation: over a first period, the engineer's calendar-month invoices sum to the client's first-period hours.
+
 ### BE-03 — Pro-rated first-period capacity
 `firstPeriodCapacity = round(includedHours × (daysRemainingInStartMonth ÷ daysInStartMonth)) + includedHours`
 
@@ -835,8 +842,8 @@ A CTA links to the **specific page on the recipient's own dashboard** that the e
 ### BE-20 — Transactional emails
 | Trigger | Recipient | Contents |
 |---|---|---|
-| Daily work log summary | `humancapital@` + `sharedservices@` | **Once daily at 08:00 CET**, covering everything submitted the previous day — one row per entry: engineer full name, email, bench name, client name, hours logged, plus an entry and hours total. **Not** one email per entry |
-| Entry exceeds capacity → approval required | `humancapital@` + `sharedservices@` | **Distinct template** from the above. Must carry enough for a reviewer to decide without opening the dashboard: **hours requested**; the engineer's **assigned hours** this period, **hours already logged**, and **hours needing approval**; and the client position — **capacity plan**, **overages agreed**, **overages used**, **overage rate**, and bench capacity used. "Overages agreed" resolves per BE-13: the authorised total where one is set, otherwise the standard 20% tolerance |
+| Daily work log summary | `customerexperience@` + `sharedservices@` (_outdated on 9 Oct: previously `humancapital@` + `sharedservices@`; SD-3580_) | **Once daily at 08:00 CET**, covering everything submitted the previous day — one row per entry: engineer full name, email, bench name, client name, hours logged, plus an entry and hours total. **Not** one email per entry |
+| Entry exceeds capacity → approval required | `customerexperience@` + `sharedservices@` (_outdated on 9 Oct: previously `humancapital@` + `sharedservices@`; SD-3580_) | **Distinct template** from the above. Must carry enough for a reviewer to decide without opening the dashboard: **hours requested**; the engineer's **assigned hours** this period, **hours already logged**, and **hours needing approval**; and the client position — **capacity plan**, **overages agreed**, **overages used**, **overage rate**, and bench capacity used. "Overages agreed" resolves per BE-13: the authorised total where one is set, otherwise the standard 20% tolerance |
 | Entry approved | Engineer | Confirmation |
 | Entry declined | Engineer | Carries the decline message verbatim |
 | Bench invite sent — **no account yet** | Invitee | Link to `manager-sign-up?invite=TOKEN`, Work Email pre-populated and locked (BE-22) |

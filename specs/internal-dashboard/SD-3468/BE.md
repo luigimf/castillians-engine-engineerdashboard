@@ -90,7 +90,8 @@ Hours reach a report **only once approved**, and that one approval drives **both
 
 **Acceptance criteria**
 - A period's file holds **that period's hours only**. No `Period Earned`, no `Period Billed`, no carry-over column — there is nothing for them to distinguish, and a column that reads the same on every row is noise.
-- For every period, **client hours = supplier hours**, exactly. Worth an explicit reconciliation test per period; a difference is a defect.
+- _Outdated on 29 Oct. Previously: "For every period, client hours = supplier hours, exactly. Worth an explicit reconciliation test per period; a difference is a defect."_
+- For every **calendar month** outside a first period, client hours = supplier hours, exactly. Across a first period, the engineer's calendar-month supplier rows sum to the client's first-period hours. A difference is a defect.
 - Nothing is back-dated into a closed period and nothing is pushed forward out of an open one.
 - Auto-declined entries enter **no** report on either side.
 - Rows are keyed **engineer × bench** on the supplier side and **bench** on client billing — one row each, never split.
@@ -137,3 +138,11 @@ The reports author nothing; every figure is read from the surface that owns it.
 - An entry **auto-declined at the close** (BE-29) appears in no file, on either side, and its hours are in no total.
 - Five surfaces agree for a closed period: the four reports, the Engineer Invoices page and the Channel page billing.
 - No finance field is cached in the portal.
+
+## Change on 29 Oct: supplier side runs on calendar months
+
+- _Outdated on 29 Oct. Previously: every report covered each bench's own period, so a bench in its two-month first period was absent from the first month-end run._
+- **Supplier checklist, SFM supplier upload and engineer invoicing** cover approved hours logged in the **calendar month** just closed, for every bench — including benches still in their first period.
+- **Client billing** keeps the bench's own period (BE-02, BE-03): a first-period bench is billed once, at the close of its first period.
+- Example: bench starts 10 Oct. October close → supplier rows for 10–31 Oct, no client billing row. November close → supplier rows for 1–30 Nov and one client billing row for 10 Oct – 30 Nov.
+- Test: the Oct and Nov supplier rows for that bench sum to the hours on its first client billing row.
