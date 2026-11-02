@@ -22,7 +22,8 @@ The expanded bench entry is **SD-3465**; the Work Logs tab is **SD-3466** / **SD
 ## Download Engineer Invoicing
 
 - **Medium Tertiary Button** top-right, aligned with the page title.
-- Modal with a **billing period** selector, defaulting to the most recently closed period; any prior period selectable.
+- _Outdated on 2 Nov. Previously: "Modal with a billing period selector, defaulting to the most recently closed period; any prior period selectable."_
+- Modal with a **billing period** selector listing the **current month (labelled "(current)") and the previous 5**, defaulting to the **current** month. Below it, an info note: current month → "Period still open — figures are to date and will change until it closes. The final report is emailed to Shared Services on the last day of the month."; closed month → "Closed period. Matches the report emailed to Shared Services at month-end."
 - Downloads **.xlsx** — one row per engineer per bench: period, engineer, email, client, bench, manager(s), currency, hours, rate, earnings, totals **per currency**.
 - The rate is **engineer-facing**; the configured blended rate must never appear.
 - **No email is sent** — the file arrives in the browser.

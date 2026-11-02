@@ -307,8 +307,8 @@ creation — hence the `*ngIf="e.history.length > 1"` above.
 - Paginates. Controls render **only** when there is more than one page.
 - The last entry carries bottom padding matching the card's 30px side gutters, or it reads as
   clipped.
-- Empty state: plain sentence, `--gray-700`, 13px — "No hours logged for this bench in this
-  period."
+- _Outdated on 2 Nov. Previously: "Empty state: plain sentence, --gray-700, 13px — No hours logged for this bench in this period."_
+- Empty state: plain sentence, `--gray-700`, 13px — "No work logs in this period."
 
 ---
 
@@ -396,5 +396,6 @@ Platform-wide behaviour for pagination, empty/loading/error states, validation, 
 | Sort stability | Most recent first, tie-broken on entry id so rows never duplicate across page boundaries |
 | Calendar view | **Not paginated** — returns the whole month, with its own month navigation |
 | Container height | Fixed minimum across list, calendar, empty and loading states — no reflow when switching |
-| Empty | "No hours logged for this bench in this period" — specific, not "No data" |
+| Empty | _Outdated on 2 Nov. Previously: "No hours logged for this bench in this period — specific, not No data"_ |
+| Empty | "No work logs in this period." — specific, not "No data" |
 | History | Accordion hidden entirely when there is no history beyond creation |

@@ -657,7 +657,8 @@ Every list that paginates or truncates must state **its own** page size or revea
 Engineers without an invoice of their own can download a **blank template** from the upload modal.
 
 **Acceptance criteria**
-- A **Download template** action sits beneath the drop zone, prefaced "No invoice of your own?".
+- _Outdated on 2 Nov. Previously: "A Download template action sits beneath the drop zone, prefaced "No invoice of your own?"."_
+- A **Download template** action sits beneath the drop zone, prefaced "Don't have an invoice template?".
 - **It is the BE-27 renderer with the data omitted, not a separate document** — same layout, same header block, same line-item table, same To block, with empty rows. One renderer, three surfaces (BE-27); a hand-maintained static PDF would drift from the generated invoices the first time either changed.
 - The same document for every engineer, with **no** personal or period data merged in.
 - Addressed to **Castille Resources Ltd.**, matching the generated invoices (BE-27).
@@ -1023,7 +1024,8 @@ Every async surface has **four** states. A story that names only the happy path 
 | **Populated** | — |
 
 **Acceptance criteria**
-- Empty and error copy is **specific to the surface**: "No hours logged for this bench in this period", not "No data".
+- _Outdated on 2 Nov. Previously: "Empty and error copy is specific to the surface: "No hours logged for this bench in this period", not "No data"."_
+- Empty and error copy is **specific to the surface**, e.g. "No work logs in this period." on the Engineer entries list — never "No data".
 - An empty result is **not** an error and must not surface as one.
 - A container's minimum height is set so switching between the four states never reflows the page.
 - Filters and navigation remain usable in the empty and error states — the user must be able to change what they asked for.

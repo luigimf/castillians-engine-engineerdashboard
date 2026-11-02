@@ -34,9 +34,12 @@ Both toggles ~39×23px, ink when on.
 ## Capacity allocation
 
 - Renders whenever the bench has one or more engineers; a solo engineer shows a fixed, disabled **100%**.
-- Row per engineer: avatar, name, email, numeric `%` field, and the resolved figure — "Can log up to 63 hours this period".
+- _Outdated on 2 Nov. Previously: "Row per engineer: avatar, name, email, numeric `%` field, and the resolved figure — "Can log up to 63 hours this period"."_
+- Row per engineer: avatar, name, email, numeric `%` field, and the resolved figure — "Can log up to 63 hours this period" ("hour" when 1). The figure is the engineer's share of the **whole loggable pool**: plan + authorised block, or plan × 1.20 when overages are on with no block, or the plan alone when overages are off (BE-12). With **Unlimited overage** on, the figure reads "No cap this period". It recomputes live as the overage toggles, block or shares change.
 - **Engineers see hours, never percentages.**
-- Total must be **exactly 100%**: chip green at 100, amber below with "n% left", red above with "n% over".
+- _Outdated on 2 Nov. Previously: "Total must be exactly 100%: chip green at 100, amber below with "n% left", red above with "n% over"."_
+- Total must be **exactly 100%**. The chip shows "n% left" (amber) below 100 and "n% over" (red) above it; no chip at exactly 100.
+- Beneath the rows, a message in `--danger-500` 12px/500 updates **live on every keystroke** while the total isn't 100 — never only on save: over → "Allocations total n% — that is n% over the bench capacity. Reduce a share before this can be saved."; under → "Allocations total n% — n% of the bench is still unallocated."
 - Two engineers → changing one auto-adjusts the other. Three or more → each set independently and validated.
 - Where an authorised block exists, each row also shows their share of it.
 - **Save Changes** disabled until exactly 100%; success toast on save.

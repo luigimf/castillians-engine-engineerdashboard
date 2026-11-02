@@ -390,7 +390,7 @@ Beneath the drop zone, for engineers without an invoice of their own.
 
 ```html
 <div class="template-offer">
-  <span class="template-offer__label">No invoice of your own?</span>
+  <span class="template-offer__label">Don't have an invoice template?</span>
   <a class="btn btn--tertiary btn--sm"
      href="assets/engineer-invoice-template.pdf"
      download="Castillians-invoice-template.pdf">Download template</a>
@@ -451,3 +451,9 @@ Platform-wide behaviour for pagination, empty/loading/error states, validation, 
 | Multi-currency | One total row **per currency**; never combined, never converted — §G7 |
 | Upload | PDF only, 10MB ceiling enforced **server-side** too; file is mandatory with inline validation |
 | On success | Modal closes, success toast states that the upload replaces the generated invoice |
+
+
+## Audit on 2 Nov
+
+- _Outdated on 2 Nov. Previously: "Template offer label: No invoice of your own?"_
+- Template offer label: "Don't have an invoice template?" (matches the prototype). The snippet above is updated.
