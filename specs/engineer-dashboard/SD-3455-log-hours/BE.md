@@ -181,6 +181,7 @@ Platform-wide rules for pagination contracts, empty/error states, validation ord
 
 ## Change on 8 Oct: block entries beyond allocated hours
 
-- Create: if `projected > ceiling` (per-engineer share, not unlimited), return **`422`** with `code: "over_allocation"` and the message "This entry goes beyond your allocated hours for <bench> this period, so it can't be logged. Speak to us if more hours are needed." No entry, no history and no email are created.
+- _Outdated on 15 Oct. Previously: "Create: if projected > ceiling (per-engineer share, not unlimited), return 422 with code: over_allocation and the message 'This entry goes beyond your allocated hours for <bench> this period, so it can't be logged. Speak to us if more hours are needed.' No entry, no history and no email are created."_
+- Create: if `projected > ceiling` (per-engineer share, not unlimited), return **`422`** with `code: "over_allocation"` and the message **"Allocated hours exceeded."** No entry, no history and no email are created.
 - Edit: the same `422` applies when the edit **increases** hours and the new total exceeds the ceiling.
 - Steps 2–3 under create (the "Sent for approval" record and the approval-request email) no longer run for engineer submissions. Existing `approval_required` entries keep their status and the internal approve and decline flow.

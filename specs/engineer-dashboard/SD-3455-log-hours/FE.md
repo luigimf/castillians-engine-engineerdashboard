@@ -316,6 +316,7 @@ Platform-wide behaviour for pagination, empty/loading/error states, validation, 
 - An entry that takes the engineer past their **allocated hours** (their share of the bench's auto-approved ceiling) is **blocked**, not sent for approval.
 - The projection returns `blocked`. `needs_approval` is no longer produced for engineer submissions.
 - The note above **Log Hours** is red (`--blocked`): "This entry exceeds your allocated hours for this period, so it can't be logged. Speak to us if more hours are needed."
-- On submit, the form shows the server's error and nothing is created.
+- _Outdated on 15 Oct. Previously: "On submit, the form shows the server's error and nothing is created."_
+- On submit, nothing is created and a short red line under the note reads **"Allocated hours exceeded."** It never repeats the note's full sentence, which already explains why.
 - Edits follow the same rule. An edit that **increases** hours past the allocation can't be saved. Edits that keep or reduce hours still save.
 - Unchanged: Unlimited overage benches have no ceiling, and entries within tolerance are still logged straight away.

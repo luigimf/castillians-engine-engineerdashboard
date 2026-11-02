@@ -4,10 +4,10 @@ Build spec for **SD-3494**, under epic **SD-3492**. **8 templates.**
 
 | Template | To | Fires |
 |---|---|---|
-| `01-worklog-daily-summary.html` | HC + SS | Daily 08:00 CET, previous day's entries |
-| `02-approval-required.html` | HC + SS | An entry crosses 120% of the capacity plan |
-| `02a-approval-reminder-3-days.html` | HC + SS | 3 days before cut-off, **only if** entries pending |
-| `02b-approval-reminder-cutoff.html` | HC + SS | On the cut-off date, **only if** entries still pending |
+| `01-worklog-daily-summary.html` | **CX + SS** (_outdated on 9 Oct: previously HC + SS_) | Daily 08:00 CET, previous day's entries |
+| `02-approval-required.html` | **CX + SS** (_outdated on 9 Oct: previously HC + SS_) | An entry crosses 120% of the capacity plan |
+| `02a-approval-reminder-3-days.html` | **CX + SS** (_outdated on 9 Oct: previously HC + SS_) | 3 days before cut-off, **only if** entries pending |
+| `02b-approval-reminder-cutoff.html` | **CX + SS** (_outdated on 9 Oct: previously HC + SS_) | On the cut-off date, **only if** entries still pending |
 | `03-entry-approved.html` | Engineer | An entry that needed review is approved |
 | `04-entry-declined.html` | Engineer | An entry is declined |
 | `07-timesheet-weekly.html` | Engineer | Weekly, naming unlogged days |
@@ -84,3 +84,22 @@ The reviewer must be able to **decide from the email**. That is its whole design
 ```
 
 > **`BE-nn` refers to numbered requirement sections inside `specs/ENGINEERING-BRIEF.md`** — e.g. **BE-30** is *"Email CTAs: deep link, sign-in hop, redirect back"*. They are **not** the `BE.md` files in spec folders, which are backend specs for a single story.
+
+
+## Change on 9 Oct: work log emails go to Customer Experience, not Human Capital
+
+_Outdated on 9 Oct. Previously: "Daily work log summary, Approval required, Approval reminder (3 days) and Approval reminder (cut-off) go to humancapital@castillians.com + sharedservices@castillians.com."_
+
+These four emails now go to **`customerexperience@castillians.com` + `sharedservices@castillians.com`**:
+
+- `01-worklog-daily-summary.html`
+- `02-approval-required.html`
+- `02a-approval-reminder-3-days.html`
+- `02b-approval-reminder-cutoff.html`
+
+**Why:** work logs and approvals happen after a Virtual Bench subscription is activated, so they're part of the client relationship that Customer Experience owns. Human Capital stays the contact for engineer-facing and recruitment flows (e.g. Engineer activation requested).
+
+- Recipients are config, not hardcoded.
+- Each template's footer line reads "Sent to customerexperience@castillians.com and sharedservices@castillians.com …".
+- Entry approved and Entry declined still go to the engineer. No change there.
+- Tracked as SD-3580 in epic SD-3531.
